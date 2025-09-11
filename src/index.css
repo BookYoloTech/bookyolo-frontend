@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* Custom color variables for the new theme */
+:root {
+  --color-primary-bg: #ffffff;
+  --color-button-bg: #1e162a;
+  --color-text: #070707;
+  --color-accent: #e9e8ea;
+  --color-button-text: #ffffff;
+}
+
+/* Override default Tailwind colors with our custom theme */
+.bg-primary { background-color: var(--color-primary-bg); }
+.bg-button { background-color: var(--color-button-bg); }
+.text-primary { color: var(--color-text); }
+.text-button { color: var(--color-button-text); }
+.bg-accent { background-color: var(--color-accent); }
+.border-accent { border-color: var(--color-accent); }
+
