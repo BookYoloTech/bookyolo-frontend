@@ -24,6 +24,7 @@ const ScanPage = lazy(() => import("./pages/ScanPage"));
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 export default function App() {
+  // Force redeploy - backend URL updated
   const [token, setToken] = useState(localStorage.getItem("by_token") || "");
   const [me, setMe] = useState(null);
   const [meReloadKey, setMeReloadKey] = useState(0); // bump to re-fetch /me
@@ -95,21 +96,22 @@ export default function App() {
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/referrals" element={<AdminAnalytics />} />
-            <Route 
-              path="/scan" 
-              element={
-                <Suspense fallback={
-                  <div className="min-h-screen bg-white flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-button mx-auto"></div>
-                      <p className="mt-4 text-primary">Loading Scanner...</p>
-                    </div>
-                  </div>
-                }>
-                  {requireAuth(<ScanPage />)}
-                </Suspense>
-              } 
-            />
+        
+        <Route 
+          path="/scan" 
+          element={
+            <Suspense fallback={
+              <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-button mx-auto"></div>
+                  <p className="mt-4 text-primary">Loading Scanner...</p>
+                </div>
+              </div>
+            }>
+              {requireAuth(<ScanPage />)}
+            </Suspense>
+          } 
+        />
         <Route
           path="/dashboard"
           element={requireAuth(<Dashboard apiBase={API_BASE} token={token} me={me} onLogout={handleLogout} />)}
