@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   const faqs = [
     {
@@ -40,6 +41,11 @@ const FAQ = () => {
 
   const toggleFAQ = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  const copyEmailToClipboard = () => {
+    navigator.clipboard.writeText('tech@bookyolo.com');
+    alert('Email address copied to clipboard!');
   };
 
   return (
@@ -143,7 +149,7 @@ const FAQ = () => {
                 Still have questions? Contact our support team
               </div>
               <button
-                onClick={() => window.open('mailto:tech@bookyolo.com?subject=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!', '_blank')}
+                onClick={() => setShowContactModal(true)}
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 text-xs font-medium text-white ring-1 ring-blue-200 hover:shadow-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,6 +161,64 @@ const FAQ = () => {
           </div>
         </div>
       </div>
+      
+      {/* Contact Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 00-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Contact Support</h3>
+              <p className="text-gray-600">Get help from our support team</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Email us at:</p>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900">tech@bookyolo.com</span>
+                  <button
+                    onClick={copyEmailToClipboard}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=tech@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Open Gmail
+                </a>
+                <a
+                  href="mailto:tech@bookyolo.com?subject=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
+                  className="flex-1 bg-gray-200 text-gray-800 text-center py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                >
+                  Default Email
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
