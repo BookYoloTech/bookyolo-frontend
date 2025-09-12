@@ -178,20 +178,20 @@ export default function ScanPage() {
       <div className="bg-white shadow-sm border-b border-accent sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => navigate("/")}
-                className="flex items-center gap-1 hover:opacity-80 transition-opacity"
-              >
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <div className="flex items-center gap-1">
                 <div className="h-2 w-2 rounded-full bg-button" />
                 <div className="h-2 w-2 rounded-full bg-button" />
                 <div className="h-2 w-2 rounded-full bg-button" />
-              </button>
+              </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl font-bold text-primary">Book</span>
                 <span className="text-xl font-bold text-primary">Yolo</span>
               </div>
-            </div>
+            </button>
             
             <div className="flex items-center space-x-4">
               {isLoading ? (

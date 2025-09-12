@@ -27,9 +27,9 @@ const Pricing = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Free Plan */}
-            <div className="group relative">
+            <div className="group relative h-full">
               <div className="absolute inset-0 bg-accent rounded-3xl blur-3xl opacity-30"></div>
-              <div className="relative rounded-3xl bg-white ring-1 border-accent shadow-xl p-8 hover:shadow-2xl transition-all duration-300">
+              <div className="relative rounded-3xl bg-white ring-1 border-accent shadow-xl p-8 hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                 <div className="text-center mb-8">
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-button text-white shadow-lg mx-auto mb-4">
                     <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="2">
@@ -44,7 +44,7 @@ const Pricing = () => {
                   <div className="text-sm text-primary opacity-70">Forever</div>
                 </div>
                 
-                <div className="space-y-4 mb-8">
+                <div className="space-y-4 mb-8 flex-1">
                   <div className="flex items-start gap-3">
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-button text-white text-xs font-bold mt-0.5">
                       ✓
@@ -72,9 +72,9 @@ const Pricing = () => {
             </div>
             
             {/* Premium Plan */}
-            <div className="group relative">
+            <div className="group relative h-full">
               <div className="absolute inset-0 bg-accent rounded-3xl blur-3xl opacity-30"></div>
-              <div className="relative rounded-3xl bg-white ring-1 border-accent shadow-xl p-8 hover:shadow-2xl transition-all duration-300">
+              <div className="relative rounded-3xl bg-white ring-1 border-accent shadow-xl p-8 hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <div className="inline-flex items-center gap-2 rounded-full bg-button px-4 py-2 text-xs font-bold text-white shadow-lg">
                     <span className="inline-block h-1.5 w-1.5 rounded-full bg-white"></span>
@@ -97,7 +97,7 @@ const Pricing = () => {
                   <div className="text-sm text-gray-500">per year</div>
                 </div>
                 
-                <div className="space-y-4 mb-8">
+                <div className="space-y-4 mb-8 flex-1">
                   <div className="flex items-start gap-3">
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white text-xs font-bold mt-0.5">
                       ✓

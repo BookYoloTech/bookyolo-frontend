@@ -27,9 +27,9 @@ const ExampleListings = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Risky Listing */}
-            <div className="group relative">
+            <div className="group relative h-full">
               <div className="absolute inset-0 bg-gradient-to-r from-red-600/5 via-orange-600/5 to-yellow-600/5 rounded-3xl blur-3xl"></div>
-              <div className="relative rounded-3xl bg-white/80 backdrop-blur-sm ring-1 ring-gray-200/50 shadow-xl p-8 hover:shadow-2xl transition-all duration-300">
+              <div className="relative rounded-3xl bg-white/80 backdrop-blur-sm ring-1 ring-gray-200/50 shadow-xl p-8 hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 text-white shadow-lg">
                     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -46,7 +46,7 @@ const ExampleListings = () => {
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-3">Cozy 2BR Apartment in Midtown</h3>
                 
-                <div className="space-y-6">
+                <div className="space-y-6 flex-1">
                   <div className="p-4 rounded-2xl bg-gradient-to-br from-yellow-50 to-orange-50 ring-1 ring-yellow-100">
                     <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
                       <span className="inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
@@ -95,9 +95,9 @@ const ExampleListings = () => {
             </div>
             
             {/* Outstanding Listing */}
-            <div className="group relative">
+            <div className="group relative h-full">
               <div className="absolute inset-0 bg-gradient-to-r from-green-600/5 via-emerald-600/5 to-teal-600/5 rounded-3xl blur-3xl"></div>
-              <div className="relative rounded-3xl bg-white/80 backdrop-blur-sm ring-1 ring-gray-200/50 shadow-xl p-8 hover:shadow-2xl transition-all duration-300">
+              <div className="relative rounded-3xl bg-white/80 backdrop-blur-sm ring-1 ring-gray-200/50 shadow-xl p-8 hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
                     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
@@ -112,7 +112,7 @@ const ExampleListings = () => {
                 
                 <h3 className="text-xl font-bold text-gray-900 mb-3">Sunlit Loft Near the Beach</h3>
                 
-                <div className="space-y-6">
+                <div className="space-y-6 flex-1">
                   <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 ring-1 ring-emerald-100">
                     <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
                       <span className="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>

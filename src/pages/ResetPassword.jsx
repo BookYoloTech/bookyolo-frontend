@@ -159,12 +159,15 @@ export default function ResetPassword() {
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20 rounded-2xl blur-2xl" />
         <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl ring-1 ring-gray-200/50 p-6 sm:p-8">
           <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-2 mb-3">
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="flex items-center justify-center gap-2 mb-3 mx-auto hover:opacity-80 transition-opacity"
+            >
               <div className="h-1.5 w-1.5 rounded-full bg-gray-800" />
               <div className="h-1.5 w-1.5 rounded-full bg-gray-800" />
               <div className="h-1.5 w-1.5 rounded-full bg-gray-800" />
               <span className="text-lg font-bold text-gray-900 ml-2">BookYolo</span>
-            </div>
+            </button>
             <h2 className="text-xl font-bold text-gray-900">Reset your password</h2>
             <p className="text-sm text-gray-600">Enter your new password below</p>
           </div>

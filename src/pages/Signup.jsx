@@ -43,12 +43,15 @@ export default function Signup() {
         <div className="absolute inset-0 bg-accent rounded-2xl blur-2xl opacity-30" />
         <div className="relative bg-white rounded-2xl shadow-2xl ring-1 border-accent p-6 sm:p-8">
           <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-2 mb-3">
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="flex items-center justify-center gap-2 mb-3 mx-auto hover:opacity-80 transition-opacity"
+            >
               <div className="h-1.5 w-1.5 rounded-full bg-button" />
               <div className="h-1.5 w-1.5 rounded-full bg-button" />
               <div className="h-1.5 w-1.5 rounded-full bg-button" />
               <span className="text-lg font-bold text-primary ml-2">BookYolo</span>
-            </div>
+            </button>
             <h2 className="text-xl font-bold text-primary">Join BookYolo</h2>
             <p className="text-sm text-primary opacity-70">Create your account to get started</p>
           </div>
