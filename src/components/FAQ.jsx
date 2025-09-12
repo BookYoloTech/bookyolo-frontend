@@ -137,10 +137,9 @@ const FAQ = () => {
           
           {/* Bottom CTA */}
           <div className="mt-12 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 text-xs font-medium text-blue-700 ring-1 ring-blue-100 hover:shadow-md transition-all duration-300">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+            <p className="text-sm text-gray-600">
               Still have questions? Contact our support team
-            </div>
+            </p>
           </div>
         </div>
       </div>

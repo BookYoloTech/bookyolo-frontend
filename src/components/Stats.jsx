@@ -65,7 +65,7 @@ const Stats = () => {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-center p-6 bg-white rounded-lg border border-gray-100 shadow-sm"
+              className="flex flex-col items-center text-center p-6 bg-white rounded-lg border border-gray-100 shadow-sm h-full"
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 mb-4">
                 {stat.icon}

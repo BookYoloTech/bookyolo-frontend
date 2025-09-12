@@ -129,8 +129,8 @@ const WhyBookYolo = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {features.map((feature, index) => (
-                  <div key={index} className="group relative p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 ring-1 ring-gray-200/50 hover:ring-2 hover:ring-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                    <div className="flex items-start gap-4">
+                  <div key={index} className="group relative p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 ring-1 ring-gray-200/50 hover:ring-2 hover:ring-blue-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full">
+                    <div className="flex items-start gap-4 h-full">
                       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${feature.gradient} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         {feature.icon}
                       </div>

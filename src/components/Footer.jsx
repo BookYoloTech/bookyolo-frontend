@@ -12,14 +12,17 @@ const Footer = () => {
           {/* Left side - Logo and social icons */}
           <div className="flex flex-col items-start gap-6">
             {/* Logo */}
-            <div className="flex items-center gap-3">
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
               <div className="flex items-center gap-1">
                 <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
                 <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
                 <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
               </div>
               <span className="text-2xl font-semibold text-white">BookYolo</span>
-            </div>
+            </button>
             
             {/* Social media icons */}
             <div className="flex items-center gap-5">

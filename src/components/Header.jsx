@@ -56,7 +56,10 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={() => window.location.href = '/'}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <div className="flex items-center gap-1">
               <div className="h-2 w-2 rounded-full bg-button" />
               <div className="h-2 w-2 rounded-full bg-button" />
@@ -66,7 +69,7 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
               <span className="text-xl font-bold text-primary">Book</span>
               <span className="text-xl font-bold text-primary">Yolo</span>
             </div>
-          </div>
+          </button>
 
           {/* Nav */}
           <nav className="hidden md:flex items-center space-x-8">
