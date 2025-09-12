@@ -137,9 +137,20 @@ const FAQ = () => {
           
           {/* Bottom CTA */}
           <div className="mt-12 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 text-xs font-medium text-blue-700 ring-1 ring-blue-100 hover:shadow-md transition-all duration-300">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-              Still have questions? Contact our support team
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 text-xs font-medium text-blue-700 ring-1 ring-blue-100 hover:shadow-md transition-all duration-300">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                Still have questions? Contact our support team
+              </div>
+              <button
+                onClick={() => window.open('mailto:tech@bookyolo.com?subject=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!', '_blank')}
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 text-xs font-medium text-white ring-1 ring-blue-200 hover:shadow-lg hover:from-blue-600 hover:to-indigo-600 transition-all duration-300"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Help
+              </button>
             </div>
           </div>
         </div>
