@@ -44,7 +44,7 @@ const FAQ = () => {
   };
 
   const copyEmailToClipboard = () => {
-    navigator.clipboard.writeText('tech@bookyolo.com');
+    navigator.clipboard.writeText('help@bookyolo.com');
     alert('Email address copied to clipboard!');
   };
 
@@ -189,7 +189,7 @@ const FAQ = () => {
               <div className="p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">Email us at:</p>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">tech@bookyolo.com</span>
+                  <span className="font-medium text-gray-900">help@bookyolo.com</span>
                   <button
                     onClick={copyEmailToClipboard}
                     className="text-blue-600 hover:text-blue-700 text-sm font-medium"
@@ -201,7 +201,7 @@ const FAQ = () => {
               
               <div className="flex gap-3">
                 <a
-                  href="https://mail.google.com/mail/?view=cm&fs=1&to=tech@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=help@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
@@ -209,7 +209,7 @@ const FAQ = () => {
                   Open Gmail
                 </a>
                 <a
-                  href="mailto:tech@bookyolo.com?subject=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
+                  href="mailto:help@bookyolo.com?subject=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
                   className="flex-1 bg-gray-200 text-gray-800 text-center py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
                 >
                   Default Email
