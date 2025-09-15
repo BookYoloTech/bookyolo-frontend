@@ -239,12 +239,24 @@ const ChatInterface = () => {
     setIsLoading(true);
     setScanProgress(0);
     
+    // Validate URL
+    if (!url || !url.trim()) {
+      setError("Please provide a valid URL to scan.");
+      setIsLoading(false);
+      return;
+    }
+
     // Add user message
     const userMessage = { role: "user", content: `Scan ${url}` };
     setMessages(prev => [...prev, userMessage]);
 
     try {
       const token = localStorage.getItem("by_token");
+      if (!token) {
+        throw new Error("No authentication token found. Please log in again.");
+      }
+
+      console.log("Scanning URL:", url);
       const res = await fetch(`${API_BASE}/chat/new-scan`, {
         method: "POST",
         headers: {
@@ -256,6 +268,7 @@ const ChatInterface = () => {
       
       if (!res.ok) {
         const errorText = await res.text();
+        console.error("Scan failed:", res.status, errorText);
         throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
       
@@ -275,6 +288,7 @@ const ChatInterface = () => {
       // Refresh user data to update scan count and chats
       await loadUserData();
     } catch (e) {
+      console.error("Scan error:", e);
       setError(e.message || String(e));
       // Add error message
       setMessages(prev => [...prev, {
@@ -708,7 +722,15 @@ const ChatInterface = () => {
                     key={scan.id}
                     className="w-full text-left text-xs px-2 py-1 rounded border border-accent hover:bg-white/70 transition-colors text-primary"
                     title={scan.listing_url}
-                    onClick={() => setInput(scan.listing_url)}
+                    onClick={() => {
+                      setInput(scan.listing_url);
+                      // Auto-submit after a short delay to ensure input is set
+                      setTimeout(() => {
+                        if (scan.listing_url.trim()) {
+                          handleScan(scan.listing_url);
+                        }
+                      }, 100);
+                    }}
                   >
                     {scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
                   </button>
