@@ -319,36 +319,126 @@ const ChatInterface = () => {
     const isError = message.isError;
     
     return (
-      <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-        <div className={`max-w-3xl px-4 py-3 rounded-2xl ${
+      <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
+        <div className={`max-w-4xl w-full ${
           isUser 
-            ? 'bg-blue-500 text-white' 
+            ? 'bg-button text-button rounded-2xl px-4 py-3 ml-auto max-w-3xl' 
             : isError
-            ? 'bg-red-50 text-red-700 border border-red-200'
-            : 'bg-gray-100 text-gray-900'
+            ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
+            : 'bg-white'
         }`}>
-          <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-          
-          {/* Render scan data if present */}
-          {message.scanData && (
-            <div className="mt-4 p-4 bg-white/10 rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">{labelStyle(message.scanData.label).icon}</span>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
-                  {message.scanData.label}
-                </span>
+          {!isUser && !isError && message.scanData ? (
+            // Detailed scan result display
+            <div className="bg-white rounded-3xl shadow-xl border border-accent p-8">
+              {/* Result Header */}
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                <div className="flex-1">
+                  <a 
+                    className="text-primary opacity-70 hover:opacity-100 hover:underline break-all text-sm font-medium" 
+                    href={message.scanData.listing_url} 
+                    target="_blank" 
+                    rel="noreferrer"
+                  >
+                    {message.scanData.listing_url}
+                  </a>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl">{labelStyle(message.scanData.label).icon}</span>
+                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
+                    {message.scanData.label}
+                  </span>
+                </div>
               </div>
-              <div className="text-sm opacity-90">
-                <a 
-                  href={message.scanData.listing_url} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="hover:underline break-all"
-                >
-                  {message.scanData.listing_url}
-                </a>
+
+              {/* Summary */}
+              <div className="bg-accent rounded-2xl p-6 mb-6">
+                <h3 className="text-lg font-semibold text-primary mb-2">Analysis Summary</h3>
+                <p className="text-primary">{message.scanData.inspection_summary}</p>
+              </div>
+
+              {/* Key Insights */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-white rounded-xl p-4 border border-accent">
+                  <div className="text-sm font-semibold text-primary opacity-70 uppercase tracking-wide mb-2">What to Expect</div>
+                  <div className="text-primary">{message.scanData.what_to_expect || "No specific expectations noted"}</div>
+                </div>
+                <div className="bg-white rounded-xl p-4 border border-accent">
+                  <div className="text-sm font-semibold text-primary opacity-70 uppercase tracking-wide mb-2">Expectation Fit</div>
+                  <div className="text-primary">{message.scanData.expectation_fit || "Standard expectations"}</div>
+                </div>
+                <div className="bg-white rounded-xl p-4 border border-accent">
+                  <div className="text-sm font-semibold text-primary opacity-70 uppercase tracking-wide mb-2">Recent Changes</div>
+                  <div className="text-primary">{message.scanData.recent_changes || "Stable"}</div>
+                </div>
+              </div>
+
+              {/* Watch-outs */}
+              {message.scanData.watch_outs && message.scanData.watch_outs.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-primary mb-4 flex items-center">
+                    <span className="text-red-500 mr-2">⚠️</span>
+                    Watch-outs
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {message.scanData.watch_outs.slice(0, 6).map((w, i) => (
+                      <div key={i} className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <p className="text-sm text-red-800">{w}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Inspection Categories */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-primary mb-4">Detailed Analysis</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(message.scanData.categories || []).map((c, i) => (
+                    <div 
+                      key={i} 
+                      className={`rounded-xl border-2 p-4 transition-all ${
+                        c.triggered 
+                          ? "border-orange-300 bg-orange-50 shadow-md" 
+                          : "border-green-200 bg-green-50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-semibold text-primary">{c.category}</div>
+                        <div className="flex items-center space-x-2">
+                          {c.triggered ? (
+                            <>
+                              <span className="text-orange-500">⚠️</span>
+                              <span className="text-xs font-bold uppercase tracking-wide bg-orange-500 text-white rounded-full px-2 py-1">
+                                Issues Found
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-green-500">✅</span>
+                              <span className="text-xs font-bold uppercase tracking-wide bg-green-500 text-white rounded-full px-2 py-1">
+                                All Clear
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {c.triggered && (c.signals || []).length > 0 && (
+                        <div className="space-y-2">
+                          {c.signals.map((s, j) => (
+                            <div key={j} className="bg-white rounded-lg p-2 border border-orange-200">
+                              <div className="text-xs font-semibold text-orange-800">{s.flag}</div>
+                              <div className="text-sm text-gray-700">{s.note}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
+          ) : (
+            <div className="text-sm whitespace-pre-wrap">{message.content}</div>
           )}
         </div>
       </div>
@@ -359,8 +449,8 @@ const ChatInterface = () => {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex items-center space-x-2">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-          <span className="text-gray-600">Loading...</span>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-button"></div>
+          <span className="text-primary">Loading...</span>
         </div>
       </div>
     );
@@ -377,21 +467,21 @@ const ChatInterface = () => {
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="flex items-center gap-1">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
+                <div className="h-2 w-2 rounded-full bg-button" />
+                <div className="h-2 w-2 rounded-full bg-button" />
+                <div className="h-2 w-2 rounded-full bg-button" />
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-gray-900">Book</span>
-                <span className="text-xl font-bold text-gray-900">Yolo</span>
+                <span className="text-xl font-bold text-primary">Book</span>
+                <span className="text-xl font-bold text-primary">Yolo</span>
               </div>
             </button>
             
             <div className="flex items-center space-x-4">
               {typeof me?.remaining === "number" && (
-                <div className="hidden sm:flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm text-gray-700">
+                <div className="hidden sm:flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
+                  <div className="w-2 h-2 bg-button rounded-full"></div>
+                  <span className="text-sm text-primary">
                     <span className="font-semibold">{me.remaining}</span> scans left
                   </span>
                 </div>
@@ -399,7 +489,7 @@ const ChatInterface = () => {
               
               <button
                 onClick={startNewChat}
-                className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity"
               >
                 New Chat
               </button>
@@ -409,7 +499,7 @@ const ChatInterface = () => {
                   localStorage.removeItem("by_token");
                   navigate("/");
                 }}
-                className="px-4 py-2 bg-blue-500 text-white font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity"
+                className="px-4 py-2 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity"
               >
                 Logout
               </button>
@@ -420,9 +510,9 @@ const ChatInterface = () => {
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Sidebar */}
-        <div className="w-80 border-r border-gray-200 bg-gray-50 p-4 overflow-y-auto">
+        <div className="w-80 border-r border-accent bg-accent p-4 overflow-y-auto">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Recent Chats</h3>
+            <h3 className="text-lg font-semibold text-primary mb-3">Recent Chats</h3>
             <div className="space-y-2">
               {chats.slice(0, 10).map((chat) => (
                 <button
@@ -430,14 +520,14 @@ const ChatInterface = () => {
                   onClick={() => loadChat(chat.id)}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     currentChatId === chat.id 
-                      ? 'bg-blue-100 border border-blue-200' 
-                      : 'bg-white hover:bg-gray-100 border border-gray-200'
+                      ? 'bg-button text-button' 
+                      : 'bg-white hover:bg-white/70 border border-accent text-primary'
                   }`}
                 >
-                  <div className="font-medium text-sm text-gray-900 truncate">
+                  <div className="font-medium text-sm truncate">
                     {chat.title}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
                     {new Date(chat.created_at).toLocaleDateString()}
                   </div>
                 </button>
@@ -447,12 +537,12 @@ const ChatInterface = () => {
           
           {myScans.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Recent Scans</h3>
+              <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
               <div className="space-y-1">
                 {myScans.slice(0, 8).map((scan) => (
                   <button
                     key={scan.id}
-                    className="w-full text-left text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-100 transition-colors text-gray-600"
+                    className="w-full text-left text-xs px-2 py-1 rounded border border-accent hover:bg-white/70 transition-colors text-primary"
                     title={scan.listing_url}
                     onClick={() => setInput(scan.listing_url)}
                   >
@@ -471,13 +561,13 @@ const ChatInterface = () => {
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <div className="max-w-md">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  <h2 className="text-2xl font-bold text-primary mb-4">
                     Welcome to BookYolo Chat
                   </h2>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-primary opacity-70 mb-6">
                     Paste an Airbnb URL to scan, ask questions about listings, or compare properties - all in one conversation!
                   </p>
-                  <div className="text-sm text-gray-500 space-y-2">
+                  <div className="text-sm text-primary opacity-60 space-y-2">
                     <p><strong>Examples:</strong></p>
                     <p>• "Scan https://airbnb.com/rooms/12345"</p>
                     <p>• "Is this place good for families?"</p>
@@ -497,13 +587,13 @@ const ChatInterface = () => {
           {isLoading && scanProgress > 0 && (
             <div className="px-6 pb-2">
               <div className="max-w-4xl mx-auto">
-                <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <div className="flex items-center justify-between text-sm text-primary mb-2">
                   <span>Analyzing listing...</span>
                   <span>{scanProgress}%</span>
                 </div>
-                <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-accent h-2 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-blue-500 transition-all duration-300 ease-out" 
+                    className="h-full bg-button transition-all duration-300 ease-out" 
                     style={{ width: `${scanProgress}%` }} 
                   />
                 </div>
@@ -526,7 +616,7 @@ const ChatInterface = () => {
           )}
 
           {/* Input Form */}
-          <div className="border-t border-gray-200 p-6">
+          <div className="border-t border-accent p-6">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
               <div className="flex gap-4">
                 <input
@@ -534,13 +624,13 @@ const ChatInterface = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Paste an Airbnb URL to scan, ask a question, or request a comparison..."
-                  className="flex-1 rounded-xl border-2 border-gray-200 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  className="flex-1 rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="rounded-xl bg-blue-500 text-white px-6 py-3 font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="rounded-xl bg-button text-button px-6 py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
