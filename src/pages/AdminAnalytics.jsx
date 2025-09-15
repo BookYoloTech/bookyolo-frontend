@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminSidebar from "../components/admin/AdminSidebar";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function AdminAnalytics() {
   const navigate = useNavigate();

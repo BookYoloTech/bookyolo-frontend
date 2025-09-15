@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();

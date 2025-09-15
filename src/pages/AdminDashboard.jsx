@@ -6,7 +6,7 @@ import AdminStats from "../components/admin/AdminStats";
 import RecentActivity from "../components/admin/RecentActivity";
 import RevenueChart from "../components/admin/RevenueChart";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
