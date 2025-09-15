@@ -28,6 +28,94 @@ const isCompareRequest = (text) => {
   return text.toLowerCase().includes('compare') && isAirbnbUrl(text);
 };
 
+// Comparison Selector Component
+const ComparisonSelector = ({ availableScans, onCompare }) => {
+  const [selectedScan1, setSelectedScan1] = useState("");
+  const [selectedScan2, setSelectedScan2] = useState("");
+  const [question, setQuestion] = useState("");
+  const [isComparing, setIsComparing] = useState(false);
+
+  const handleCompare = async () => {
+    if (!selectedScan1 || !selectedScan2) {
+      return;
+    }
+    
+    if (selectedScan1 === selectedScan2) {
+      return;
+    }
+
+    setIsComparing(true);
+    const scan1 = availableScans.find(s => s.id.toString() === selectedScan1);
+    const scan2 = availableScans.find(s => s.id.toString() === selectedScan2);
+    
+    await onCompare(scan1, scan2, question);
+    setIsComparing(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-semibold text-primary mb-2">First Listing</label>
+          <select 
+            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
+            value={selectedScan1} 
+            onChange={(e) => setSelectedScan1(e.target.value)}
+          >
+            <option value="">Select first listing</option>
+            {availableScans.map((scan) => (
+              <option key={scan.id} value={scan.id}>
+                {scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-primary mb-2">Second Listing</label>
+          <select 
+            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
+            value={selectedScan2} 
+            onChange={(e) => setSelectedScan2(e.target.value)}
+          >
+            <option value="">Select second listing</option>
+            {availableScans.map((scan) => (
+              <option key={scan.id} value={scan.id}>
+                {scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-primary mb-2">Comparison Question (Optional)</label>
+        <input
+          className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
+          placeholder="e.g., Which is better for families? Which has better location?"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+      </div>
+
+      <button
+        onClick={handleCompare}
+        disabled={isComparing || !selectedScan1 || !selectedScan2 || selectedScan1 === selectedScan2}
+        className="w-full rounded-xl bg-button text-button px-6 py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+      >
+        {isComparing ? (
+          <div className="flex items-center justify-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>Comparing...</span>
+          </div>
+        ) : (
+          "Compare Listings"
+        )}
+      </button>
+    </div>
+  );
+};
+
 const ChatInterface = () => {
   const navigate = useNavigate();
   const [input, setInput] = useState("");
@@ -106,20 +194,19 @@ const ChatInterface = () => {
       if (res.ok) {
         const data = await res.json();
         setCurrentChatId(chatId);
-        setMessages(data.messages.map(msg => ({
+        
+        // Process messages - for now, just load them as-is
+        // We'll store scan data in the message content when needed
+        const processedMessages = data.messages.map((msg) => ({
           role: msg.role,
           content: msg.content,
           timestamp: msg.created_at
-        })));
+        }));
         
-        // If it's a scan chat, load the scan data
-        if (data.chat.type === 'scan' && data.chat.scan_id) {
-          // Get scan data from myScans or fetch it
-          const scanData = myScans.find(s => s.id === data.chat.scan_id);
-          if (scanData) {
-            setCurrentScan(scanData);
-          }
-        }
+        setMessages(processedMessages);
+        
+        // Clear current scan when loading a chat
+        setCurrentScan(null);
       }
     } catch (e) {
       console.error("Failed to load chat:", e);
@@ -164,7 +251,8 @@ const ChatInterface = () => {
       };
       setMessages(prev => [...prev, assistantMessage]);
       
-      await loadUserData(); // Refresh data
+      // Refresh user data to update scan count
+      await loadUserData();
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
@@ -232,61 +320,87 @@ const ChatInterface = () => {
   };
 
   const handleCompare = async (text) => {
-    // Extract URLs from compare request
-    const urls = text.match(/https?:\/\/[^\s]+/g) || [];
-    if (urls.length < 2) {
-      setError("Please provide two Airbnb URLs to compare.");
+    // Check if user is asking for comparison
+    const isCompareRequest = text.toLowerCase().includes('compare');
+    
+    if (isCompareRequest && myScans.length < 2) {
+      setError("You need at least 2 scanned listings to compare. Please scan more listings first.");
       return;
     }
 
-    setError("");
-    setIsLoading(true);
-    
-    // Add user message
-    const userMessage = { role: "user", content: text };
-    setMessages(prev => [...prev, userMessage]);
-
-    try {
-      const token = localStorage.getItem("by_token");
-      const res = await fetch(`${API_BASE}/compare`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ 
-          scan_a_url: urls[0], 
-          scan_b_url: urls[1], 
-          question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null 
-        }),
-      });
+    // If it's a compare request but no specific URLs, show available scans for comparison
+    if (isCompareRequest) {
+      setError("");
       
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`HTTP ${res.status}: ${errorText}`);
-      }
+      // Add user message
+      const userMessage = { role: "user", content: text };
+      setMessages(prev => [...prev, userMessage]);
       
-      const data = await res.json();
-      
-      // Add assistant response
+      // Add assistant response with comparison options
       const assistantMessage = {
         role: "assistant",
-        content: data.answer || "I couldn't compare these listings.",
-        isComparison: true
+        content: "I can help you compare your scanned listings. Here are your available scans:",
+        showComparisonUI: true,
+        availableScans: myScans.slice(0, 10) // Show up to 10 recent scans
       };
       setMessages(prev => [...prev, assistantMessage]);
+      return;
+    }
+
+    // If specific URLs are provided, proceed with comparison
+    const urls = text.match(/https?:\/\/[^\s]+/g) || [];
+    if (urls.length >= 2) {
+      setError("");
+      setIsLoading(true);
       
-      await loadUserData(); // Refresh data
-    } catch (e) {
-      setError(e.message || String(e));
-      // Add error message
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: `Sorry, I couldn't compare those listings. ${e.message}`,
-        isError: true
-      }]);
-    } finally {
-      setIsLoading(false);
+      // Add user message
+      const userMessage = { role: "user", content: text };
+      setMessages(prev => [...prev, userMessage]);
+
+      try {
+        const token = localStorage.getItem("by_token");
+        const res = await fetch(`${API_BASE}/compare`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ 
+            scan_a_url: urls[0], 
+            scan_b_url: urls[1], 
+            question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null 
+          }),
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errorText}`);
+        }
+        
+        const data = await res.json();
+        
+        // Add assistant response
+        const assistantMessage = {
+          role: "assistant",
+          content: data.answer || "I couldn't compare these listings.",
+          isComparison: true
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        
+        await loadUserData(); // Refresh data
+      } catch (e) {
+        setError(e.message || String(e));
+        // Add error message
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: `Sorry, I couldn't compare those listings. ${e.message}`,
+          isError: true
+        }]);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setError("Please provide two Airbnb URLs to compare, or just say 'compare' to see your available scans.");
     }
   };
 
@@ -312,6 +426,55 @@ const ChatInterface = () => {
     setCurrentChatId(null);
     setCurrentScan(null);
     setError("");
+  };
+
+  const handleComparisonSelect = async (scan1, scan2, question = "") => {
+    setError("");
+    setIsLoading(true);
+    
+    try {
+      const token = localStorage.getItem("by_token");
+      const res = await fetch(`${API_BASE}/compare`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          scan_a_url: scan1.listing_url, 
+          scan_b_url: scan2.listing_url, 
+          question: question || null 
+        }),
+      });
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errorText}`);
+      }
+      
+      const data = await res.json();
+      
+      // Add assistant response
+      const assistantMessage = {
+        role: "assistant",
+        content: data.answer || "I couldn't compare these listings.",
+        isComparison: true,
+        comparedScans: { scan1, scan2 }
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      
+      await loadUserData(); // Refresh data
+    } catch (e) {
+      setError(e.message || String(e));
+      // Add error message
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `Sorry, I couldn't compare those listings. ${e.message}`,
+        isError: true
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderMessage = (message, index) => {
@@ -436,6 +599,15 @@ const ChatInterface = () => {
                   ))}
                 </div>
               </div>
+            </div>
+          ) : message.showComparisonUI ? (
+            // Comparison UI
+            <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
+              <div className="text-sm text-primary mb-4">{message.content}</div>
+              <ComparisonSelector 
+                availableScans={message.availableScans || []}
+                onCompare={handleComparisonSelect}
+              />
             </div>
           ) : (
             <div className="text-sm whitespace-pre-wrap">{message.content}</div>
