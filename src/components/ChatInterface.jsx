@@ -125,7 +125,6 @@ const ChatInterface = () => {
   const [currentChatId, setCurrentChatId] = useState(null);
   const [currentScan, setCurrentScan] = useState(null);
   const [me, setMe] = useState(null);
-  const [myScans, setMyScans] = useState([]);
   const [chats, setChats] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
@@ -168,15 +167,13 @@ const ChatInterface = () => {
       const token = localStorage.getItem("by_token");
       if (!token) return;
       
-      const [r1, r2, r3] = await Promise.all([
+      const [r1, r2] = await Promise.all([
         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_BASE}/my-scans`, { headers: { Authorization: `Bearer ${token}` } }),
         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       
       if (r1.ok) setMe(await r1.json());
-      if (r2.ok) setMyScans(await r2.json());
-      if (r3.ok) setChats(await r3.json());
+      if (r2.ok) setChats(await r2.json());
     } catch (e) {
       console.error("Failed to load user data:", e);
     } finally {
@@ -358,7 +355,10 @@ const ChatInterface = () => {
     // Check if user is asking for comparison
     const isCompareRequest = text.toLowerCase().includes('compare');
     
-    if (isCompareRequest && myScans.length < 2) {
+    // Get scan chats for comparison
+    const scanChats = chats.filter(chat => chat.type === 'scan');
+    
+    if (isCompareRequest && scanChats.length < 2) {
       setError("You need at least 2 scanned listings to compare. Please scan more listings first.");
       return;
     }
@@ -376,7 +376,11 @@ const ChatInterface = () => {
         role: "assistant",
         content: "I can help you compare your scanned listings. Here are your available scans:",
         showComparisonUI: true,
-        availableScans: myScans.slice(0, 10) // Show up to 10 recent scans
+        availableScans: scanChats.slice(0, 10).map(chat => ({
+          id: chat.id,
+          listing_url: chat.title.replace("Scan • ", ""),
+          created_at: chat.created_at
+        }))
       };
       setMessages(prev => [...prev, assistantMessage]);
       return;
@@ -713,31 +717,6 @@ const ChatInterface = () => {
             </div>
           </div>
           
-          {myScans.length > 0 && (
-            <div>
-              <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
-              <div className="space-y-1">
-                {myScans.slice(0, 8).map((scan) => (
-                  <button
-                    key={scan.id}
-                    className="w-full text-left text-xs px-2 py-1 rounded border border-accent hover:bg-white/70 transition-colors text-primary"
-                    title={scan.listing_url}
-                    onClick={() => {
-                      setInput(scan.listing_url);
-                      // Auto-submit after a short delay to ensure input is set
-                      setTimeout(() => {
-                        if (scan.listing_url.trim()) {
-                          handleScan(scan.listing_url);
-                        }
-                      }, 100);
-                    }}
-                  >
-                    {scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Main Chat Area */}
