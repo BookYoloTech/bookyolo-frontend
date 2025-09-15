@@ -21,7 +21,7 @@ import AdminSettings from "./pages/AdminSettings";
 
 const ScanPage = lazy(() => import("./pages/ScanPage"));
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function App() {
   // Force redeploy - backend URL updated
