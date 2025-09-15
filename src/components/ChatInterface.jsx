@@ -195,18 +195,39 @@ const ChatInterface = () => {
         const data = await res.json();
         setCurrentChatId(chatId);
         
-        // Process messages - for now, just load them as-is
-        // We'll store scan data in the message content when needed
-        const processedMessages = data.messages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: msg.created_at
-        }));
+        // If it's a scan chat, fetch the scan data
+        let scanData = null;
+        if (data.chat.type === 'scan' && data.chat.scan_id) {
+          try {
+            const scanRes = await fetch(`${API_BASE}/scan/${data.chat.scan_id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (scanRes.ok) {
+              scanData = await scanRes.json();
+              setCurrentScan(scanData);
+            }
+          } catch (e) {
+            console.error("Failed to load scan data:", e);
+          }
+        }
+        
+        // Process messages and add scan data to the first assistant message if it's a scan chat
+        const processedMessages = data.messages.map((msg, index) => {
+          const message = {
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.created_at
+          };
+          
+          // If this is the first assistant message in a scan chat, attach scan data
+          if (msg.role === 'assistant' && index === 0 && scanData && data.chat.type === 'scan') {
+            message.scanData = scanData;
+          }
+          
+          return message;
+        });
         
         setMessages(processedMessages);
-        
-        // Clear current scan when loading a chat
-        setCurrentScan(null);
       }
     } catch (e) {
       console.error("Failed to load chat:", e);
@@ -251,7 +272,7 @@ const ChatInterface = () => {
       };
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Refresh user data to update scan count
+      // Refresh user data to update scan count and chats
       await loadUserData();
     } catch (e) {
       setError(e.message || String(e));
