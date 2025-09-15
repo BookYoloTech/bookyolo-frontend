@@ -201,6 +201,8 @@ const ChatInterface = () => {
             });
             if (scanRes.ok) {
               scanData = await scanRes.json();
+              console.log("DEBUG: Scan data received:", scanData);
+              console.log("DEBUG: Location in scan data:", scanData.location);
               setCurrentScan(scanData);
             }
           } catch (e) {
@@ -543,6 +545,16 @@ const ChatInterface = () => {
                   >
                     {message.scanData.listing_url}
                   </a>
+                  {message.scanData.location && (
+                    <div className="text-primary opacity-60 text-sm mt-1">
+                      📍 {message.scanData.location}
+                    </div>
+                  )}
+                  {!message.scanData.location && (
+                    <div className="text-red-500 text-xs mt-1">
+                      DEBUG: No location data found
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="text-2xl">{labelStyle(message.scanData.label).icon}</span>
