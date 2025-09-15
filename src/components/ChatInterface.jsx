@@ -513,12 +513,12 @@ const ChatInterface = () => {
         }`}>
           {!isUser && !isError && message.scanData ? (
             // Detailed scan result display
-            <div className="bg-white rounded-3xl shadow-xl border border-accent p-8">
+            <div className="bg-white rounded-2xl border border-accent p-6">
               {/* Result Header */}
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
                 <div className="flex-1">
                   <a 
-                    className="text-primary opacity-70 hover:opacity-100 hover:underline break-all text-sm font-medium" 
+                    className="text-primary opacity-70 hover:opacity-100 hover:underline break-all text-sm" 
                     href={message.scanData.listing_url} 
                     target="_blank" 
                     rel="noreferrer"
@@ -535,83 +535,54 @@ const ChatInterface = () => {
               </div>
 
               {/* Summary */}
-              <div className="bg-accent rounded-2xl p-6 mb-6">
-                <h3 className="text-lg font-semibold text-primary mb-2">Analysis Summary</h3>
-                <p className="text-primary">{message.scanData.inspection_summary}</p>
-              </div>
-
-              {/* Key Insights */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white rounded-xl p-4 border border-accent">
-                  <div className="text-sm font-semibold text-primary opacity-70 uppercase tracking-wide mb-2">What to Expect</div>
-                  <div className="text-primary">{message.scanData.what_to_expect || "No specific expectations noted"}</div>
-                </div>
-                <div className="bg-white rounded-xl p-4 border border-accent">
-                  <div className="text-sm font-semibold text-primary opacity-70 uppercase tracking-wide mb-2">Expectation Fit</div>
-                  <div className="text-primary">{message.scanData.expectation_fit || "Standard expectations"}</div>
-                </div>
-                <div className="bg-white rounded-xl p-4 border border-accent">
-                  <div className="text-sm font-semibold text-primary opacity-70 uppercase tracking-wide mb-2">Recent Changes</div>
-                  <div className="text-primary">{message.scanData.recent_changes || "Stable"}</div>
-                </div>
-              </div>
-
-              {/* Watch-outs */}
-              {message.scanData.watch_outs && message.scanData.watch_outs.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-primary mb-4 flex items-center">
-                    <span className="text-red-500 mr-2">⚠️</span>
-                    Watch-outs
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {message.scanData.watch_outs.slice(0, 6).map((w, i) => (
-                      <div key={i} className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <p className="text-sm text-red-800">{w}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Inspection Categories */}
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-primary mb-4">Detailed Analysis</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p className="text-primary leading-relaxed">{message.scanData.inspection_summary}</p>
+              </div>
+
+                    {/* Expectations */}
+                    <div className="mb-6">
+                      <h3 className="text-base font-semibold text-primary mb-3">What to Expect</h3>
+                      <div className="text-primary leading-relaxed">
+                        {message.scanData.what_to_expect && message.scanData.expectation_fit 
+                          ? `${message.scanData.what_to_expect} ${message.scanData.expectation_fit}`
+                          : message.scanData.what_to_expect || message.scanData.expectation_fit || "Standard expectations for this type of listing"
+                        }
+                      </div>
+                      {message.scanData.recent_changes && (
+                        <div className="mt-3 text-sm text-primary opacity-80">
+                          <strong>Recent changes:</strong> {message.scanData.recent_changes}
+                        </div>
+                      )}
+                    </div>
+
+              {/* Analysis */}
+              <div className="mb-6">
+                <h3 className="text-base font-semibold text-primary mb-3">Analysis</h3>
+                <div className="space-y-4">
                   {(message.scanData.categories || []).map((c, i) => (
                     <div 
                       key={i} 
-                      className={`rounded-xl border-2 p-4 transition-all ${
+                      className={`rounded-lg p-4 transition-all ${
                         c.triggered 
-                          ? "border-orange-300 bg-orange-50 shadow-md" 
-                          : "border-green-200 bg-green-50"
+                          ? "bg-orange-50 border-l-4 border-orange-400" 
+                          : "bg-green-50 border-l-4 border-green-400"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-semibold text-primary">{c.category}</div>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="font-medium text-primary">{c.category}</div>
                         <div className="flex items-center space-x-2">
                           {c.triggered ? (
-                            <>
-                              <span className="text-orange-500">⚠️</span>
-                              <span className="text-xs font-bold uppercase tracking-wide bg-orange-500 text-white rounded-full px-2 py-1">
-                                Issues Found
-                              </span>
-                            </>
+                            <span className="text-orange-500 text-sm">⚠️ Issues found</span>
                           ) : (
-                            <>
-                              <span className="text-green-500">✅</span>
-                              <span className="text-xs font-bold uppercase tracking-wide bg-green-500 text-white rounded-full px-2 py-1">
-                                All Clear
-                              </span>
-                            </>
+                            <span className="text-green-500 text-sm">✅ All clear</span>
                           )}
                         </div>
                       </div>
                       {c.triggered && (c.signals || []).length > 0 && (
-                        <div className="space-y-2">
+                        <div className="mt-3 space-y-2">
                           {c.signals.map((s, j) => (
-                            <div key={j} className="bg-white rounded-lg p-2 border border-orange-200">
-                              <div className="text-xs font-semibold text-orange-800">{s.flag}</div>
-                              <div className="text-sm text-gray-700">{s.note}</div>
+                            <div key={j} className="text-sm text-gray-700">
+                              <span className="font-medium text-orange-800">{s.flag}:</span> {s.note}
                             </div>
                           ))}
                         </div>
