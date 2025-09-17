@@ -11,7 +11,7 @@ import FAQ from "../components/FAQ";
 import CTA from "../components/CTA";
 import Footer from "../components/Footer";
 
-export default function Homepage({ apiBase, token, me, meLoading, onLogout, onUsageChanged, onProfileUpdate }) {
+export default function Homepage({ apiBase, token, me, meLoading, onLogout, onUsageChanged }) {
   const nav = useNavigate();
 
   return (
@@ -22,7 +22,6 @@ export default function Homepage({ apiBase, token, me, meLoading, onLogout, onUs
         onLogout={onLogout}
         authed={!!token}
         me={me}
-        onProfileUpdate={onProfileUpdate}
       />
       <Hero onSignup={() => nav("/signup")} />
       <Stats />

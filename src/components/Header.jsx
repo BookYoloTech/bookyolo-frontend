@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import PaymentButton from "./stripe/PaymentButton";
 
-const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null, onProfileUpdate }) => {
-  const navigate = useNavigate();
+const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
   const [activeSection, setActiveSection] = useState("hero");
   const [isUserScrolling, setIsUserScrolling] = useState(false);
 
@@ -103,21 +101,6 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null, onProf
                   className="px-4 py-2.5 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm"
                 >
                   Scan
-                </button>
-                {/* Profile Button */}
-                <button
-                  onClick={() => navigate('/profile')}
-                  className="flex items-center gap-2 px-3 py-2.5 text-primary border border-accent rounded-lg hover:bg-accent transition-colors"
-                  title="Profile"
-                >
-                  <div className="w-6 h-6 bg-button rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-semibold">
-                      {me?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                  <span className="hidden sm:inline text-sm font-medium">
-                    {me?.full_name || 'Profile'}
-                  </span>
                 </button>
                 {/* Payment Button - only show if not premium */}
                 {me?.plan !== "premium" && (

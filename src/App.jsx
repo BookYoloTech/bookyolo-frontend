@@ -6,7 +6,6 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
-import ProfilePage from "./pages/ProfilePage";
 
 import Dashboard from "./components/dashboard";
 import PaymentSuccess from "./components/stripe/PaymentSuccess";
@@ -63,12 +62,6 @@ export default function App() {
   };
 
   const handleUsageChanged = () => setMeReloadKey(k => k + 1);
-  
-  const handleProfileUpdate = (updatedUser) => {
-    setMe(updatedUser);
-    // Update localStorage with new user data
-    localStorage.setItem("by_user", JSON.stringify(updatedUser));
-  };
 
   const requireAuth = (el) => (localStorage.getItem("by_token") ? el : <Navigate to="/login" replace />);
 
@@ -86,7 +79,6 @@ export default function App() {
               meLoading={meLoading}
               onLogout={handleLogout}
               onUsageChanged={handleUsageChanged}
-              onProfileUpdate={handleProfileUpdate}
             />
           }
         />
@@ -94,7 +86,6 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/profile" element={requireAuth(<ProfilePage onProfileUpdate={handleProfileUpdate} />)} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
         <Route path="/plan-status" element={requireAuth(<PlanStatus />)} />
