@@ -62,6 +62,12 @@ export default function App() {
   };
 
   const handleUsageChanged = () => setMeReloadKey(k => k + 1);
+  
+  const handleProfileUpdate = (updatedUser) => {
+    setMe(updatedUser);
+    // Update localStorage with new user data
+    localStorage.setItem("by_user", JSON.stringify(updatedUser));
+  };
 
   const requireAuth = (el) => (localStorage.getItem("by_token") ? el : <Navigate to="/login" replace />);
 
@@ -79,6 +85,7 @@ export default function App() {
               meLoading={meLoading}
               onLogout={handleLogout}
               onUsageChanged={handleUsageChanged}
+              onProfileUpdate={handleProfileUpdate}
             />
           }
         />
