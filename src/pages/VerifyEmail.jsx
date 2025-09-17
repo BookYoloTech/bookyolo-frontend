@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useNotification } from "../contexts/NotificationContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function VerifyEmail() {
+  const { showSuccess, showError } = useNotification();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState("verifying"); // verifying, success, error
@@ -33,10 +35,16 @@ export default function VerifyEmail() {
       if (response.ok) {
         setStatus("success");
         setMessage("Email verified successfully! You can now log in.");
+        showSuccess("Email verified successfully! You can now log in.");
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       } else {
         const errorData = await response.json();
         setStatus("error");
         setMessage(errorData.detail || "Verification failed");
+        showError(errorData.detail || "Verification failed");
       }
     } catch (error) {
       setStatus("error");

@@ -384,6 +384,7 @@ const ChatInterface = () => {
           created_at: chat.created_at
         }))
       };
+      console.log("DEBUG: Adding comparison UI message:", assistantMessage);
       setMessages(prev => [...prev, assistantMessage]);
       return;
     }
@@ -626,6 +627,7 @@ const ChatInterface = () => {
             // Comparison UI
             <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
               <div className="text-sm text-primary mb-4">{message.content}</div>
+              {console.log("DEBUG: Rendering comparison UI with scans:", message.availableScans)}
               <ComparisonSelector 
                 availableScans={message.availableScans || []}
                 onCompare={handleComparisonSelect}

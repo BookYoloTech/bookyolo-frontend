@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNotification } from "../contexts/NotificationContext";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function Signup() {
+  const { showSuccess, showError } = useNotification();
   const [form, setForm] = useState({
     fullName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
   });
@@ -27,9 +29,12 @@ export default function Signup() {
       if (!res.ok) throw new Error(json.detail || "Signup failed");
       
       // Account created successfully
+      showSuccess("Account created successfully! Please check your email to verify your account.");
       
-      // Redirect to login page
-      window.location.href = "/login";
+      // Clear form
+      setForm({
+        fullName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
+      });
     } catch (e) {
       setErr(e.message || String(e));
     } finally {

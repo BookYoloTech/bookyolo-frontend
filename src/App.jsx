@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import Homepage from "./pages/Homepage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -65,8 +66,9 @@ export default function App() {
   const requireAuth = (el) => (localStorage.getItem("by_token") ? el : <Navigate to="/login" replace />);
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <NotificationProvider>
+      <BrowserRouter>
+        <Routes>
         <Route
           path="/"
           element={
@@ -117,7 +119,8 @@ export default function App() {
           element={requireAuth(<Dashboard apiBase={API_BASE} token={token} me={me} onLogout={handleLogout} />)}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </NotificationProvider>
   );
 }

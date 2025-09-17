@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useNotification } from "../contexts/NotificationContext";
+
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function Login() {
+  const { showSuccess, showError } = useNotification();
   const [form, setForm] = useState({ email: "", password: "", rememberMe: false });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -31,9 +34,12 @@ export default function Login() {
       localStorage.setItem("by_user", JSON.stringify(json.user));
       
       // Login successful
+      showSuccess("Login successful! Welcome back!");
       
       // Refresh the page to update the app state
-      window.location.href = "/";
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1500);
     } catch (e) {
       setErr(e.message || String(e));
     } finally {
@@ -60,8 +66,9 @@ export default function Login() {
       const json = await res.json();
       
       if (res.ok) {
-        setForgotMessage("If the email exists, a password reset link has been sent. Please check your email.");
+        showSuccess("If the email exists, a password reset link has been sent. Please check your email.");
         setForgotEmail("");
+        setShowForgotPassword(false);
       } else {
         throw new Error(json.detail || "Failed to send reset email");
       }
