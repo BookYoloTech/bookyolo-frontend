@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import PaymentButton from "./stripe/PaymentButton";
-import Profile from "./Profile";
 
 const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null, onProfileUpdate }) => {
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("hero");
   const [isUserScrolling, setIsUserScrolling] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
 
   const scrollToSection = (sectionId) => {
     const el = document.getElementById(sectionId);
@@ -106,7 +106,7 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null, onProf
                 </button>
                 {/* Profile Button */}
                 <button
-                  onClick={() => setShowProfile(true)}
+                  onClick={() => navigate('/profile')}
                   className="flex items-center gap-2 px-3 py-2.5 text-primary border border-accent rounded-lg hover:bg-accent transition-colors"
                   title="Profile"
                 >
@@ -153,17 +153,6 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null, onProf
           </div>
         </div>
       </div>
-      
-      {/* Profile Modal */}
-      {showProfile && (
-        <Profile
-          onClose={() => setShowProfile(false)}
-          onProfileUpdate={(updatedUser) => {
-            onProfileUpdate?.(updatedUser);
-            setShowProfile(false);
-          }}
-        />
-      )}
     </header>
   );
 };

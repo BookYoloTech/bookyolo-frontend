@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
+import ProfilePage from "./pages/ProfilePage";
 
 import Dashboard from "./components/dashboard";
 import PaymentSuccess from "./components/stripe/PaymentSuccess";
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/profile" element={requireAuth(<ProfilePage onProfileUpdate={handleProfileUpdate} />)} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
         <Route path="/plan-status" element={requireAuth(<PlanStatus />)} />
