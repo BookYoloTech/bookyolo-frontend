@@ -127,7 +127,6 @@ const ChatInterface = () => {
   const [me, setMe] = useState(null);
   const [chats, setChats] = useState([]);
   const [scanData, setScanData] = useState({});
-  const [localCompareChats, setLocalCompareChats] = useState([]);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -217,9 +216,8 @@ const ChatInterface = () => {
       return;
     }
     
-    loadCompareChatsFromStorage();
     loadUserData();
-  }, [navigate, loadCompareChatsFromStorage, loadUserData]);
+  }, [navigate]);
 
   // Smooth progress for scan
   useEffect(() => {
@@ -230,20 +228,6 @@ const ChatInterface = () => {
     }
     return () => clearInterval(tickRef.current);
   }, [isLoading, scanProgress]);
-
-  // Load compare chats from localStorage
-  const loadCompareChatsFromStorage = useCallback(() => {
-    try {
-      const stored = localStorage.getItem("bookyolo_compare_chats");
-      if (stored) {
-        const compareChats = JSON.parse(stored);
-        setLocalCompareChats(compareChats);
-        console.log("DEBUG: Loaded compare chats from storage:", compareChats);
-      }
-    } catch (e) {
-      console.error("Failed to load compare chats from storage:", e);
-    }
-  }, []);
 
   const loadUserData = useCallback(async () => {
     try {
@@ -262,10 +246,7 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        // Combine database chats with stored compare chats
-        const allChats = [...localCompareChats, ...chatsData];
-        setChats(allChats);
-        console.log("DEBUG: Combined chats with stored compare chats:", allChats);
+        setChats(chatsData);
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
@@ -281,7 +262,7 @@ const ChatInterface = () => {
   const loadChat = async (chatId) => {
     try {
       // Check if this is a local compare chat (not in database)
-      const localCompareChat = localCompareChats.find(chat => chat.id === chatId);
+      const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
       
       if (localCompareChat) {
         // Handle local compare chat
@@ -685,15 +666,7 @@ const ChatInterface = () => {
          result: data.answer
        };
        
-       // Add to local compare chats state and save to localStorage
-       setLocalCompareChats(prev => {
-         const newCompareChats = [compareChat, ...prev];
-         localStorage.setItem("bookyolo_compare_chats", JSON.stringify(newCompareChats));
-         console.log("DEBUG: Saved compare chats to localStorage:", newCompareChats);
-         return newCompareChats;
-       });
-       
-       // Add to chats state for immediate display
+       // Add to chats state - same as Recent Scans
        setChats(prev => [compareChat, ...prev]);
        
        // Don't call loadUserData() - it overwrites the chats array!
