@@ -239,7 +239,20 @@ const ChatInterface = () => {
         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       
-      if (r1.ok) setMe(await r1.json());
+      if (r1.ok) {
+        const userData = await r1.json();
+        setMe(userData);
+        
+        // Check for low scan balance and show warning
+        if (userData.scan_balance <= 5 && userData.scan_balance > 0) {
+          // Show low scan balance warning
+          setMessages(prev => [...prev, {
+            role: "assistant",
+            content: `You only have few scans left. Consider upgrading to BookYolo Premium for more scans: https://bookyolo-frontend.vercel.app/pricing`,
+            isWarning: true
+          }]);
+        }
+      }
       if (r2.ok) {
         const chatsData = await r2.json();
         console.log("DEBUG: All chats loaded:", chatsData);
@@ -389,9 +402,25 @@ const ChatInterface = () => {
       });
       
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Scan failed:", res.status, errorText);
-        throw new Error(`HTTP ${res.status}: ${errorText}`);
+        const errorData = await res.json().catch(() => ({ detail: "Unknown error occurred" }));
+        console.error("Scan failed:", res.status, errorData);
+        
+        // Handle specific error cases with custom messages
+        if (res.status === 400) {
+          // Non-Airbnb URL or insufficient reviews
+          throw new Error(errorData.detail || "Invalid request");
+        } else if (res.status === 402) {
+          // Scan limit reached
+          throw new Error(errorData.detail || "Scan limit reached");
+        } else if (res.status === 404) {
+          // Listing not found
+          throw new Error(errorData.detail || "Listing not found");
+        } else if (res.status === 409) {
+          // Already scanned
+          throw new Error(errorData.detail || "Already scanned");
+        } else {
+          throw new Error(errorData.detail || `HTTP ${res.status}: ${errorData.detail || "Unknown error"}`);
+        }
       }
       
       const data = await res.json();
@@ -419,10 +448,28 @@ const ChatInterface = () => {
     } catch (e) {
       console.error("Scan error:", e);
       setError(e.message || String(e));
-      // Add error message
+      
+      // Add error message with specific formatting for different error types
+      let errorContent = e.message;
+      
+      // Format specific error messages to be more user-friendly
+      if (e.message.includes("platform that we do not cover yet")) {
+        errorContent = e.message; // Keep the exact message from backend
+      } else if (e.message.includes("does not have information about this property")) {
+        errorContent = e.message; // Keep the exact message from backend
+      } else if (e.message.includes("not seem to have enough information and reviews")) {
+        errorContent = e.message; // Keep the exact message from backend
+      } else if (e.message.includes("no more scans left") || e.message.includes("few scans left")) {
+        errorContent = e.message; // Keep the exact message from backend
+      } else if (e.message.includes("already scanned this listing")) {
+        errorContent = e.message; // Keep the exact message from backend
+      } else {
+        errorContent = `Sorry, I couldn't scan that listing. ${e.message}`;
+      }
+      
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: `Sorry, I couldn't scan that listing. ${e.message}`,
+        content: errorContent,
         isError: true
       }]);
     } finally {
@@ -686,6 +733,7 @@ const ChatInterface = () => {
   const renderMessage = (message, index) => {
     const isUser = message.role === "user";
     const isError = message.isError;
+    const isWarning = message.isWarning;
     
     return (
       <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
@@ -694,9 +742,11 @@ const ChatInterface = () => {
             ? 'bg-button text-button rounded-2xl px-4 py-3 ml-auto max-w-3xl' 
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
+            : isWarning
+            ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-2xl px-4 py-3 max-w-3xl'
             : 'bg-white'
         }`}>
-          {!isUser && !isError && message.scanData ? (
+          {!isUser && !isError && !isWarning && message.scanData ? (
             // Detailed scan result display
             <div className="bg-white rounded-2xl border border-accent p-6">
               {/* Result Header */}
