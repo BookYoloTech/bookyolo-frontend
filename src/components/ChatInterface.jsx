@@ -245,7 +245,14 @@ const ChatInterface = () => {
         console.log("DEBUG: All chats loaded:", chatsData);
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
-        setChats(chatsData);
+        
+        // Preserve local compare chats when refreshing
+        const localCompareChats = chats.filter(chat => chat.type === 'compare' && chat.id.startsWith('compare-'));
+        console.log("DEBUG: Preserving local compare chats:", localCompareChats);
+        
+        // Combine database chats with local compare chats
+        const allChats = [...localCompareChats, ...chatsData];
+        setChats(allChats);
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
