@@ -262,8 +262,12 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
+        // Get compare chats directly from localStorage to avoid state timing issues
+        const storedCompareChats = JSON.parse(localStorage.getItem("bookyolo_compare_chats") || "[]");
+        console.log("DEBUG: Stored compare chats from localStorage:", storedCompareChats);
+        
         // Combine database chats with stored compare chats
-        const allChats = [...localCompareChats, ...chatsData];
+        const allChats = [...storedCompareChats, ...chatsData];
         setChats(allChats);
         console.log("DEBUG: Combined chats with stored compare chats:", allChats);
         
@@ -281,7 +285,8 @@ const ChatInterface = () => {
   const loadChat = async (chatId) => {
     try {
       // Check if this is a local compare chat (not in database)
-      const localCompareChat = localCompareChats.find(chat => chat.id === chatId);
+      const storedCompareChats = JSON.parse(localStorage.getItem("bookyolo_compare_chats") || "[]");
+      const localCompareChat = storedCompareChats.find(chat => chat.id === chatId);
       
       if (localCompareChat) {
         // Handle local compare chat
