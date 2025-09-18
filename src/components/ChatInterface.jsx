@@ -260,6 +260,38 @@ const ChatInterface = () => {
 
   const loadChat = async (chatId) => {
     try {
+      // Check if this is a local compare chat (not in database)
+      const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
+      
+      if (localCompareChat) {
+        // Handle local compare chat
+        setCurrentChatId(chatId);
+        setCurrentScan(null);
+        
+        // Create messages for the compare chat
+        const compareMessages = [
+          {
+            role: "user",
+            content: `Compare: ${localCompareChat.scan1.listing_title || localCompareChat.scan1.location} vs ${localCompareChat.scan2.listing_title || localCompareChat.scan2.location}`,
+            timestamp: localCompareChat.created_at
+          },
+          {
+            role: "assistant",
+            content: localCompareChat.result,
+            timestamp: localCompareChat.created_at,
+            isComparison: true,
+            comparedScans: { 
+              scan1: localCompareChat.scan1, 
+              scan2: localCompareChat.scan2 
+            }
+          }
+        ];
+        
+        setMessages(compareMessages);
+        return;
+      }
+      
+      // Handle database chats
       const token = localStorage.getItem("by_token");
       const res = await fetch(`${API_BASE}/chat/${chatId}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -611,18 +643,32 @@ const ChatInterface = () => {
         throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
       
-      const data = await res.json();
-      
-      // Add assistant response
-      const assistantMessage = {
-        role: "assistant",
-        content: data.answer || "I couldn't compare these listings.",
-        isComparison: true,
-        comparedScans: { scan1, scan2 }
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-      
-      await loadUserData(); // Refresh data
+       const data = await res.json();
+       
+       // Add assistant response
+       const assistantMessage = {
+         role: "assistant",
+         content: data.answer || "I couldn't compare these listings.",
+         isComparison: true,
+         comparedScans: { scan1, scan2 }
+       };
+       setMessages(prev => [...prev, assistantMessage]);
+       
+       // Create a compare chat entry for Recent Compares sidebar
+       const compareChat = {
+         id: `compare-${Date.now()}`, // Generate unique ID
+         type: 'compare',
+         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
+         created_at: new Date().toISOString(),
+         scan1: scan1,
+         scan2: scan2,
+         result: data.answer
+       };
+       
+       // Add to chats state
+       setChats(prev => [compareChat, ...prev]);
+       
+       await loadUserData(); // Refresh data
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
