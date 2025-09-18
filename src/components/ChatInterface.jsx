@@ -891,28 +891,24 @@ const ChatInterface = () => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
             <div className="space-y-2">
-              {chats.filter(chat => chat.type === 'compare').slice(0, 5).map((chat) => {
-                // For compare chats, we can show a more descriptive title
-                const compareTitle = chat.title.replace("Compare • ", "").replace(" listings", "");
-                return (
-                  <button
-                    key={chat.id}
-                    onClick={() => loadChat(chat.id)}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${
-                      currentChatId === chat.id 
-                        ? 'bg-button text-button' 
-                        : 'bg-white hover:bg-white/70 border border-accent text-primary'
-                    }`}
-                  >
-                    <div className="font-medium text-sm truncate">
-                      {compareTitle === "2" ? "Property Comparison" : `Compare ${compareTitle} Properties`}
-                    </div>
-                    <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
-                      {new Date(chat.created_at).toLocaleDateString()}
-                    </div>
-                  </button>
-                );
-              })}
+              {chats.filter(chat => chat.type === 'compare').slice(0, 5).map((chat) => (
+                <button
+                  key={chat.id}
+                  onClick={() => loadChat(chat.id)}
+                  className={`w-full text-left p-3 rounded-lg transition-colors ${
+                    currentChatId === chat.id 
+                      ? 'bg-button text-button' 
+                      : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                  }`}
+                >
+                  <div className="font-medium text-sm truncate">
+                    {chat.title || "Property Comparison"}
+                  </div>
+                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                    {new Date(chat.created_at).toLocaleDateString()}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
