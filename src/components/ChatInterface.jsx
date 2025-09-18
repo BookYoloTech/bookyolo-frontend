@@ -593,47 +593,36 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      
-      // Create a new compare chat instead of just doing a one-time comparison
-      const chatRes = await fetch(`${API_BASE}/chat/new-compare`, {
+      const res = await fetch(`${API_BASE}/compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          listing_urls: [scan1.listing_url, scan2.listing_url],
+          scan_a_url: scan1.listing_url, 
+          scan_b_url: scan2.listing_url, 
           question: question || null 
         }),
       });
       
-      if (!chatRes.ok) {
-        const errorText = await chatRes.text();
-        throw new Error(`HTTP ${chatRes.status}: ${errorText}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
       
-      const chatData = await chatRes.json();
+      const data = await res.json();
       
-      // Load the new compare chat
-      await loadChat(chatData.chat_id);
-      
-      // Add user message showing what was compared
-      const userMessage = {
-        role: "user",
-        content: `Compare: ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}${question ? ` - ${question}` : ''}`
-      };
-      setMessages(prev => [...prev, userMessage]);
-      
-      // Add assistant response with comparison result
+      // Add assistant response
       const assistantMessage = {
         role: "assistant",
-        content: chatData.answer || "I couldn't compare these listings.",
+        content: data.answer || "I couldn't compare these listings.",
         isComparison: true,
         comparedScans: { scan1, scan2 }
       };
       setMessages(prev => [...prev, assistantMessage]);
       
-      await loadUserData(); // Refresh data to show new compare chat in sidebar
+      await loadUserData(); // Refresh data
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
