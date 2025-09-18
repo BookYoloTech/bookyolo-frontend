@@ -243,14 +243,20 @@ const ChatInterface = () => {
         const userData = await r1.json();
         setMe(userData);
         
+        console.log("DEBUG: User data loaded:", userData);
+        console.log("DEBUG: Remaining scans:", userData.remaining);
+        
         // Check for low scan balance and show warning
-        if (userData.scan_balance <= 5 && userData.scan_balance > 0) {
+        if (userData.remaining <= 5 && userData.remaining > 0) {
+          console.log("DEBUG: Showing low scan balance warning");
           // Show low scan balance warning
           setMessages(prev => [...prev, {
             role: "assistant",
             content: `You only have few scans left. Consider upgrading to BookYolo Premium for more scans: https://bookyolo-frontend.vercel.app/pricing`,
             isWarning: true
           }]);
+        } else {
+          console.log("DEBUG: No low scan balance warning needed. Remaining:", userData.remaining);
         }
       }
       if (r2.ok) {
@@ -366,6 +372,17 @@ const ChatInterface = () => {
     setError("");
     setIsLoading(true);
     setScanProgress(0);
+    
+    // Check for low scan balance before scanning
+    if (me && me.remaining <= 5 && me.remaining > 0) {
+      console.log("DEBUG: Low scan balance detected before scan:", me.remaining);
+      // Show warning message
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `You only have few scans left. Consider upgrading to BookYolo Premium for more scans: https://bookyolo-frontend.vercel.app/pricing`,
+        isWarning: true
+      }]);
+    }
     
     // Validate URL
     if (!url || !url.trim()) {
