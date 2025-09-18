@@ -149,6 +149,49 @@ const ChatInterface = () => {
     return null;
   }, [currentChatId, messages]);
 
+  // Helper function to load scan data for a specific chat
+  const loadScanDataForChat = useCallback(async (chatId) => {
+    try {
+      const token = localStorage.getItem("by_token");
+      if (!token) return null;
+      
+      // First get the chat details to find scan_id
+      const chatRes = await fetch(`${API_BASE}/chat/${chatId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (chatRes.ok) {
+        const chatData = await chatRes.json();
+        console.log("DEBUG: loadScanDataForChat - chat data:", chatData);
+        
+        if (chatData.chat.type === 'scan' && chatData.chat.scan_id) {
+          // Now fetch the scan data
+          const scanRes = await fetch(`${API_BASE}/scan/${chatData.chat.scan_id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (scanRes.ok) {
+            const scanData = await scanRes.json();
+            console.log("DEBUG: loadScanDataForChat - scan data loaded:", scanData);
+            console.log("DEBUG: loadScanDataForChat - listing_title:", scanData.listing_title);
+            console.log("DEBUG: loadScanDataForChat - location:", scanData.location);
+            
+            // Update the scanData state
+            setScanData(prev => ({
+              ...prev,
+              [chatId]: scanData
+            }));
+            
+            return scanData;
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load scan data for chat:", e);
+    }
+    return null;
+  }, []);
+
  // Store scan data for sidebar display
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
@@ -200,37 +243,13 @@ const ChatInterface = () => {
       if (r2.ok) {
         const chatsData = await r2.json();
         console.log("DEBUG: All chats loaded:", chatsData);
+        console.log("DEBUG: First chat structure:", chatsData[0]);
+        console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         setChats(chatsData);
         
-        // Load scan data for each scan chat
-        const scanChats = chatsData.filter(chat => chat.type === 'scan' && chat.scan_id);
-        console.log("DEBUG: Scan chats found:", scanChats);
-        const scanDataMap = {};
-        
-        // Load scan data for each chat
-        for (const chat of scanChats) {
-          try {
-            console.log("DEBUG: Loading scan data for chat", chat.id, "scan_id:", chat.scan_id);
-            const scanRes = await fetch(`${API_BASE}/scan/${chat.scan_id}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            console.log("DEBUG: Scan response status:", scanRes.status);
-            if (scanRes.ok) {
-              const scanData = await scanRes.json();
-              console.log("DEBUG: Loaded scan data for chat", chat.id, ":", scanData);
-              console.log("DEBUG: listing_title:", scanData.listing_title);
-              console.log("DEBUG: location:", scanData.location);
-              console.log("DEBUG: All keys in scanData:", Object.keys(scanData));
-              scanDataMap[chat.id] = scanData;
-            } else {
-              console.error("DEBUG: Failed to load scan data, status:", scanRes.status);
-            }
-          } catch (e) {
-            console.error(`Failed to load scan data for chat ${chat.id}:`, e);
-          }
-        }
-        
-        setScanData(scanDataMap);
+        // The /chats endpoint doesn't return scan_id, so we can't load scan data here
+        // We'll load it when needed in the sidebar or when a chat is opened
+        console.log("DEBUG: Skipping scan data loading in loadUserData - scan_id not available in /chats endpoint");
       }
     } catch (e) {
       console.error("Failed to load user data:", e);
@@ -465,6 +484,12 @@ const ChatInterface = () => {
         availableScans: scanChats.slice(0, 10).map(chat => {
           // Try to get scan data from current messages first, then from scanData state
           const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+          
+          // If we don't have scan data, load it
+          if (!scan && chat.type === 'scan') {
+            loadScanDataForChat(chat.id);
+          }
+          
           console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
           
           return {
@@ -827,6 +852,11 @@ const ChatInterface = () => {
                  {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => {
                    // Try to get scan data from current messages first, then from scanData state
                    const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+                   
+                   // If we don't have scan data, load it
+                   if (!scan && chat.type === 'scan') {
+                     loadScanDataForChat(chat.id);
+                   }
                    
                    console.log("DEBUG: Recent Scans - chat.id:", chat.id);
                    console.log("DEBUG: Recent Scans - chat.title:", chat.title);
