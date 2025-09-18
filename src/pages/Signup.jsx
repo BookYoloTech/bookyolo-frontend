@@ -6,7 +6,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.verc
 export default function Signup() {
   const { showSuccess, showError } = useNotification();
   const [form, setForm] = useState({
-    fullName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
+    firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
   });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -33,7 +33,7 @@ export default function Signup() {
       
       // Clear form
       setForm({
-        fullName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
+        firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
       });
     } catch (e) {
       setErr(e.message || String(e));
@@ -44,9 +44,8 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
-      <div className="relative w-full max-w-md">
-        <div className="absolute inset-0 bg-accent rounded-2xl blur-2xl opacity-30" />
-        <div className="relative bg-white rounded-2xl shadow-2xl ring-1 border-accent p-6 sm:p-8">
+      <div className="w-full max-w-md">
+        <div className="bg-white p-6 sm:p-8">
           <div className="text-center mb-6">
             <button 
               onClick={() => window.location.href = '/'}
@@ -57,17 +56,16 @@ export default function Signup() {
               <div className="h-1.5 w-1.5 rounded-full bg-button" />
               <span className="text-lg font-bold text-primary ml-2">BookYolo</span>
             </button>
-            <h2 className="text-xl font-bold text-primary">Join BookYolo</h2>
-            <p className="text-sm text-primary opacity-70">Create your account to get started</p>
+            <h2 className="text-xl font-bold text-primary">Create Your Account to Get Started</h2>
           </div>
 
           {err && <div className="mb-3 text-sm text-red-600">{err}</div>}
 
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-primary mb-1.5">Full name</label>
+              <label className="block text-sm font-medium text-primary mb-1.5">First name</label>
               <input className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
-                name="fullName" value={form.fullName} onChange={onChange} required />
+                name="firstName" value={form.firstName} onChange={onChange} required />
             </div>
             <div>
               <label className="block text-sm font-medium text-primary mb-1.5">Email address</label>
@@ -87,7 +85,7 @@ export default function Signup() {
             <div className="flex items-start gap-2">
               <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={onChange}
                 className="h-4 w-4 text-button border-accent rounded" required />
-              <span className="text-xs text-primary">I agree to the Terms and Privacy</span>
+              <span className="text-xs text-primary">I agree to the <a href="/terms" className="text-button hover:underline">Terms of Use</a></span>
             </div>
             <button disabled={loading}
               className="w-full py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90">

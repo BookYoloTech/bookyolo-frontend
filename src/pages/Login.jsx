@@ -36,7 +36,7 @@ export default function Login() {
       // Login successful
       showSuccess("Login successful! Welcome back!");
       
-      // Refresh the page to update the app state
+      // Redirect to scan chat
       setTimeout(() => {
         window.location.href = "/";
       }, 1500);
@@ -81,9 +81,8 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
-      <div className="relative w-full max-w-md">
-        <div className="absolute inset-0 bg-accent rounded-2xl blur-2xl opacity-30" />
-        <div className="relative bg-white backdrop-blur-sm rounded-2xl shadow-2xl ring-1 border-accent p-6 sm:p-8">
+      <div className="w-full max-w-md">
+        <div className="bg-white p-6 sm:p-8">
           <div className="text-center mb-6">
             <button 
               onClick={() => window.location.href = '/'}
@@ -94,8 +93,7 @@ export default function Login() {
               <div className="h-1.5 w-1.5 rounded-full bg-button" />
               <span className="text-lg font-bold text-primary ml-2">BookYolo</span>
             </button>
-            <h2 className="text-xl font-bold text-primary">Welcome back</h2>
-            <p className="text-sm text-primary opacity-70">Sign in to continue</p>
+            <h2 className="text-xl font-bold text-primary">Welcome Back</h2>
           </div>
 
           {err && <div className="mb-3 text-sm text-red-600">{err}</div>}
@@ -131,15 +129,10 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-4 text-center text-sm space-y-2">
+          <div className="mt-4 text-center text-sm">
             <div>
               Don't have an account?{" "}
               <a href="/signup" className="text-primary opacity-70 hover:opacity-100 font-medium">Sign up</a>
-            </div>
-            <div>
-              <a href="/admin/login" className="text-primary opacity-50 hover:opacity-70 text-xs">
-                Admin Login
-              </a>
             </div>
           </div>
 

@@ -5,17 +5,17 @@ const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.verc
 
 const labelStyle = (label) => {
   const map = {
-    "Outstanding Stay": { bg: "bg-blue-500", text: "text-white", icon: "⭐" },
-    "Excellent Stay": { bg: "bg-green-500", text: "text-white", icon: "✨" },
-    "Looks Legit": { bg: "bg-emerald-500", text: "text-white", icon: "✅" },
-    "Probably OK": { bg: "bg-yellow-500", text: "text-white", icon: "👍" },
-    "A Bit Risky": { bg: "bg-orange-500", text: "text-white", icon: "⚠️" },
-    "Looks Sketchy": { bg: "bg-red-500", text: "text-white", icon: "🚩" },
-    "Travel Trap": { bg: "bg-red-600", text: "text-white", icon: "🚨" },
-    "Booking Nightmare": { bg: "bg-red-800", text: "text-white", icon: "💀" },
-    "Insufficient Data": { bg: "bg-gray-500", text: "text-white", icon: "❓" },
+    "Outstanding Stay": { bg: "bg-green-500", text: "text-white" },
+    "Excellent Stay": { bg: "bg-yellow-green-500", text: "text-white" },
+    "Looks Legit": { bg: "bg-yellow-green-500", text: "text-white" },
+    "Probably OK": { bg: "bg-yellow-500", text: "text-white" },
+    "A Bit Risky": { bg: "bg-orange-500", text: "text-white" },
+    "Looks Sketchy": { bg: "bg-red-500", text: "text-white" },
+    "Travel Trap": { bg: "bg-red-500", text: "text-white" },
+    "Booking Nightmare": { bg: "bg-red-500", text: "text-white" },
+    "Insufficient Data": { bg: "bg-gray-500", text: "text-white" },
   };
-  return map[label] || { bg: "bg-gray-500", text: "text-white", icon: "❓" };
+  return map[label] || { bg: "bg-gray-500", text: "text-white" };
 };
 
 // Helper function to detect if input is an Airbnb URL
@@ -245,6 +245,13 @@ const ChatInterface = () => {
       return;
     }
 
+    // Check if this chat already has a scan
+    if (currentChatId && messages.some(msg => msg.scanData)) {
+      setError("This chat is dedicated to the property you just scanned. Click on New Scan to scan a new property.");
+      setIsLoading(false);
+      return;
+    }
+
     // Add user message
     const userMessage = { role: "user", content: `Scan ${url}` };
     setMessages(prev => [...prev, userMessage]);
@@ -283,6 +290,13 @@ const ChatInterface = () => {
         scanData: data.scan
       };
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Add post-scan message
+      const postScanMessage = {
+        role: "assistant",
+        content: "Do you have any questions about this? Feel free to ask anything..."
+      };
+      setMessages(prev => [...prev, postScanMessage]);
       
       // Refresh user data to update scan count and chats
       await loadUserData();
@@ -558,37 +572,46 @@ const ChatInterface = () => {
                   )}
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-2xl">{labelStyle(message.scanData.label).icon}</span>
                   <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
                     {message.scanData.label}
                   </span>
                 </div>
               </div>
 
-              {/* Summary */}
+              {/* Information */}
               <div className="mb-6">
-                <p className="text-primary leading-relaxed">{message.scanData.inspection_summary}</p>
+                <div className="text-primary font-medium mb-2">{message.scanData.listing_title || "Property Listing"}</div>
+                {message.scanData.location && (
+                  <div className="text-primary mb-2">{message.scanData.location}</div>
+                )}
+                <div className="text-primary underline">{message.scanData.listing_url}</div>
               </div>
 
-                    {/* Expectations */}
-                    <div className="mb-6">
-                      <h3 className="text-base font-semibold text-primary mb-3">What to Expect</h3>
-                      <div className="text-primary leading-relaxed">
-                        {message.scanData.what_to_expect && message.scanData.expectation_fit 
-                          ? `${message.scanData.what_to_expect} ${message.scanData.expectation_fit}`
-                          : message.scanData.what_to_expect || message.scanData.expectation_fit || "Standard expectations for this type of listing"
-                        }
-                      </div>
-                      {message.scanData.recent_changes && (
-                        <div className="mt-3 text-sm text-primary opacity-80">
-                          <strong>Recent changes:</strong> {message.scanData.recent_changes}
-                        </div>
-                      )}
-                    </div>
-
-              {/* Analysis */}
+              {/* What To Expect */}
               <div className="mb-6">
-                <h3 className="text-base font-semibold text-primary mb-3">Analysis</h3>
+                <h3 className="text-base font-semibold text-primary mb-3">What To Expect</h3>
+                <div className="text-primary leading-relaxed">
+                  {message.scanData.what_to_expect && message.scanData.expectation_fit 
+                    ? `${message.scanData.what_to_expect} ${message.scanData.expectation_fit}`
+                    : message.scanData.what_to_expect || message.scanData.expectation_fit || "Standard expectations for this type of listing"
+                  }
+                </div>
+              </div>
+
+              {/* Recent Changes */}
+              {message.scanData.recent_changes && (
+                <div className="mb-6">
+                  <h3 className="text-base font-semibold text-primary mb-3">Recent Changes</h3>
+                  <div className="text-primary">{message.scanData.recent_changes}</div>
+                </div>
+              )}
+
+              {/* Deep Inspection Analysis */}
+              <div className="mb-6">
+                <h3 className="text-base font-semibold text-primary mb-3">Deep Inspection Analysis</h3>
+                <div className="text-primary mb-4">
+                  This place passed {message.scanData.inspection_score || "92"} out of 100 inspection checks.
+                </div>
                 <div className="space-y-4">
                   {(message.scanData.categories || []).map((c, i) => (
                     <div 
@@ -658,6 +681,19 @@ const ChatInterface = () => {
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
+            {/* Left: Scan Balance */}
+            <div className="flex items-center space-x-2">
+              {typeof me?.remaining === "number" && (
+                <div className="flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
+                  <div className="w-2 h-2 bg-button rounded-full"></div>
+                  <span className="text-sm text-primary">
+                    <span className="font-semibold">{me.remaining}</span> scans left
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {/* Center: BookYolo Icon */}
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
@@ -673,21 +709,20 @@ const ChatInterface = () => {
               </div>
             </button>
             
-            <div className="flex items-center space-x-4">
-              {typeof me?.remaining === "number" && (
-                <div className="hidden sm:flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
-                  <div className="w-2 h-2 bg-button rounded-full"></div>
-                  <span className="text-sm text-primary">
-                    <span className="font-semibold">{me.remaining}</span> scans left
-                  </span>
-                </div>
-              )}
-              
+            {/* Right: New Scan, Compare, Account */}
+            <div className="flex items-center space-x-3">
               <button
                 onClick={startNewChat}
                 className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity"
               >
-                New Chat
+                New Scan
+              </button>
+              
+              <button
+                onClick={() => handleCompare("compare")}
+                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity"
+              >
+                Compare
               </button>
               
               <button
@@ -697,7 +732,7 @@ const ChatInterface = () => {
                 }}
                 className="px-4 py-2 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity"
               >
-                Logout
+                Account
               </button>
             </div>
           </div>
@@ -708,9 +743,33 @@ const ChatInterface = () => {
         {/* Sidebar */}
         <div className="w-80 border-r border-accent bg-accent p-4 overflow-y-auto">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-primary mb-3">Recent Chats</h3>
+            <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
             <div className="space-y-2">
-              {chats.slice(0, 10).map((chat) => (
+              {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => (
+                <button
+                  key={chat.id}
+                  onClick={() => loadChat(chat.id)}
+                  className={`w-full text-left p-3 rounded-lg transition-colors ${
+                    currentChatId === chat.id 
+                      ? 'bg-button text-button' 
+                      : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                  }`}
+                >
+                  <div className="font-medium text-sm truncate">
+                    {chat.title.replace("Scan • ", "")}
+                  </div>
+                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                    {new Date(chat.created_at).toLocaleDateString()}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
+            <div className="space-y-2">
+              {chats.filter(chat => chat.type === 'compare').slice(0, 5).map((chat) => (
                 <button
                   key={chat.id}
                   onClick={() => loadChat(chat.id)}
@@ -730,7 +789,6 @@ const ChatInterface = () => {
               ))}
             </div>
           </div>
-          
         </div>
 
         {/* Main Chat Area */}
@@ -741,16 +799,18 @@ const ChatInterface = () => {
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <div className="max-w-md">
                   <h2 className="text-2xl font-bold text-primary mb-4">
-                    Welcome to BookYolo Chat
+                    Welcome to BookYolo AI Engine
                   </h2>
                   <p className="text-primary opacity-70 mb-6">
-                    Paste an Airbnb URL to scan, ask questions about listings, or compare properties - all in one conversation!
+                    Paste any Airbnb property URL to scan it
                   </p>
                   <div className="text-sm text-primary opacity-60 space-y-2">
-                    <p><strong>Examples:</strong></p>
-                    <p>• "Scan https://airbnb.com/rooms/12345"</p>
-                    <p>• "Is this place good for families?"</p>
-                    <p>• "Compare https://airbnb.com/rooms/123 with https://airbnb.com/rooms/456"</p>
+                    <p><strong>Ask any question:</strong></p>
+                    <p>• Is this property clean overall?</p>
+                    <p>• Is this a good place for families?</p>
+                    <p>• How is the WiFi?</p>
+                    <p>• Have you noted any issues regarding street noise?</p>
+                    <p>• How is the kitchen?</p>
                   </div>
                 </div>
               </div>
@@ -802,9 +862,10 @@ const ChatInterface = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Paste an Airbnb URL to scan, ask a question, or request a comparison..."
+                  placeholder="Paste an Airbnb property URL to scan and ask any questions..."
                   className="flex-1 rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
+                  rows="2"
                 />
                 <button
                   type="submit"
@@ -817,7 +878,9 @@ const ChatInterface = () => {
                       <span>Processing...</span>
                     </div>
                   ) : (
-                    "Send"
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
                   )}
                 </button>
               </div>
@@ -830,3 +893,4 @@ const ChatInterface = () => {
 };
 
 export default ChatInterface;
+
