@@ -190,6 +190,7 @@ const ChatInterface = () => {
               console.log("DEBUG: Raw scan data for chat", chat.id, ":", scanData);
               console.log("DEBUG: listing_title:", scanData.listing_title);
               console.log("DEBUG: location:", scanData.location);
+              console.log("DEBUG: All scan data keys:", Object.keys(scanData));
               return { chatId: chat.id, scanData };
             }
           } catch (e) {
@@ -420,6 +421,12 @@ const ChatInterface = () => {
       const userMessage = { role: "user", content: text };
       setMessages(prev => [...prev, userMessage]);
       
+      // Wait for scan data to be loaded if it's still loading
+      if (isLoadingData) {
+        setError("Loading scan data...");
+        return;
+      }
+      
       // Add assistant response with comparison options
       const assistantMessage = {
         role: "assistant",
@@ -428,10 +435,19 @@ const ChatInterface = () => {
         availableScans: scanChats.slice(0, 10).map(chat => {
           const scan = scanData[chat.id];
           console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
+          
+          // Fallback: extract title from URL if listing_title is not available
+          let listingTitle = scan?.listing_title;
+          if (!listingTitle && scan?.listing_url) {
+            const urlParts = scan.listing_url.split('/');
+            const roomId = urlParts[urlParts.length - 1];
+            listingTitle = `Room ${roomId}`;
+          }
+          
           return {
             id: chat.id,
             listing_url: chat.title.replace("Scan • ", ""),
-            listing_title: scan?.listing_title,
+            listing_title: listingTitle,
             location: scan?.location,
             created_at: chat.created_at
           };
@@ -785,27 +801,36 @@ const ChatInterface = () => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
             <div className="space-y-2">
-              {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => {
-                const scan = scanData[chat.id];
-                return (
-                  <button
-                    key={chat.id}
-                    onClick={() => loadChat(chat.id)}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${
-                      currentChatId === chat.id 
-                        ? 'bg-button text-button' 
-                        : 'bg-white hover:bg-white/70 border border-accent text-primary'
-                    }`}
-                  >
-                    <div className="font-medium text-sm truncate">
-                      {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
-                    </div>
-                    <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
-                      {scan?.location || new Date(chat.created_at).toLocaleDateString()}
-                    </div>
-                  </button>
-                );
-              })}
+                 {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => {
+                   const scan = scanData[chat.id];
+                   
+                   // Fallback: extract title from URL if listing_title is not available
+                   let listingTitle = scan?.listing_title;
+                   if (!listingTitle && scan?.listing_url) {
+                     const urlParts = scan.listing_url.split('/');
+                     const roomId = urlParts[urlParts.length - 1];
+                     listingTitle = `Room ${roomId}`;
+                   }
+                   
+                   return (
+                     <button
+                       key={chat.id}
+                       onClick={() => loadChat(chat.id)}
+                       className={`w-full text-left p-3 rounded-lg transition-colors ${
+                         currentChatId === chat.id 
+                           ? 'bg-button text-button' 
+                           : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                       }`}
+                     >
+                       <div className="font-medium text-sm truncate">
+                         {listingTitle || scan?.location || chat.title.replace("Scan • ", "")}
+                       </div>
+                       <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                         {scan?.location || new Date(chat.created_at).toLocaleDateString()}
+                       </div>
+                     </button>
+                   );
+                 })}
             </div>
           </div>
           
