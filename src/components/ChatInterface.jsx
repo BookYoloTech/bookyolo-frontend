@@ -65,7 +65,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
             <option value="">Select first listing</option>
             {availableScans.map((scan) => (
               <option key={scan.id} value={scan.id}>
-                {scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+                {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
               </option>
             ))}
           </select>
@@ -81,7 +81,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
             <option value="">Select second listing</option>
             {availableScans.map((scan) => (
               <option key={scan.id} value={scan.id}>
-                {scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+                {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
               </option>
             ))}
           </select>
@@ -126,6 +126,7 @@ const ChatInterface = () => {
   const [currentScan, setCurrentScan] = useState(null);
   const [me, setMe] = useState(null);
   const [chats, setChats] = useState([]);
+  const [scanData, setScanData] = useState({}); // Store scan data for sidebar display
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
   
@@ -173,7 +174,36 @@ const ChatInterface = () => {
       ]);
       
       if (r1.ok) setMe(await r1.json());
-      if (r2.ok) setChats(await r2.json());
+      if (r2.ok) {
+        const chatsData = await r2.json();
+        setChats(chatsData);
+        
+        // Fetch scan data for each scan chat
+        const scanChats = chatsData.filter(chat => chat.type === 'scan' && chat.scan_id);
+        const scanDataPromises = scanChats.map(async (chat) => {
+          try {
+            const scanRes = await fetch(`${API_BASE}/scan/${chat.scan_id}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (scanRes.ok) {
+              const scanData = await scanRes.json();
+              return { chatId: chat.id, scanData };
+            }
+          } catch (e) {
+            console.error(`Failed to load scan data for chat ${chat.id}:`, e);
+          }
+          return null;
+        });
+        
+        const scanDataResults = await Promise.all(scanDataPromises);
+        const scanDataMap = {};
+        scanDataResults.forEach(result => {
+          if (result) {
+            scanDataMap[result.chatId] = result.scanData;
+          }
+        });
+        setScanData(scanDataMap);
+      }
     } catch (e) {
       console.error("Failed to load user data:", e);
     } finally {
@@ -392,11 +422,16 @@ const ChatInterface = () => {
         role: "assistant",
         content: "I can help you compare your scanned listings. Here are your available scans:",
         showComparisonUI: true,
-        availableScans: scanChats.slice(0, 10).map(chat => ({
-          id: chat.id,
-          listing_url: chat.title.replace("Scan • ", ""),
-          created_at: chat.created_at
-        }))
+        availableScans: scanChats.slice(0, 10).map(chat => {
+          const scan = scanData[chat.id];
+          return {
+            id: chat.id,
+            listing_url: chat.title.replace("Scan • ", ""),
+            listing_title: scan?.listing_title,
+            location: scan?.location,
+            created_at: chat.created_at
+          };
+        })
       };
       console.log("DEBUG: Adding comparison UI message:", assistantMessage);
       setMessages(prev => [...prev, assistantMessage]);
@@ -728,11 +763,12 @@ const ChatInterface = () => {
               <button
                 onClick={() => {
                   localStorage.removeItem("by_token");
-                  navigate("/");
+                  localStorage.removeItem("by_user");
+                  navigate("/login");
                 }}
                 className="px-4 py-2 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity"
               >
-                Account
+                Logout
               </button>
             </div>
           </div>
@@ -745,24 +781,27 @@ const ChatInterface = () => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
             <div className="space-y-2">
-              {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => loadChat(chat.id)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors ${
-                    currentChatId === chat.id 
-                      ? 'bg-button text-button' 
-                      : 'bg-white hover:bg-white/70 border border-accent text-primary'
-                  }`}
-                >
-                  <div className="font-medium text-sm truncate">
-                    {chat.title.replace("Scan • ", "")}
-                  </div>
-                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
-                    {new Date(chat.created_at).toLocaleDateString()}
-                  </div>
-                </button>
-              ))}
+              {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => {
+                const scan = scanData[chat.id];
+                return (
+                  <button
+                    key={chat.id}
+                    onClick={() => loadChat(chat.id)}
+                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                      currentChatId === chat.id 
+                        ? 'bg-button text-button' 
+                        : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                    }`}
+                  >
+                    <div className="font-medium text-sm truncate">
+                      {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
+                    </div>
+                    <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                      {scan?.location || new Date(chat.created_at).toLocaleDateString()}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
           
@@ -780,7 +819,7 @@ const ChatInterface = () => {
                   }`}
                 >
                   <div className="font-medium text-sm truncate">
-                    {chat.title}
+                    {chat.title || "Property Comparison"}
                   </div>
                   <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
                     {new Date(chat.created_at).toLocaleDateString()}

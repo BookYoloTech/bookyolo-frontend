@@ -38,7 +38,7 @@ export default function Login() {
       
       // Redirect to scan chat
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = "/scan";
       }, 1500);
     } catch (e) {
       setErr(e.message || String(e));
