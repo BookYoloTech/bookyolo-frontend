@@ -128,6 +128,16 @@ const ChatInterface = () => {
   const [chats, setChats] = useState([]);
   const [scanData, setScanData] = useState({});
 
+  // Helper function to get scan data from current messages
+  const getScanDataFromCurrentMessages = useCallback((chatId) => {
+    // If this is the current chat, look in the current messages
+    if (currentChatId === chatId) {
+      const scanMessage = messages.find(msg => msg.role === 'assistant' && msg.scanData);
+      return scanMessage ? scanMessage.scanData : null;
+    }
+    return null;
+  }, [currentChatId, messages]);
+
  // Store scan data for sidebar display
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
@@ -429,21 +439,14 @@ const ChatInterface = () => {
         content: "I can help you compare your scanned listings. Here are your available scans:",
         showComparisonUI: true,
         availableScans: scanChats.slice(0, 10).map(chat => {
-          const scan = scanData[chat.id];
+          // Try to get scan data from current messages first, then from scanData state
+          const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
           console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
-          
-          // Fallback: extract title from URL if listing_title is not available
-          let listingTitle = scan?.listing_title;
-          if (!listingTitle && scan?.listing_url) {
-            const urlParts = scan.listing_url.split('/');
-            const roomId = urlParts[urlParts.length - 1];
-            listingTitle = `Room ${roomId}`;
-          }
           
           return {
             id: chat.id,
             listing_url: chat.title.replace("Scan • ", ""),
-            listing_title: listingTitle,
+            listing_title: scan?.listing_title,
             location: scan?.location,
             created_at: chat.created_at
           };
@@ -798,15 +801,8 @@ const ChatInterface = () => {
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
             <div className="space-y-2">
                  {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => {
-                   const scan = scanData[chat.id];
-                   
-                   // Fallback: extract title from URL if listing_title is not available
-                   let listingTitle = scan?.listing_title;
-                   if (!listingTitle && scan?.listing_url) {
-                     const urlParts = scan.listing_url.split('/');
-                     const roomId = urlParts[urlParts.length - 1];
-                     listingTitle = `Room ${roomId}`;
-                   }
+                   // Try to get scan data from current messages first, then from scanData state
+                   const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
                    
                    return (
                      <button
@@ -819,7 +815,7 @@ const ChatInterface = () => {
                        }`}
                      >
                        <div className="font-medium text-sm truncate">
-                         {listingTitle || scan?.location || chat.title.replace("Scan • ", "")}
+                         {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
                        </div>
                        <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
                          {scan?.location || new Date(chat.created_at).toLocaleDateString()}
