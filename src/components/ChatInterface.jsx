@@ -63,14 +63,11 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
             onChange={(e) => setSelectedScan1(e.target.value)}
           >
             <option value="">Select first listing</option>
-            {availableScans.map((scan) => {
-              console.log("DEBUG: Compare selector scan data:", scan);
-              return (
-                <option key={scan.id} value={scan.id}>
-                  {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
-                </option>
-              );
-            })}
+            {availableScans.map((scan) => (
+              <option key={scan.id} value={scan.id}>
+                {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -82,14 +79,11 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
             onChange={(e) => setSelectedScan2(e.target.value)}
           >
             <option value="">Select second listing</option>
-            {availableScans.map((scan) => {
-              console.log("DEBUG: Compare selector scan data (second):", scan);
-              return (
-                <option key={scan.id} value={scan.id}>
-                  {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
-                </option>
-              );
-            })}
+            {availableScans.map((scan) => (
+              <option key={scan.id} value={scan.id}>
+                {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -193,6 +187,9 @@ const ChatInterface = () => {
             });
             if (scanRes.ok) {
               const scanData = await scanRes.json();
+              console.log("DEBUG: Raw scan data for chat", chat.id, ":", scanData);
+              console.log("DEBUG: listing_title:", scanData.listing_title);
+              console.log("DEBUG: location:", scanData.location);
               return { chatId: chat.id, scanData };
             }
           } catch (e) {
@@ -205,7 +202,6 @@ const ChatInterface = () => {
         const scanDataMap = {};
         scanDataResults.forEach(result => {
           if (result) {
-            console.log("DEBUG: Scan data for chat", result.chatId, ":", result.scanData);
             scanDataMap[result.chatId] = result.scanData;
           }
         });
@@ -431,6 +427,7 @@ const ChatInterface = () => {
         showComparisonUI: true,
         availableScans: scanChats.slice(0, 10).map(chat => {
           const scan = scanData[chat.id];
+          console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
           return {
             id: chat.id,
             listing_url: chat.title.replace("Scan • ", ""),
@@ -790,7 +787,6 @@ const ChatInterface = () => {
             <div className="space-y-2">
               {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => {
                 const scan = scanData[chat.id];
-                console.log("DEBUG: Sidebar chat", chat.id, "scan data:", scan);
                 return (
                   <button
                     key={chat.id}
