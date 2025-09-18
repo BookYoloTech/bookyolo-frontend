@@ -593,15 +593,15 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      // Create a new compare chat using the /chat/new-compare endpoint
-      const res = await fetch(`${API_BASE}/chat/new-compare`, {
+      const res = await fetch(`${API_BASE}/compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          listing_urls: [scan1.listing_url, scan2.listing_url],
+          scan_a_url: scan1.listing_url, 
+          scan_b_url: scan2.listing_url, 
           question: question || null 
         }),
       });
@@ -612,13 +612,17 @@ const ChatInterface = () => {
       }
       
       const data = await res.json();
-      console.log("DEBUG: Compare chat created:", data);
       
-      // Load the new compare chat
-      await loadChat(data.chat.id);
+      // Add assistant response
+      const assistantMessage = {
+        role: "assistant",
+        content: data.answer || "I couldn't compare these listings.",
+        isComparison: true,
+        comparedScans: { scan1, scan2 }
+      };
+      setMessages(prev => [...prev, assistantMessage]);
       
-      // Refresh the chats list to show the new compare chat in Recent Compares
-      await loadUserData();
+      await loadUserData(); // Refresh data
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
