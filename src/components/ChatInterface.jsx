@@ -126,7 +126,9 @@ const ChatInterface = () => {
   const [currentScan, setCurrentScan] = useState(null);
   const [me, setMe] = useState(null);
   const [chats, setChats] = useState([]);
-  const [scanData, setScanData] = useState({}); // Store scan data for sidebar display
+  const [scanData, setScanData] = useState({});
+
+ // Store scan data for sidebar display
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
   
@@ -178,34 +180,28 @@ const ChatInterface = () => {
         const chatsData = await r2.json();
         setChats(chatsData);
         
-        // Fetch scan data for each scan chat
+        // Load scan data for each scan chat
         const scanChats = chatsData.filter(chat => chat.type === 'scan' && chat.scan_id);
-        const scanDataPromises = scanChats.map(async (chat) => {
+        const scanDataMap = {};
+        
+        // Load scan data for each chat
+        for (const chat of scanChats) {
           try {
             const scanRes = await fetch(`${API_BASE}/scan/${chat.scan_id}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             if (scanRes.ok) {
               const scanData = await scanRes.json();
-              console.log("DEBUG: Raw scan data for chat", chat.id, ":", scanData);
+              console.log("DEBUG: Loaded scan data for chat", chat.id, ":", scanData);
               console.log("DEBUG: listing_title:", scanData.listing_title);
               console.log("DEBUG: location:", scanData.location);
-              console.log("DEBUG: All scan data keys:", Object.keys(scanData));
-              return { chatId: chat.id, scanData };
+              scanDataMap[chat.id] = scanData;
             }
           } catch (e) {
             console.error(`Failed to load scan data for chat ${chat.id}:`, e);
           }
-          return null;
-        });
+        }
         
-        const scanDataResults = await Promise.all(scanDataPromises);
-        const scanDataMap = {};
-        scanDataResults.forEach(result => {
-          if (result) {
-            scanDataMap[result.chatId] = result.scanData;
-          }
-        });
         setScanData(scanDataMap);
       }
     } catch (e) {
