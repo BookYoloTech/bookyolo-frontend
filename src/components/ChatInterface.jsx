@@ -384,7 +384,7 @@ const ChatInterface = () => {
     }
 
     // Add user message
-    const userMessage = { role: "user", content: `Scan ${url}` };
+    const userMessage = { role: "user", content: `Scan ${url}`, messageType: "scan" };
     setMessages(prev => [...prev, userMessage]);
 
     try {
@@ -490,7 +490,7 @@ const ChatInterface = () => {
     setIsLoading(true);
     
     // Add user message
-    const userMessage = { role: "user", content: question };
+    const userMessage = { role: "user", content: question, messageType: "question" };
     setMessages(prev => [...prev, userMessage]);
 
     try {
@@ -549,7 +549,7 @@ const ChatInterface = () => {
       setError("");
       
       // Add user message
-      const userMessage = { role: "user", content: text };
+      const userMessage = { role: "user", content: text, messageType: "compare" };
       setMessages(prev => [...prev, userMessage]);
       
       // Wait for scan data to be loaded if it's still loading
@@ -595,7 +595,7 @@ const ChatInterface = () => {
       setIsLoading(true);
       
       // Add user message
-      const userMessage = { role: "user", content: text };
+      const userMessage = { role: "user", content: text, messageType: "compare" };
       setMessages(prev => [...prev, userMessage]);
 
       try {
@@ -736,19 +736,22 @@ const ChatInterface = () => {
     const isUser = message.role === "user";
     const isError = message.isError;
     const isWarning = message.isWarning;
+    const isQuestion = isUser && message.messageType === "question";
     
     return (
-      <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
+      <div key={index} className={`flex ${isUser && !isQuestion ? 'justify-end' : 'justify-start'} mb-6`}>
         <div className={`max-w-4xl w-full ${
-          isUser 
+          isUser && !isQuestion
             ? 'bg-button text-button rounded-2xl px-4 py-3 ml-auto max-w-3xl' 
+            : isQuestion
+            ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 max-w-3xl'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isWarning
             ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-2xl px-4 py-3 max-w-3xl'
             : 'bg-white'
         }`}>
-          {!isUser && !isError && !isWarning && message.scanData ? (
+          {!isUser && !isError && !isWarning && !isQuestion && message.scanData ? (
             // Detailed scan result display
             <div className="bg-white rounded-2xl border border-accent p-6">
               {/* Result Header */}
