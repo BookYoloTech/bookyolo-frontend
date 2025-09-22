@@ -984,7 +984,7 @@ const ChatInterface = () => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
             <div className="space-y-2">
-                 {chats.filter(chat => chat.type === 'scan').slice(0, 10).map((chat) => {
+                 {chats.filter(chat => chat.type === 'scan').map((chat) => {
                    // Try to get scan data from current messages first, then from scanData state
                    const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
                    
@@ -1026,7 +1026,7 @@ const ChatInterface = () => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
             <div className="space-y-2">
-              {chats.filter(chat => chat.type === 'compare').slice(0, 5).map((chat) => (
+              {chats.filter(chat => chat.type === 'compare').map((chat) => (
                 <button
                   key={chat.id}
                   onClick={() => loadChat(chat.id)}
