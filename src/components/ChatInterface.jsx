@@ -259,7 +259,13 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        setChats(chatsData);
+        // Preserve local compare chats when updating chats from database
+        setChats(prevChats => {
+          const localCompareChats = prevChats.filter(chat => 
+            chat.type === 'compare' && chat.id.startsWith('compare-')
+          );
+          return [...localCompareChats, ...chatsData];
+        });
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
@@ -274,6 +280,37 @@ const ChatInterface = () => {
 
   const loadChat = async (chatId) => {
     try {
+      // Check if this is a local compare chat (not in database)
+      const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
+      
+      if (localCompareChat) {
+        // Handle local compare chat
+        setCurrentChatId(chatId);
+        setCurrentScan(null);
+        
+        // Create messages for the compare chat
+        const compareMessages = [
+          {
+            role: "user",
+            content: `Compare: ${localCompareChat.scan1.listing_title || localCompareChat.scan1.location} vs ${localCompareChat.scan2.listing_title || localCompareChat.scan2.location}`,
+            timestamp: localCompareChat.created_at
+          },
+          {
+            role: "assistant",
+            content: localCompareChat.result,
+            timestamp: localCompareChat.created_at,
+            isComparison: true,
+            comparedScans: { 
+              scan1: localCompareChat.scan1, 
+              scan2: localCompareChat.scan2 
+            }
+          }
+        ];
+        
+        setMessages(compareMessages);
+        return;
+      }
+      
       // Handle database chats
       const token = localStorage.getItem("by_token");
       const res = await fetch(`${API_BASE}/chat/${chatId}`, {
@@ -687,7 +724,21 @@ const ChatInterface = () => {
        };
        setMessages(prev => [...prev, assistantMessage]);
        
-       // Refresh user data to update scan count and load the new compare chat
+       // Create a compare chat entry for Recent Compares sidebar
+       const compareChat = {
+         id: `compare-${Date.now()}`, // Generate unique ID
+         type: 'compare',
+         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
+         created_at: new Date().toISOString(),
+         scan1: scan1,
+         scan2: scan2,
+         result: data.answer
+       };
+       
+       // Add to chats state - same as Recent Scans
+       setChats(prev => [compareChat, ...prev]);
+       
+       // Refresh user data to update scan count
        await loadUserData();
     } catch (e) {
       setError(e.message || String(e));
