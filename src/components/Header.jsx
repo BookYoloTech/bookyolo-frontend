@@ -148,10 +148,9 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}>
-          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="md:hidden fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out">
             <div className="p-6">
               {/* Close Button */}
               <div className="flex justify-end mb-6">
@@ -257,8 +256,15 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
                 )}
               </div>
             </div>
-          </div>
         </div>
+      )}
+
+      {/* Click outside to close */}
+      {mobileMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 z-40" 
+          onClick={() => setMobileMenuOpen(false)}
+        />
       )}
     </header>
   );
