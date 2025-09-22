@@ -980,11 +980,11 @@ const ChatInterface = () => {
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Sidebar */}
-        <div className="w-80 border-r border-accent bg-accent p-4 h-full">
-          {/* Recent Scans Section */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
-            <div className="h-80 overflow-y-auto space-y-2 pr-2">
+        <div className="w-80 border-r border-accent bg-accent p-4 h-full flex flex-col">
+          {/* Property Scans Section - 2/3 height */}
+          <div className="flex-1 flex flex-col mb-4" style={{height: 'calc(66.67% - 1rem)'}}>
+            <h3 className="text-lg font-semibold text-primary mb-3">Property Scans</h3>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
               {chats.filter(chat => chat.type === 'scan').map((chat) => {
                 // Try to get scan data from current messages first, then from scanData state
                 const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
@@ -1016,10 +1016,10 @@ const ChatInterface = () => {
             </div>
           </div>
           
-          {/* Recent Compares Section */}
-          <div>
+          {/* Recent Compares Section - 1/3 height */}
+          <div className="flex-1 flex flex-col" style={{height: 'calc(33.33% - 1rem)'}}>
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
-            <div className="h-80 overflow-y-auto space-y-2 pr-2">
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
               {chats.filter(chat => chat.type === 'compare').map((chat) => (
                 <button
                   key={chat.id}
