@@ -7,7 +7,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.verc
 export default function Signup() {
   const { showSuccess, showError } = useNotification();
   const [form, setForm] = useState({
-    firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
+    firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false, agreeToPrivacy: false
   });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -20,6 +20,13 @@ export default function Signup() {
   const submit = async (e) => {
     e.preventDefault();
     setErr(""); setLoading(true);
+    
+    // Validate both checkboxes are checked
+    if (!form.agreeToTerms || !form.agreeToPrivacy) {
+      setErr("Please agree to both Terms of Service and Privacy Policy to continue.");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
@@ -34,7 +41,7 @@ export default function Signup() {
       
       // Clear form
       setForm({
-        firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false
+        firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false, agreeToPrivacy: false
       });
     } catch (e) {
       setErr(e.message || String(e));
@@ -84,12 +91,21 @@ export default function Signup() {
               <input className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
                 type="password" name="confirmPassword" value={form.confirmPassword} onChange={onChange} required />
             </div>
-            <div className="flex items-start gap-2">
-              <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={onChange}
-                className="h-4 w-4 text-button border-accent rounded" required />
-              <label className="text-xs text-primary cursor-pointer">
-                I agree to the <a href="/terms" className="text-blue-600 hover:underline font-medium">Terms of Use</a>
-              </label>
+            <div className="space-y-3">
+              <div className="flex items-start gap-2">
+                <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={onChange}
+                  className="h-4 w-4 text-button border-accent rounded mt-0.5" required />
+                <label className="text-xs text-primary cursor-pointer">
+                  I agree to the <a href="https://bookyolo.com/terms-of-services" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Terms of Service</a>
+                </label>
+              </div>
+              <div className="flex items-start gap-2">
+                <input type="checkbox" name="agreeToPrivacy" checked={form.agreeToPrivacy} onChange={onChange}
+                  className="h-4 w-4 text-button border-accent rounded mt-0.5" required />
+                <label className="text-xs text-primary cursor-pointer">
+                  I agree to the <a href="https://bookyolo.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Privacy Policy</a>
+                </label>
+              </div>
             </div>
             <button disabled={loading}
               className="w-full py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90">

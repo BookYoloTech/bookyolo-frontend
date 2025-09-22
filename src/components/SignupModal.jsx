@@ -7,11 +7,19 @@ const SignupModal = ({ isOpen, onClose, onSuccess, onSwitchToLogin }) => {
     email: '',
     password: '',
     confirmPassword: '',
-    agreeToTerms: false
+    agreeToTerms: false,
+    agreeToPrivacy: false
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validate both checkboxes are checked
+    if (!formData.agreeToTerms || !formData.agreeToPrivacy) {
+      alert("Please agree to both Terms of Service and Privacy Policy to continue.");
+      return;
+    }
+    
     // Handle signup logic here
     if (onSuccess) {
       onSuccess();
@@ -127,26 +135,41 @@ const SignupModal = ({ isOpen, onClose, onSuccess, onSwitchToLogin }) => {
               />
             </div>
 
-            <div className="flex items-start">
-              <input 
-                type="checkbox" 
-                id="agreeToTerms"
-                name="agreeToTerms"
-                checked={formData.agreeToTerms}
-                onChange={handleChange}
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded mt-0.5"
-                required
-              />
-              <label htmlFor="agreeToTerms" className="ml-2 block text-xs text-gray-700 leading-relaxed">
-                I agree to the{' '}
-                <a href="#" className="text-green-600 hover:text-green-500 font-medium transition-colors duration-200">
-                  Terms and Conditions
-                </a>{' '}
-                and{' '}
-                <a href="#" className="text-green-600 hover:text-green-500 font-medium transition-colors duration-200">
-                  Privacy Policy
-                </a>
-              </label>
+            <div className="space-y-3">
+              <div className="flex items-start">
+                <input 
+                  type="checkbox" 
+                  id="agreeToTerms"
+                  name="agreeToTerms"
+                  checked={formData.agreeToTerms}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded mt-0.5"
+                  required
+                />
+                <label htmlFor="agreeToTerms" className="ml-2 block text-xs text-gray-700 leading-relaxed">
+                  I agree to the{' '}
+                  <a href="https://bookyolo.com/terms-of-services" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-500 font-medium transition-colors duration-200">
+                    Terms of Service
+                  </a>
+                </label>
+              </div>
+              <div className="flex items-start">
+                <input 
+                  type="checkbox" 
+                  id="agreeToPrivacy"
+                  name="agreeToPrivacy"
+                  checked={formData.agreeToPrivacy}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded mt-0.5"
+                  required
+                />
+                <label htmlFor="agreeToPrivacy" className="ml-2 block text-xs text-gray-700 leading-relaxed">
+                  I agree to the{' '}
+                  <a href="https://bookyolo.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-500 font-medium transition-colors duration-200">
+                    Privacy Policy
+                  </a>
+                </label>
+              </div>
             </div>
 
             <button 
