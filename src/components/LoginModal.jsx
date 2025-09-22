@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logo from '../assets/Bookyolo-logo.png';
 
 const LoginModal = ({ isOpen, onClose, onSuccess, onSwitchToSignup }) => {
   const [formData, setFormData] = useState({
@@ -52,12 +53,11 @@ const LoginModal = ({ isOpen, onClose, onSuccess, onSwitchToSignup }) => {
           {/* Header */}
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <div className="flex items-center gap-1">
-                <div className="h-1.5 w-1.5 rounded-full bg-gray-800"></div>
-                <div className="h-1.5 w-1.5 rounded-full bg-gray-800"></div>
-                <div className="h-1.5 w-1.5 rounded-full bg-gray-800"></div>
-              </div>
-              <span className="text-lg font-bold text-gray-900">BookYolo</span>
+              <img 
+                src={logo} 
+                alt="BookYolo" 
+                className="h-10 w-auto"
+              />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Welcome back</h2>
             <p className="text-sm text-gray-600">Sign in to your account to continue</p>

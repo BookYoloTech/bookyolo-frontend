@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNotification } from "../contexts/NotificationContext";
+import logo from "../assets/Bookyolo-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
@@ -49,12 +50,13 @@ export default function Signup() {
           <div className="text-center mb-6">
             <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center justify-center gap-2 mb-3 mx-auto hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center mb-3 mx-auto hover:opacity-80 transition-opacity"
             >
-              <div className="h-1.5 w-1.5 rounded-full bg-button" />
-              <div className="h-1.5 w-1.5 rounded-full bg-button" />
-              <div className="h-1.5 w-1.5 rounded-full bg-button" />
-              <span className="text-lg font-bold text-primary ml-2">BookYolo</span>
+              <img 
+                src={logo} 
+                alt="BookYolo" 
+                className="h-12 w-auto"
+              />
             </button>
             <h2 className="text-xl font-bold text-primary">Create Your Account to Get Started</h2>
           </div>

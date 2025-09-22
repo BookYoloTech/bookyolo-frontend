@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logo from '../assets/Bookyolo-logo.png';
 import jeanImage from '../assets/jean 1.JPG';
 
 const Hero = ({ onSignup }) => {

@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../../assets/Bookyolo-logo.png';
 import { useNavigate } from 'react-router-dom';
 
 const DashboardHeader = ({ user, onLogout }) => {
@@ -21,10 +22,14 @@ const DashboardHeader = ({ user, onLogout }) => {
         <div className="flex items-center">
           <button 
             onClick={goToHome}
-            className="flex items-center hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            <span className="text-xl font-bold text-primary-800">BookYolo</span>
-            <span className="ml-2 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">AIRBNB REALITY CHECK</span>
+            <img 
+              src={logo} 
+              alt="BookYolo" 
+              className="h-8 w-auto"
+            />
+            <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">AIRBNB REALITY CHECK</span>
           </button>
         </div>
         <div className="flex items-center space-x-4">

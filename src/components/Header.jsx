@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PaymentButton from "./stripe/PaymentButton";
+import logo from "../assets/Bookyolo-logo.png";
 
 const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
   const [activeSection, setActiveSection] = useState("hero");
@@ -59,17 +60,13 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
           {/* Logo */}
           <button 
             onClick={() => window.location.href = '/'}
-            className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center hover:opacity-80 transition-opacity"
           >
-            <div className="flex items-center gap-1">
-              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
-              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
-              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg sm:text-xl font-bold text-primary">Book</span>
-              <span className="text-lg sm:text-xl font-bold text-primary">Yolo</span>
-            </div>
+            <img 
+              src={logo} 
+              alt="BookYolo" 
+              className="h-8 sm:h-10 w-auto"
+            />
           </button>
 
           {/* Mobile Menu Button */}

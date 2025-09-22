@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import logo from '../../assets/Bookyolo-logo.png';
 
 export default function AdminHeader({ onLogout }) {
   const [adminUser, setAdminUser] = useState(null);
@@ -19,15 +20,12 @@ export default function AdminHeader({ onLogout }) {
             onClick={() => window.location.href = '/'}
             className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
           >
-            <div className="flex items-center gap-1">
-              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
-              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
-              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg sm:text-xl font-bold text-primary">BookYolo</span>
-              <span className="text-xs sm:text-sm bg-button text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">Admin</span>
-            </div>
+            <img 
+              src={logo} 
+              alt="BookYolo" 
+              className="h-8 sm:h-10 w-auto"
+            />
+            <span className="text-xs sm:text-sm bg-button text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">Admin</span>
           </button>
 
           {/* Admin Info & Actions */}

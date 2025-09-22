@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../assets/Bookyolo-logo.png';
 
 const Footer = () => {
   return (
@@ -14,14 +15,13 @@ const Footer = () => {
             {/* Logo */}
             <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              className="flex items-center hover:opacity-80 transition-opacity"
             >
-              <div className="flex items-center gap-1">
-                <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
-                <div className="h-2.5 w-2.5 rounded-full bg-white"></div>
-              </div>
-              <span className="text-2xl font-semibold text-white">BookYolo</span>
+              <img 
+                src={logo} 
+                alt="BookYolo" 
+                className="h-10 w-auto brightness-0 invert"
+              />
             </button>
             
             {/* Social media icons */}

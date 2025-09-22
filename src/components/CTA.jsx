@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../assets/Bookyolo-logo.png';
 
 const CTA = ({ onSignup }) => {
   return (

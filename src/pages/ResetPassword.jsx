@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import logo from "../assets/Bookyolo-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
@@ -161,12 +162,13 @@ export default function ResetPassword() {
           <div className="text-center mb-6">
             <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center justify-center gap-2 mb-3 mx-auto hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center mb-3 mx-auto hover:opacity-80 transition-opacity"
             >
-              <div className="h-1.5 w-1.5 rounded-full bg-gray-800" />
-              <div className="h-1.5 w-1.5 rounded-full bg-gray-800" />
-              <div className="h-1.5 w-1.5 rounded-full bg-gray-800" />
-              <span className="text-lg font-bold text-gray-900 ml-2">BookYolo</span>
+              <img 
+                src={logo} 
+                alt="BookYolo" 
+                className="h-10 w-auto"
+              />
             </button>
             <h2 className="text-xl font-bold text-gray-900">Reset your password</h2>
             <p className="text-sm text-gray-600">Enter your new password below</p>

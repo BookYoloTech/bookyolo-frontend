@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import logo from '../assets/Bookyolo-logo.png';
 import { useNavigate } from 'react-router-dom';
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
@@ -96,12 +97,16 @@ export default function PlanStatus() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <button 
+          <button
             onClick={() => navigate('/')}
-            className="flex items-center hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            <span className="text-xl font-bold text-primary-800">BookYolo</span>
-            <span className="ml-2 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">AIRBNB REALITY CHECK</span>
+            <img 
+              src={logo} 
+              alt="BookYolo" 
+              className="h-8 w-auto"
+            />
+            <span className="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">AIRBNB REALITY CHECK</span>
           </button>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-primary-700">

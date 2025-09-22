@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import logo from "../assets/Bookyolo-logo.png";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
@@ -948,20 +949,16 @@ const ChatInterface = () => {
               )}
             </div>
             
-            {/* Center: BookYolo Icon */}
+            {/* Center: BookYolo Logo */}
             <button
               onClick={() => navigate("/")}
-              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
+              className="flex items-center hover:opacity-80 transition-opacity"
             >
-              <div className="flex items-center gap-1">
-                <div className="h-2 w-2 rounded-full bg-button" />
-                <div className="h-2 w-2 rounded-full bg-button" />
-                <div className="h-2 w-2 rounded-full bg-button" />
-              </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg sm:text-xl font-bold text-primary">Book</span>
-                <span className="text-lg sm:text-xl font-bold text-primary">Yolo</span>
-              </div>
+              <img 
+                src={logo} 
+                alt="BookYolo" 
+                className="h-8 sm:h-10 w-auto"
+              />
             </button>
             
             {/* Right: Action Buttons */}
