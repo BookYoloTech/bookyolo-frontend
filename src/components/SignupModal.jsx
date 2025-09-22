@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from '../assets/Bookyolo-logo.png';
+import logo from '../assets/Bookyolo-logo.jpg';
 
 const SignupModal = ({ isOpen, onClose, onSuccess, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({

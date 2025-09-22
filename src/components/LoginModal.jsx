@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logo from '../assets/Bookyolo-logo.png';
+import logo from '../assets/Bookyolo-logo.jpg';
 
 const LoginModal = ({ isOpen, onClose, onSuccess, onSwitchToSignup }) => {
   const [formData, setFormData] = useState({
@@ -56,7 +56,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess, onSwitchToSignup }) => {
               <img 
                 src={logo} 
                 alt="BookYolo" 
-                className="h-10 w-auto"
+                className="h-10 w-auto bg-gray-100 p-2 rounded-lg"
               />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Welcome back</h2>

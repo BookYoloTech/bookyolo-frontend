@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import logo from "../assets/Bookyolo-logo.png";
+import logo from "../assets/Bookyolo-logo.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 

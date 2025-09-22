@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../assets/Bookyolo-logo.png';
+import logo from '../assets/Bookyolo-logo.jpg';
 
 const Footer = () => {
   return (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNotification } from "../contexts/NotificationContext";
-import logo from "../assets/Bookyolo-logo.png";
+import logo from "../assets/Bookyolo-logo.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
