@@ -62,25 +62,27 @@ export default function PaymentButton({ user, onPaymentSuccess, className = "" }
       <button
         onClick={handleUpgrade}
         disabled={loading}
-        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+        className={`bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl ${className.includes('!w-auto') ? 'py-1.5 px-3 text-xs' : 'w-full py-3 px-6'}`}
       >
         {loading ? (
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-            Setting up payment...
+            {className.includes('!w-auto') ? 'Setting up...' : 'Setting up payment...'}
           </div>
         ) : (
           <div className="flex items-center justify-center">
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={`${className.includes('!w-auto') ? 'w-3 h-3 mr-1' : 'w-5 h-5 mr-2'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
             </svg>
-            Upgrade to Premium - $20/year
+            {className.includes('!w-auto') ? 'Upgrade - $20/year' : 'Upgrade to Premium - $20/year'}
           </div>
         )}
       </button>
-      <p className="text-xs text-gray-500 mt-2 text-center">
-        300 additional scans per year • Cancel anytime
-      </p>
+      {!className.includes('!w-auto') && (
+        <p className="text-xs text-gray-500 mt-2 text-center">
+          300 additional scans per year • Cancel anytime
+        </p>
+      )}
     </div>
   );
 }

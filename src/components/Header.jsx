@@ -57,7 +57,7 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
     <header className="bg-white shadow-sm border-b border-accent sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex justify-between items-center">
-          {/* Logo */}
+          {/* Left: Logo */}
           <button 
             onClick={() => window.location.href = '/'}
             className="flex items-center hover:opacity-80 transition-opacity"
@@ -69,17 +69,7 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
             />
           </button>
 
-          {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          {/* Nav - Desktop */}
+          {/* Center: Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {navItem("hero", "Home")}
             {navItem("how-it-works", "How It Works")}
@@ -89,8 +79,20 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
             {navItem("faq", "FAQ")}
           </nav>
 
-          {/* Actions */}
-          <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
+          {/* Right: Actions */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center space-x-2 sm:space-x-3">
             {authed ? (
               <>
                 {typeof me?.remaining === "number" && (
@@ -113,7 +115,7 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
                 {/* Payment Button - only show if not premium */}
                 {me?.plan !== "premium" && (
                   <div className="hidden lg:block">
-                    <PaymentButton user={me} className="!w-auto" />
+                    <PaymentButton user={me} className="!w-auto !text-xs !px-3 !py-1.5" />
                   </div>
                 )}
                 <button
@@ -141,6 +143,7 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
                 </button>
               </>
             )}
+            </div>
           </div>
         </div>
       </div>
