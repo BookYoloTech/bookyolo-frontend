@@ -754,38 +754,14 @@ const ChatInterface = () => {
           {!isUser && !isError && !isWarning && !isQuestion && message.scanData ? (
             // Detailed scan result display
             <div className="bg-white rounded-2xl border border-accent p-6">
-              {/* Result Header */}
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-                <div className="flex-1">
-                  <a 
-                    className="text-primary opacity-70 hover:opacity-100 hover:underline break-all text-sm" 
-                    href={message.scanData.listing_url} 
-                    target="_blank" 
-                    rel="noreferrer"
-                  >
-                    {message.scanData.listing_url}
-                  </a>
-                  {message.scanData.location && (
-                    <div className="text-primary opacity-60 text-sm mt-1">
-                      📍 {message.scanData.location}
-                    </div>
-                  )}
-                  {!message.scanData.location && (
-                    <div className="text-red-500 text-xs mt-1">
-                      DEBUG: No location data found
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center space-x-2">
+              {/* Information */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-primary font-medium">{message.scanData.listing_title || "Property Listing"}</div>
                   <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
                     {message.scanData.label}
                   </span>
                 </div>
-              </div>
-
-              {/* Information */}
-              <div className="mb-6">
-                <div className="text-primary font-medium mb-2">{message.scanData.listing_title || "Property Listing"}</div>
                 {message.scanData.location && (
                   <div className="text-primary mb-2">{message.scanData.location}</div>
                 )}
