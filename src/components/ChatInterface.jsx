@@ -980,51 +980,21 @@ const ChatInterface = () => {
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Sidebar */}
-        <div className="w-80 border-r border-accent bg-accent flex flex-col h-full">
-          <div className="flex-1 overflow-y-auto p-4 max-h-full">
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-primary mb-3">
-                Recent Scans ({chats.filter(chat => chat.type === 'scan').length})
-              </h3>
-              <div className="space-y-2">
-                   {chats.filter(chat => chat.type === 'scan').map((chat) => {
-                     // Try to get scan data from current messages first, then from scanData state
-                     const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
-                     
-                     // If we don't have scan data, load it
-                     if (!scan && chat.type === 'scan') {
-                       loadScanDataForChat(chat.id);
-                     }
-                     
-                     
-                     return (
-                       <button
-                         key={chat.id}
-                         onClick={() => loadChat(chat.id)}
-                         className={`w-full text-left p-3 rounded-lg transition-colors ${
-                           currentChatId === chat.id 
-                             ? 'bg-button text-button' 
-                             : 'bg-white hover:bg-white/70 border border-accent text-primary'
-                         }`}
-                       >
-                         <div className="font-medium text-sm truncate">
-                           {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
-                         </div>
-                         <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
-                           {scan?.location || new Date(chat.created_at).toLocaleDateString()}
-                         </div>
-                       </button>
-                     );
-                   })}
-              </div>
-            </div>
-            
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-primary mb-3">
-                Recent Compares ({chats.filter(chat => chat.type === 'compare').length})
-              </h3>
-              <div className="space-y-2">
-                {chats.filter(chat => chat.type === 'compare').map((chat) => (
+        <div className="w-80 border-r border-accent bg-accent flex flex-col h-full p-4">
+          {/* Recent Scans Section */}
+          <div className="flex-1 flex flex-col mb-4">
+            <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              {chats.filter(chat => chat.type === 'scan').map((chat) => {
+                // Try to get scan data from current messages first, then from scanData state
+                const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+                
+                // If we don't have scan data, load it
+                if (!scan && chat.type === 'scan') {
+                  loadScanDataForChat(chat.id);
+                }
+                
+                return (
                   <button
                     key={chat.id}
                     onClick={() => loadChat(chat.id)}
@@ -1035,14 +1005,39 @@ const ChatInterface = () => {
                     }`}
                   >
                     <div className="font-medium text-sm truncate">
-                      {chat.title || "Property Comparison"}
+                      {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
                     </div>
                     <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
-                      {new Date(chat.created_at).toLocaleDateString()}
+                      {scan?.location || new Date(chat.created_at).toLocaleDateString()}
                     </div>
                   </button>
-                ))}
-              </div>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Recent Compares Section */}
+          <div className="flex-1 flex flex-col">
+            <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              {chats.filter(chat => chat.type === 'compare').map((chat) => (
+                <button
+                  key={chat.id}
+                  onClick={() => loadChat(chat.id)}
+                  className={`w-full text-left p-3 rounded-lg transition-colors ${
+                    currentChatId === chat.id 
+                      ? 'bg-button text-button' 
+                      : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                  }`}
+                >
+                  <div className="font-medium text-sm truncate">
+                    {chat.title || "Property Comparison"}
+                  </div>
+                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                    {new Date(chat.created_at).toLocaleDateString()}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
