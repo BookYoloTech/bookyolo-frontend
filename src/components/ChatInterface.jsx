@@ -980,10 +980,12 @@ const ChatInterface = () => {
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Sidebar */}
-        <div className="w-80 border-r border-accent bg-accent flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4">
+        <div className="w-80 border-r border-accent bg-accent flex flex-col h-full">
+          <div className="flex-1 overflow-y-auto p-4 max-h-full">
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
+              <h3 className="text-lg font-semibold text-primary mb-3">
+                Recent Scans ({chats.filter(chat => chat.type === 'scan').length})
+              </h3>
               <div className="space-y-2">
                    {chats.filter(chat => chat.type === 'scan').map((chat) => {
                      // Try to get scan data from current messages first, then from scanData state
@@ -994,13 +996,6 @@ const ChatInterface = () => {
                        loadScanDataForChat(chat.id);
                      }
                      
-                     console.log("DEBUG: Recent Scans - chat.id:", chat.id);
-                     console.log("DEBUG: Recent Scans - chat.title:", chat.title);
-                     console.log("DEBUG: Recent Scans - scan from messages:", getScanDataFromCurrentMessages(chat.id));
-                     console.log("DEBUG: Recent Scans - scan from state:", scanData[chat.id]);
-                     console.log("DEBUG: Recent Scans - final scan:", scan);
-                     console.log("DEBUG: Recent Scans - listing_title:", scan?.listing_title);
-                     console.log("DEBUG: Recent Scans - location:", scan?.location);
                      
                      return (
                        <button
@@ -1025,7 +1020,9 @@ const ChatInterface = () => {
             </div>
             
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
+              <h3 className="text-lg font-semibold text-primary mb-3">
+                Recent Compares ({chats.filter(chat => chat.type === 'compare').length})
+              </h3>
               <div className="space-y-2">
                 {chats.filter(chat => chat.type === 'compare').map((chat) => (
                   <button
