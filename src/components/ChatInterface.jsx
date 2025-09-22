@@ -886,54 +886,54 @@ const ChatInterface = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-6 py-2 sm:py-4">
+        <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
           {/* Mobile Layout */}
-          <div className="lg:hidden flex justify-between items-center">
-            {/* Left: Menu + Balance */}
-            <div className="flex items-center space-x-2">
+          <div className="lg:hidden">
+            {/* Top Row: Logo + Menu */}
+            <div className="flex justify-between items-center mb-3">
               <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                onClick={() => navigate("/")}
+                className="flex items-center hover:opacity-80 transition-opacity"
               >
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <img 
+                  src={logo} 
+                  alt="BookYolo" 
+                  className="h-8 w-auto"
+                />
               </button>
               
-              {typeof me?.remaining === "number" && (
-                <div className="bg-accent rounded-full px-2 py-1">
-                  <span className="text-xs text-primary font-semibold">
-                    {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)} left
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center space-x-3">
+                {typeof me?.remaining === "number" && (
+                  <div className="text-sm text-primary">
+                    <span className="font-semibold">
+                      {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)}
+                    </span> scans left
+                  </div>
+                )}
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
             
-            {/* Center: Logo */}
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center hover:opacity-80 transition-opacity"
-            >
-              <img 
-                src={logo} 
-                alt="BookYolo" 
-                className="h-7 w-auto"
-              />
-            </button>
-            
-            {/* Right: Actions */}
-            <div className="flex items-center space-x-1">
+            {/* Bottom Row: Navigation */}
+            <div className="flex justify-center space-x-2">
               <button
                 onClick={startNewChat}
-                className="px-2 py-1.5 bg-accent text-primary font-medium rounded text-xs"
+                className="flex-1 max-w-24 px-3 py-2.5 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
               >
-                New
+                New Scan
               </button>
               <button
                 onClick={() => handleCompare("compare")}
-                className="px-2 py-1.5 bg-accent text-primary font-medium rounded text-xs"
+                className="flex-1 max-w-24 px-3 py-2.5 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
               >
-                Comp
+                Compare
               </button>
               <button
                 onClick={() => {
@@ -941,9 +941,9 @@ const ChatInterface = () => {
                   localStorage.removeItem("by_user");
                   navigate("/login");
                 }}
-                className="px-2 py-1.5 bg-button text-white font-medium rounded text-xs"
+                className="flex-1 max-w-24 px-3 py-2.5 bg-button text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
               >
-                Out
+                Logout
               </button>
             </div>
           </div>
@@ -1042,7 +1042,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-120px)] lg:h-[calc(100vh-80px)]">
         {/* Mobile Overlay */}
         {sidebarOpen && (
           <div 
