@@ -433,7 +433,7 @@ const ChatInterface = () => {
       // Add assistant response with scan result
       const assistantMessage = {
         role: "assistant",
-        content: `Scan ready. Label: ${data.scan.label}. ${data.scan.inspection_summary}`,
+        content: "", // No content - only show the detailed scan result
         scanData: data.scan
       };
       setMessages(prev => [...prev, assistantMessage]);
