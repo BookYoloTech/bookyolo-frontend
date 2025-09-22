@@ -246,17 +246,11 @@ const ChatInterface = () => {
         console.log("DEBUG: User data loaded:", userData);
         console.log("DEBUG: Remaining scans:", userData.remaining);
         
-        // Check for low scan balance and show warning
+        // Check for low scan balance (will be handled in UI component)
         if (userData.remaining <= 5 && userData.remaining > 0) {
-          console.log("DEBUG: Showing low scan balance warning");
-          // Show low scan balance warning
-          setMessages(prev => [...prev, {
-            role: "assistant",
-            content: `You only have few scans left. Consider upgrading to BookYolo Premium for more scans: https://bookyolo-frontend.vercel.app/pricing`,
-            isWarning: true
-          }]);
+          console.log("DEBUG: Low scan balance detected:", userData.remaining);
         } else {
-          console.log("DEBUG: No low scan balance warning needed. Remaining:", userData.remaining);
+          console.log("DEBUG: Scan balance OK. Remaining:", userData.remaining);
         }
       }
       if (r2.ok) {
@@ -373,16 +367,7 @@ const ChatInterface = () => {
     setIsLoading(true);
     setScanProgress(0);
     
-    // Check for low scan balance before scanning
-    if (me && me.remaining <= 5 && me.remaining > 0) {
-      console.log("DEBUG: Low scan balance detected before scan:", me.remaining);
-      // Show warning message
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: `You only have few scans left. Consider upgrading to BookYolo Premium for more scans: https://bookyolo-frontend.vercel.app/pricing`,
-        isWarning: true
-      }]);
-    }
+    // Low scan balance warning is now handled in the UI component
     
     // Validate URL
     if (!url || !url.trim()) {
@@ -901,11 +886,45 @@ const ChatInterface = () => {
             {/* Left: Scan Balance */}
             <div className="flex items-center space-x-2">
               {typeof me?.remaining === "number" && (
-                <div className="flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
-                  <div className="w-2 h-2 bg-button rounded-full"></div>
-                  <span className="text-sm text-primary">
-                    <span className="font-semibold">{me.remaining}</span> scans left
-                  </span>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
+                    <div className="w-2 h-2 bg-button rounded-full"></div>
+                    <span className="text-sm text-primary">
+                      <span className="font-semibold">{me.remaining}</span> scans left
+                    </span>
+                  </div>
+                  
+                  {/* Low Scan Balance Warning */}
+                  {me.remaining <= 5 && me.remaining > 0 && (
+                    <div className="flex items-center space-x-2 bg-yellow-100 border border-yellow-300 rounded-full px-3 py-1">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-sm text-yellow-700">
+                        Low balance
+                      </span>
+                      <button 
+                        onClick={() => window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank')}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
+                      >
+                        Upgrade
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Zero Scan Balance Warning */}
+                  {me.remaining === 0 && (
+                    <div className="flex items-center space-x-2 bg-red-100 border border-red-300 rounded-full px-3 py-1">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <span className="text-sm text-red-700">
+                        No scans left
+                      </span>
+                      <button 
+                        onClick={() => window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank')}
+                        className="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
+                      >
+                        Upgrade
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
