@@ -12,21 +12,21 @@ export default function AdminHeader({ onLogout }) {
 
   return (
     <header className="bg-white shadow-sm border-b border-accent sticky top-0 z-50">
-      <div className="px-6 py-4">
+      <div className="px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <button 
             onClick={() => window.location.href = '/'}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
           >
             <div className="flex items-center gap-1">
-              <div className="h-2 w-2 rounded-full bg-button" />
-              <div className="h-2 w-2 rounded-full bg-button" />
-              <div className="h-2 w-2 rounded-full bg-button" />
+              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
+              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
+              <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-button" />
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl font-bold text-primary">BookYolo</span>
-              <span className="text-sm bg-button text-white px-2 py-1 rounded-full">Admin</span>
+              <span className="text-lg sm:text-xl font-bold text-primary">BookYolo</span>
+              <span className="text-xs sm:text-sm bg-button text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">Admin</span>
             </div>
           </button>
 

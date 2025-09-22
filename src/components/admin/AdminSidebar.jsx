@@ -18,7 +18,7 @@ export default function AdminSidebar({ currentPage, onAddUser }) {
 
   return (
     <aside className="w-64 bg-white border-r border-accent min-h-screen">
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {/* Quick Actions */}
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-primary opacity-70 uppercase tracking-wide mb-3">

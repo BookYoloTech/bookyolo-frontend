@@ -195,6 +195,7 @@ const ChatInterface = () => {
  // Store scan data for sidebar display
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
@@ -280,6 +281,9 @@ const ChatInterface = () => {
 
   const loadChat = async (chatId) => {
     try {
+      // Close sidebar on mobile when selecting a chat
+      setSidebarOpen(false);
+      
       // Check if this is a local compare chat (not in database)
       const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
       
@@ -881,24 +885,37 @@ const ChatInterface = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            {/* Left: Scan Balance */}
+            {/* Left: Mobile Menu + Scan Balance */}
             <div className="flex items-center space-x-2">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              
+              {/* Scan Balance */}
               {typeof me?.remaining === "number" && (
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2 bg-accent rounded-full px-2 sm:px-3 py-1">
                     <div className="w-2 h-2 bg-button rounded-full"></div>
-                    <span className="text-sm text-primary">
+                    <span className="text-xs sm:text-sm text-primary">
                       <span className="font-semibold">
                         {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)}
-                      </span> scans left
+                      </span> 
+                      <span className="hidden sm:inline"> scans left</span>
+                      <span className="sm:hidden"> left</span>
                     </span>
                   </div>
                   
                   {/* Low Scan Balance Warning */}
                   {me.remaining <= 5 && me.remaining > 0 && (
-                    <div className="flex items-center space-x-2 bg-yellow-100 border border-yellow-300 rounded-full px-3 py-1">
+                    <div className="hidden sm:flex items-center space-x-2 bg-yellow-100 border border-yellow-300 rounded-full px-3 py-1">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                       <span className="text-sm text-yellow-700">
                         Low balance
@@ -914,7 +931,7 @@ const ChatInterface = () => {
                   
                   {/* Zero Scan Balance Warning */}
                   {me.remaining <= 0 && (
-                    <div className="flex items-center space-x-2 bg-red-100 border border-red-300 rounded-full px-3 py-1">
+                    <div className="hidden sm:flex items-center space-x-2 bg-red-100 border border-red-300 rounded-full px-3 py-1">
                       <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                       <span className="text-sm text-red-700">
                         No scans left
@@ -934,7 +951,7 @@ const ChatInterface = () => {
             {/* Center: BookYolo Icon */}
             <button
               onClick={() => navigate("/")}
-              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="flex items-center gap-1">
                 <div className="h-2 w-2 rounded-full bg-button" />
@@ -942,25 +959,27 @@ const ChatInterface = () => {
                 <div className="h-2 w-2 rounded-full bg-button" />
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-primary">Book</span>
-                <span className="text-xl font-bold text-primary">Yolo</span>
+                <span className="text-lg sm:text-xl font-bold text-primary">Book</span>
+                <span className="text-lg sm:text-xl font-bold text-primary">Yolo</span>
               </div>
             </button>
             
-            {/* Right: New Scan, Compare, Account */}
-            <div className="flex items-center space-x-3">
+            {/* Right: Action Buttons */}
+            <div className="flex items-center space-x-1 sm:space-x-3">
               <button
                 onClick={startNewChat}
-                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity"
+                className="px-2 sm:px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-xs sm:text-sm"
               >
-                New Scan
+                <span className="hidden sm:inline">New Scan</span>
+                <span className="sm:hidden">New</span>
               </button>
               
               <button
                 onClick={() => handleCompare("compare")}
-                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity"
+                className="px-2 sm:px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-xs sm:text-sm"
               >
-                Compare
+                <span className="hidden sm:inline">Compare</span>
+                <span className="sm:hidden">Comp</span>
               </button>
               
               <button
@@ -969,9 +988,10 @@ const ChatInterface = () => {
                   localStorage.removeItem("by_user");
                   navigate("/login");
                 }}
-                className="px-4 py-2 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity"
+                className="px-2 sm:px-4 py-2 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity text-xs sm:text-sm"
               >
-                Logout
+                <span className="hidden sm:inline">Logout</span>
+                <span className="sm:hidden">Out</span>
               </button>
             </div>
           </div>
@@ -979,8 +999,21 @@ const ChatInterface = () => {
       </div>
 
       <div className="flex h-[calc(100vh-80px)]">
+        {/* Mobile Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        
         {/* Sidebar */}
-        <div className="w-80 border-r border-accent bg-accent p-4 h-full flex flex-col">
+        <div className={`
+          fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+          w-80 border-r border-accent bg-accent p-4 h-full flex flex-col
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
           {/* Property Scans Section - 2/3 height */}
           <div className="flex-1 flex flex-col mb-4" style={{height: 'calc(66.67% - 1rem)'}}>
             <h3 className="text-lg font-semibold text-primary mb-3">Property Scans</h3>
@@ -1043,19 +1076,19 @@ const ChatInterface = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col w-full lg:w-auto">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
-                  <h2 className="text-2xl font-bold text-primary mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
                     Welcome to BookYolo AI Engine
                   </h2>
-                  <p className="text-primary opacity-70 mb-6">
+                  <p className="text-primary opacity-70 mb-6 text-sm sm:text-base">
                     Paste any Airbnb property URL to scan it
                   </p>
-                  <div className="text-sm text-primary opacity-60 space-y-2">
+                  <div className="text-xs sm:text-sm text-primary opacity-60 space-y-2">
                     <p><strong>Ask any question:</strong></p>
                     <p>• Is this property clean overall?</p>
                     <p>• Is this a good place for families?</p>
@@ -1066,7 +1099,7 @@ const ChatInterface = () => {
                 </div>
               </div>
             ) : (
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-4xl mx-auto w-full">
                 {messages.map(renderMessage)}
                 <div ref={messagesEndRef} />
               </div>
@@ -1075,9 +1108,9 @@ const ChatInterface = () => {
 
           {/* Loading Progress */}
           {isLoading && scanProgress > 0 && (
-            <div className="px-6 pb-2">
+            <div className="px-4 sm:px-6 pb-2">
               <div className="max-w-4xl mx-auto">
-                <div className="flex items-center justify-between text-sm text-primary mb-2">
+                <div className="flex items-center justify-between text-xs sm:text-sm text-primary mb-2">
                   <span>Analyzing listing...</span>
                   <span>{scanProgress}%</span>
                 </div>
@@ -1093,12 +1126,12 @@ const ChatInterface = () => {
 
           {/* Error Display */}
           {error && (
-            <div className="px-6 pb-2">
+            <div className="px-4 sm:px-6 pb-2">
               <div className="max-w-4xl mx-auto">
                 <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <span className="text-red-500">⚠️</span>
-                    <span>{error}</span>
+                    <span className="text-sm">{error}</span>
                   </div>
                 </div>
               </div>
@@ -1106,30 +1139,30 @@ const ChatInterface = () => {
           )}
 
           {/* Input Form */}
-          <div className="border-t border-accent p-6">
+          <div className="border-t border-accent p-4 sm:p-6">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-              <div className="flex gap-4">
+              <div className="flex gap-2 sm:gap-4">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Paste an Airbnb property URL to scan and ask any questions..."
-                  className="flex-1 rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
+                  className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
                   rows="2"
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="rounded-xl bg-button text-button px-6 py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="rounded-xl bg-button text-button px-4 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isLoading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Processing...</span>
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                      <span className="text-xs sm:text-sm hidden sm:inline">Processing...</span>
                     </div>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
                   )}
