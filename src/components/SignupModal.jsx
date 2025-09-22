@@ -148,7 +148,7 @@ const SignupModal = ({ isOpen, onClose, onSuccess, onSwitchToLogin }) => {
                 />
                 <label htmlFor="agreeToTerms" className="ml-2 block text-xs text-gray-700 leading-relaxed">
                   I agree to the{' '}
-                  <a href="https://bookyolo.com/terms-of-services" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-500 font-medium transition-colors duration-200">
+                  <a href="https://bookyolo.com/terms-of-services" target="_blank" rel="noopener noreferrer" className="text-gray-700 opacity-70 hover:opacity-100 font-medium">
                     Terms of Service
                   </a>
                 </label>
@@ -165,7 +165,7 @@ const SignupModal = ({ isOpen, onClose, onSuccess, onSwitchToLogin }) => {
                 />
                 <label htmlFor="agreeToPrivacy" className="ml-2 block text-xs text-gray-700 leading-relaxed">
                   I agree to the{' '}
-                  <a href="https://bookyolo.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-500 font-medium transition-colors duration-200">
+                  <a href="https://bookyolo.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-gray-700 opacity-70 hover:opacity-100 font-medium">
                     Privacy Policy
                   </a>
                 </label>

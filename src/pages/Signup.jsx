@@ -96,14 +96,14 @@ export default function Signup() {
                 <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={onChange}
                   className="h-4 w-4 text-button border-accent rounded mt-0.5" required />
                 <label className="text-xs text-primary cursor-pointer">
-                  I agree to the <a href="https://bookyolo.com/terms-of-services" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Terms of Service</a>
+                  I agree to the <a href="https://bookyolo.com/terms-of-services" target="_blank" rel="noopener noreferrer" className="text-primary opacity-70 hover:opacity-100 font-medium">Terms of Service</a>
                 </label>
               </div>
               <div className="flex items-start gap-2">
                 <input type="checkbox" name="agreeToPrivacy" checked={form.agreeToPrivacy} onChange={onChange}
                   className="h-4 w-4 text-button border-accent rounded mt-0.5" required />
                 <label className="text-xs text-primary cursor-pointer">
-                  I agree to the <a href="https://bookyolo.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Privacy Policy</a>
+                  I agree to the <a href="https://bookyolo.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-primary opacity-70 hover:opacity-100 font-medium">Privacy Policy</a>
                 </label>
               </div>
             </div>
