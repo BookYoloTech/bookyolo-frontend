@@ -779,24 +779,24 @@ const ChatInterface = () => {
         }`}>
           {!isUser && !isError && !isWarning && !isQuestion && message.scanData ? (
             // Detailed scan result display
-            <div className="bg-white rounded-2xl border border-accent p-6">
+            <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
               {/* Information */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-primary font-medium">{message.scanData.listing_title || "Property Listing"}</div>
-                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
+              <div className="mb-4 sm:mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+                  <div className="text-primary font-medium text-sm sm:text-base">{message.scanData.listing_title || "Property Listing"}</div>
+                  <span className={`inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
                     {message.scanData.label}
                   </span>
                 </div>
                 {message.scanData.location && (
-                  <div className="text-primary mb-2">{message.scanData.location}</div>
+                  <div className="text-primary mb-2 text-sm sm:text-base">{message.scanData.location}</div>
                 )}
-                <div className="text-primary underline">{message.scanData.listing_url}</div>
+                <div className="text-primary underline break-all text-xs sm:text-sm">{message.scanData.listing_url}</div>
               </div>
 
               {/* What To Expect */}
-              <div className="mb-6">
-                <h3 className="text-base font-semibold text-primary mb-3">What To Expect</h3>
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">What To Expect</h3>
                 <div className="text-primary leading-relaxed">
                   {message.scanData.what_to_expect && message.scanData.expectation_fit 
                     ? `${message.scanData.what_to_expect} ${message.scanData.expectation_fit}`
@@ -807,15 +807,15 @@ const ChatInterface = () => {
 
               {/* Recent Changes */}
               {message.scanData.recent_changes && (
-                <div className="mb-6">
-                  <h3 className="text-base font-semibold text-primary mb-3">Recent Changes</h3>
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Recent Changes</h3>
                   <div className="text-primary">{message.scanData.recent_changes}</div>
                 </div>
               )}
 
               {/* Deep Inspection Analysis */}
-              <div className="mb-6">
-                <h3 className="text-base font-semibold text-primary mb-3">Deep Inspection Analysis</h3>
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Deep Inspection Analysis</h3>
                 <div className="text-primary mb-4">
                   This place passed {message.scanData.inspection_score || "92"} out of 100 inspection checks.
                 </div>
@@ -864,7 +864,7 @@ const ChatInterface = () => {
               />
             </div>
           ) : (
-            <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+            <div className="text-sm whitespace-pre-wrap break-all">{message.content}</div>
           )}
         </div>
       </div>
@@ -886,37 +886,87 @@ const ChatInterface = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex justify-between items-center">
-            {/* Left: Mobile Menu + Scan Balance */}
+        <div className="container mx-auto px-3 sm:px-6 py-2 sm:py-4">
+          {/* Mobile Layout */}
+          <div className="lg:hidden flex justify-between items-center">
+            {/* Left: Menu + Balance */}
             <div className="flex items-center space-x-2">
-              {/* Mobile Menu Button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
               
-              {/* Scan Balance */}
               {typeof me?.remaining === "number" && (
-                <div className="flex items-center space-x-1 sm:space-x-2">
-                  <div className="flex items-center space-x-1 sm:space-x-2 bg-accent rounded-full px-2 sm:px-3 py-1">
+                <div className="bg-accent rounded-full px-2 py-1">
+                  <span className="text-xs text-primary font-semibold">
+                    {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)} left
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {/* Center: Logo */}
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center hover:opacity-80 transition-opacity"
+            >
+              <img 
+                src={logo} 
+                alt="BookYolo" 
+                className="h-7 w-auto"
+              />
+            </button>
+            
+            {/* Right: Actions */}
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={startNewChat}
+                className="px-2 py-1.5 bg-accent text-primary font-medium rounded text-xs"
+              >
+                New
+              </button>
+              <button
+                onClick={() => handleCompare("compare")}
+                className="px-2 py-1.5 bg-accent text-primary font-medium rounded text-xs"
+              >
+                Comp
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("by_token");
+                  localStorage.removeItem("by_user");
+                  navigate("/login");
+                }}
+                className="px-2 py-1.5 bg-button text-white font-medium rounded text-xs"
+              >
+                Out
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden lg:flex justify-between items-center">
+            {/* Left: Scan Balance */}
+            <div className="flex items-center space-x-4">
+              {typeof me?.remaining === "number" && (
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
                     <div className="w-2 h-2 bg-button rounded-full"></div>
-                    <span className="text-xs sm:text-sm text-primary">
+                    <span className="text-sm text-primary">
                       <span className="font-semibold">
                         {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)}
                       </span> 
-                      <span className="hidden sm:inline"> scans left</span>
-                      <span className="sm:hidden"> left</span>
+                      <span> scans left</span>
                     </span>
                   </div>
                   
                   {/* Low Scan Balance Warning */}
                   {me.remaining <= 5 && me.remaining > 0 && (
-                    <div className="hidden sm:flex items-center space-x-2 bg-yellow-100 border border-yellow-300 rounded-full px-3 py-1">
+                    <div className="flex items-center space-x-2 bg-yellow-100 border border-yellow-300 rounded-full px-3 py-1">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                       <span className="text-sm text-yellow-700">
                         Low balance
@@ -932,7 +982,7 @@ const ChatInterface = () => {
                   
                   {/* Zero Scan Balance Warning */}
                   {me.remaining <= 0 && (
-                    <div className="hidden sm:flex items-center space-x-2 bg-red-100 border border-red-300 rounded-full px-3 py-1">
+                    <div className="flex items-center space-x-2 bg-red-100 border border-red-300 rounded-full px-3 py-1">
                       <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                       <span className="text-sm text-red-700">
                         No scans left
@@ -957,26 +1007,24 @@ const ChatInterface = () => {
               <img 
                 src={logo} 
                 alt="BookYolo" 
-                className="h-8 sm:h-10 w-auto"
+                className="h-10 w-auto"
               />
             </button>
             
             {/* Right: Action Buttons */}
-            <div className="flex items-center space-x-1 sm:space-x-3">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={startNewChat}
-                className="px-2 sm:px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-xs sm:text-sm"
+                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-sm"
               >
-                <span className="hidden sm:inline">New Scan</span>
-                <span className="sm:hidden">New</span>
+                New Scan
               </button>
               
               <button
                 onClick={() => handleCompare("compare")}
-                className="px-2 sm:px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-xs sm:text-sm"
+                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-sm"
               >
-                <span className="hidden sm:inline">Compare</span>
-                <span className="sm:hidden">Comp</span>
+                Compare
               </button>
               
               <button
@@ -985,10 +1033,9 @@ const ChatInterface = () => {
                   localStorage.removeItem("by_user");
                   navigate("/login");
                 }}
-                className="px-2 sm:px-4 py-2 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity text-xs sm:text-sm"
+                className="px-4 py-2 bg-button text-white font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity text-sm"
               >
-                <span className="hidden sm:inline">Logout</span>
-                <span className="sm:hidden">Out</span>
+                Logout
               </button>
             </div>
           </div>
@@ -1075,7 +1122,7 @@ const ChatInterface = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col w-full lg:w-auto">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
@@ -1136,7 +1183,7 @@ const ChatInterface = () => {
           )}
 
           {/* Input Form */}
-          <div className="border-t border-accent p-4 sm:p-6">
+          <div className="border-t border-accent p-3 sm:p-6">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
               <div className="flex gap-2 sm:gap-4">
                 <input
