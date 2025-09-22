@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import logo from '../../assets/Bookyolo-logo.jpg';
+import logo from '../../assets/main-logo.jpg';
 
 export default function AdminHeader({ onLogout }) {
   const [adminUser, setAdminUser] = useState(null);

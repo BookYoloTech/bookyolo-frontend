@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PaymentButton from "./stripe/PaymentButton";
-import logo from "../assets/Bookyolo-logo.jpg";
+import logo from "../assets/main-logo.jpg";
 
 const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
   const [activeSection, setActiveSection] = useState("hero");
