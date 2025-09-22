@@ -4,6 +4,7 @@ import PaymentButton from "./stripe/PaymentButton";
 const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
   const [activeSection, setActiveSection] = useState("hero");
   const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const scrollToSection = (sectionId) => {
     const el = document.getElementById(sectionId);
@@ -72,7 +73,10 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
           </button>
 
           {/* Mobile Menu Button */}
-          <button className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
             <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
@@ -143,6 +147,119 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}>
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              {/* Close Button */}
+              <div className="flex justify-end mb-6">
+                <button 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Mobile Navigation */}
+              <nav className="space-y-4 mb-8">
+                <button 
+                  onClick={() => { scrollToSection("hero"); setMobileMenuOpen(false); }}
+                  className={`block w-full text-left py-3 px-4 rounded-lg font-medium transition-colors ${
+                    activeSection === "hero" ? "bg-button text-white" : "text-primary hover:bg-accent"
+                  }`}
+                >
+                  Home
+                </button>
+                <button 
+                  onClick={() => { scrollToSection("how-it-works"); setMobileMenuOpen(false); }}
+                  className={`block w-full text-left py-3 px-4 rounded-lg font-medium transition-colors ${
+                    activeSection === "how-it-works" ? "bg-button text-white" : "text-primary hover:bg-accent"
+                  }`}
+                >
+                  How It Works
+                </button>
+                <button 
+                  onClick={() => { scrollToSection("why-bookyolo"); setMobileMenuOpen(false); }}
+                  className={`block w-full text-left py-3 px-4 rounded-lg font-medium transition-colors ${
+                    activeSection === "why-bookyolo" ? "bg-button text-white" : "text-primary hover:bg-accent"
+                  }`}
+                >
+                  Why Choose Us
+                </button>
+                <button 
+                  onClick={() => { scrollToSection("features"); setMobileMenuOpen(false); }}
+                  className={`block w-full text-left py-3 px-4 rounded-lg font-medium transition-colors ${
+                    activeSection === "features" ? "bg-button text-white" : "text-primary hover:bg-accent"
+                  }`}
+                >
+                  Features
+                </button>
+                <button 
+                  onClick={() => { scrollToSection("pricing"); setMobileMenuOpen(false); }}
+                  className={`block w-full text-left py-3 px-4 rounded-lg font-medium transition-colors ${
+                    activeSection === "pricing" ? "bg-button text-white" : "text-primary hover:bg-accent"
+                  }`}
+                >
+                  Pricing
+                </button>
+                <button 
+                  onClick={() => { scrollToSection("faq"); setMobileMenuOpen(false); }}
+                  className={`block w-full text-left py-3 px-4 rounded-lg font-medium transition-colors ${
+                    activeSection === "faq" ? "bg-button text-white" : "text-primary hover:bg-accent"
+                  }`}
+                >
+                  FAQ
+                </button>
+              </nav>
+
+              {/* Mobile Actions */}
+              <div className="space-y-3">
+                {authed ? (
+                  <>
+                    {typeof me?.remaining === "number" && (
+                      <div className="text-sm text-primary p-3 bg-accent rounded-lg">
+                        Remaining: <b>{me.remaining}</b>{me.limits?.total_limit ? ` / ${me.limits.total_limit}` : ""}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => { window.location.href = '/plan-status'; setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 text-primary border border-accent rounded-lg hover:bg-accent transition-colors"
+                    >
+                      Plan Status
+                    </button>
+                    <button
+                      onClick={() => { onLogout(); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-button text-white rounded-lg hover:opacity-90 transition-opacity"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => { onLogin(); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 text-primary border border-accent rounded-lg hover:bg-accent transition-colors"
+                    >
+                      Login
+                    </button>
+                    <button
+                      onClick={() => { onSignup(); setMobileMenuOpen(false); }}
+                      className="w-full px-4 py-3 bg-button text-white rounded-lg hover:opacity-90 transition-opacity"
+                    >
+                      Sign Up
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
