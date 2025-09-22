@@ -980,70 +980,72 @@ const ChatInterface = () => {
 
       <div className="flex h-[calc(100vh-80px)]">
         {/* Sidebar */}
-        <div className="w-80 border-r border-accent bg-accent p-4 overflow-y-auto">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
-            <div className="space-y-2">
-                 {chats.filter(chat => chat.type === 'scan').map((chat) => {
-                   // Try to get scan data from current messages first, then from scanData state
-                   const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
-                   
-                   // If we don't have scan data, load it
-                   if (!scan && chat.type === 'scan') {
-                     loadScanDataForChat(chat.id);
-                   }
-                   
-                   console.log("DEBUG: Recent Scans - chat.id:", chat.id);
-                   console.log("DEBUG: Recent Scans - chat.title:", chat.title);
-                   console.log("DEBUG: Recent Scans - scan from messages:", getScanDataFromCurrentMessages(chat.id));
-                   console.log("DEBUG: Recent Scans - scan from state:", scanData[chat.id]);
-                   console.log("DEBUG: Recent Scans - final scan:", scan);
-                   console.log("DEBUG: Recent Scans - listing_title:", scan?.listing_title);
-                   console.log("DEBUG: Recent Scans - location:", scan?.location);
-                   
-                   return (
-                     <button
-                       key={chat.id}
-                       onClick={() => loadChat(chat.id)}
-                       className={`w-full text-left p-3 rounded-lg transition-colors ${
-                         currentChatId === chat.id 
-                           ? 'bg-button text-button' 
-                           : 'bg-white hover:bg-white/70 border border-accent text-primary'
-                       }`}
-                     >
-                       <div className="font-medium text-sm truncate">
-                         {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
-                       </div>
-                       <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
-                         {scan?.location || new Date(chat.created_at).toLocaleDateString()}
-                       </div>
-                     </button>
-                   );
-                 })}
+        <div className="w-80 border-r border-accent bg-accent flex flex-col">
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
+              <div className="space-y-2">
+                   {chats.filter(chat => chat.type === 'scan').map((chat) => {
+                     // Try to get scan data from current messages first, then from scanData state
+                     const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+                     
+                     // If we don't have scan data, load it
+                     if (!scan && chat.type === 'scan') {
+                       loadScanDataForChat(chat.id);
+                     }
+                     
+                     console.log("DEBUG: Recent Scans - chat.id:", chat.id);
+                     console.log("DEBUG: Recent Scans - chat.title:", chat.title);
+                     console.log("DEBUG: Recent Scans - scan from messages:", getScanDataFromCurrentMessages(chat.id));
+                     console.log("DEBUG: Recent Scans - scan from state:", scanData[chat.id]);
+                     console.log("DEBUG: Recent Scans - final scan:", scan);
+                     console.log("DEBUG: Recent Scans - listing_title:", scan?.listing_title);
+                     console.log("DEBUG: Recent Scans - location:", scan?.location);
+                     
+                     return (
+                       <button
+                         key={chat.id}
+                         onClick={() => loadChat(chat.id)}
+                         className={`w-full text-left p-3 rounded-lg transition-colors ${
+                           currentChatId === chat.id 
+                             ? 'bg-button text-button' 
+                             : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                         }`}
+                       >
+                         <div className="font-medium text-sm truncate">
+                           {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
+                         </div>
+                         <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                           {scan?.location || new Date(chat.created_at).toLocaleDateString()}
+                         </div>
+                       </button>
+                     );
+                   })}
+              </div>
             </div>
-          </div>
-          
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
-            <div className="space-y-2">
-              {chats.filter(chat => chat.type === 'compare').map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => loadChat(chat.id)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors ${
-                    currentChatId === chat.id 
-                      ? 'bg-button text-button' 
-                      : 'bg-white hover:bg-white/70 border border-accent text-primary'
-                  }`}
-                >
-                  <div className="font-medium text-sm truncate">
-                    {chat.title || "Property Comparison"}
-                  </div>
-                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
-                    {new Date(chat.created_at).toLocaleDateString()}
-                  </div>
-                </button>
-              ))}
+            
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
+              <div className="space-y-2">
+                {chats.filter(chat => chat.type === 'compare').map((chat) => (
+                  <button
+                    key={chat.id}
+                    onClick={() => loadChat(chat.id)}
+                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                      currentChatId === chat.id 
+                        ? 'bg-button text-button' 
+                        : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                    }`}
+                  >
+                    <div className="font-medium text-sm truncate">
+                      {chat.title || "Property Comparison"}
+                    </div>
+                    <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                      {new Date(chat.created_at).toLocaleDateString()}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
