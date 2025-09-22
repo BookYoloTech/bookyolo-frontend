@@ -85,9 +85,9 @@ export default function Signup() {
             <div className="flex items-start gap-2">
               <input type="checkbox" name="agreeToTerms" checked={form.agreeToTerms} onChange={onChange}
                 className="h-4 w-4 text-button border-accent rounded" required />
-              <span className="text-xs text-primary">
-                I agree to the <a href="/terms" className="text-button hover:underline font-medium">Terms of Use</a>
-              </span>
+              <label className="text-xs text-primary cursor-pointer">
+                I agree to the <a href="/terms" className="text-blue-600 hover:underline font-medium">Terms of Use</a>
+              </label>
             </div>
             <button disabled={loading}
               className="w-full py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90">
