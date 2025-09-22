@@ -347,6 +347,20 @@ const ChatInterface = () => {
             timestamp: msg.created_at
           };
           
+          // Determine message type for user messages
+          if (msg.role === 'user') {
+            if (data.chat.type === 'scan' && index > 0) {
+              // User messages after the first one in a scan chat are questions
+              message.messageType = "question";
+            } else if (data.chat.type === 'compare') {
+              // User messages in compare chats are compare requests
+              message.messageType = "compare";
+            } else if (index === 0) {
+              // First user message is usually a scan request
+              message.messageType = "scan";
+            }
+          }
+          
           // If this is the first assistant message in a scan chat, attach scan data
           if (msg.role === 'assistant' && index === 0 && scanData && data.chat.type === 'scan') {
             message.scanData = scanData;
