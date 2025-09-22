@@ -1043,10 +1043,10 @@ const ChatInterface = () => {
       </div>
 
       <div className="flex h-[calc(100vh-120px)] lg:h-[calc(100vh-80px)]">
-        {/* Mobile Overlay */}
+        {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -1054,7 +1054,7 @@ const ChatInterface = () => {
         {/* Sidebar */}
         <div className={`
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
-          w-80 border-r border-accent bg-accent p-4 h-full flex flex-col
+          w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-4 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
