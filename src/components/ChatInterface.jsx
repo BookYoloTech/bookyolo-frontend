@@ -869,7 +869,9 @@ const ChatInterface = () => {
                   <div className="flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
                     <div className="w-2 h-2 bg-button rounded-full"></div>
                     <span className="text-sm text-primary">
-                      <span className="font-semibold">{me.remaining}</span> scans left
+                      <span className="font-semibold">
+                        {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)}
+                      </span> scans left
                     </span>
                   </div>
                   
@@ -890,7 +892,7 @@ const ChatInterface = () => {
                   )}
                   
                   {/* Zero Scan Balance Warning */}
-                  {me.remaining === 0 && (
+                  {me.remaining <= 0 && (
                     <div className="flex items-center space-x-2 bg-red-100 border border-red-300 rounded-full px-3 py-1">
                       <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                       <span className="text-sm text-red-700">
