@@ -259,7 +259,13 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        setChats(chatsData);
+        // Preserve local compare chats when updating chats from database
+        setChats(prevChats => {
+          const localCompareChats = prevChats.filter(chat => 
+            chat.type === 'compare' && chat.id.startsWith('compare-')
+          );
+          return [...localCompareChats, ...chatsData];
+        });
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
@@ -732,7 +738,8 @@ const ChatInterface = () => {
        // Add to chats state - same as Recent Scans
        setChats(prev => [compareChat, ...prev]);
        
-       // Don't call loadUserData() - it overwrites the chats array!
+       // Refresh user data to update scan count
+       await loadUserData();
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
