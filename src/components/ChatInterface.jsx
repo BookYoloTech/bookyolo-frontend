@@ -761,6 +761,20 @@ const ChatInterface = () => {
       
        const data = await res.json();
        
+       // Create a compare chat entry for Recent Compares sidebar
+       const compareChat = {
+         id: `compare-${Date.now()}`, // Generate unique ID
+         type: 'compare',
+         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
+         created_at: new Date().toISOString(),
+         scan1: scan1,
+         scan2: scan2,
+         result: data.answer
+       };
+       
+       // Set the current chat ID to the compare chat so follow-up questions work
+       setCurrentChatId(compareChat.id);
+       
        // Add assistant response
        const assistantMessage = {
          role: "assistant",
@@ -776,17 +790,6 @@ const ChatInterface = () => {
          content: "Do you have any questions about this comparison? Feel free to ask anything..."
        };
        setMessages(prev => [...prev, followUpMessage]);
-       
-       // Create a compare chat entry for Recent Compares sidebar
-       const compareChat = {
-         id: `compare-${Date.now()}`, // Generate unique ID
-         type: 'compare',
-         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
-         created_at: new Date().toISOString(),
-         scan1: scan1,
-         scan2: scan2,
-         result: data.answer
-       };
        
        // Add to chats state - same as Recent Scans
        setChats(prev => {
