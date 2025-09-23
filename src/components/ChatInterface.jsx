@@ -261,8 +261,12 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        // Set chats directly from backend (includes both scan and compare chats)
-        setChats(chatsData);
+        // Load compare chats from localStorage
+        const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
+        console.log("DEBUG: Loaded compare chats from localStorage:", savedCompareChats);
+        
+        // Combine saved compare chats with database chats
+        setChats([...savedCompareChats, ...chatsData]);
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
@@ -279,6 +283,42 @@ const ChatInterface = () => {
     try {
       // Close sidebar on mobile when selecting a chat
       setSidebarOpen(false);
+      
+      // Check if this is a local compare chat (not in database)
+      const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
+      
+      if (localCompareChat) {
+        // Handle local compare chat
+        setCurrentChatId(chatId);
+        setCurrentScan(null);
+        
+        // Create messages for the compare chat
+        const compareMessages = [
+          {
+            role: "user",
+            content: `Compare: ${localCompareChat.scan1.listing_title || localCompareChat.scan1.location} vs ${localCompareChat.scan2.listing_title || localCompareChat.scan2.location}`,
+            timestamp: localCompareChat.created_at
+          },
+          {
+            role: "assistant",
+            content: localCompareChat.result,
+            timestamp: localCompareChat.created_at,
+            isComparison: true,
+            comparedScans: { 
+              scan1: localCompareChat.scan1, 
+              scan2: localCompareChat.scan2 
+            }
+          },
+          {
+            role: "assistant",
+            content: "Do you have any questions about this comparison? Feel free to ask anything...",
+            timestamp: localCompareChat.created_at
+          }
+        ];
+        
+        setMessages(compareMessages);
+        return;
+      }
       
       // Handle database chats
       const token = localStorage.getItem("by_token");
@@ -485,30 +525,61 @@ const ChatInterface = () => {
     try {
       const token = localStorage.getItem("by_token");
       
-      // Use the /chat/{chat_id}/ask endpoint for all questions (both scan and compare chats)
-      // This endpoint properly handles 0.5 scan deduction for questions
-      const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ question }),
-      });
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`HTTP ${res.status}: ${errorText}`);
+      // Check if this is a local compare chat
+      const currentChat = chats.find(chat => chat.id === currentChatId);
+      if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
+        // Handle question in local compare chat using the /compare endpoint
+        const res = await fetch(`${API_BASE}/compare`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ 
+            scan_a_url: currentChat.scan1.listing_url, 
+            scan_b_url: currentChat.scan2.listing_url, 
+            question: question 
+          }),
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errorText}`);
+        }
+        
+        const data = await res.json();
+        
+        // Add assistant response
+        const assistantMessage = {
+          role: "assistant",
+          content: data.answer || "I don't have enough information to answer that question."
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        // Handle question in regular scan chat
+        const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ question }),
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errorText}`);
+        }
+        
+        const data = await res.json();
+        
+        // Add assistant response
+        const assistantMessage = {
+          role: "assistant",
+          content: data.answer || "I don't have enough information to answer that question."
+        };
+        setMessages(prev => [...prev, assistantMessage]);
       }
-      
-      const data = await res.json();
-      
-      // Add assistant response
-      const assistantMessage = {
-        role: "assistant",
-        content: data.answer || "I don't have enough information to answer that question."
-      };
-      setMessages(prev => [...prev, assistantMessage]);
       
       await loadUserData(); // Refresh data
     } catch (e) {
@@ -667,16 +738,15 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      
-      // Use the persistent compare endpoint that creates a database chat
-      const res = await fetch(`${API_BASE}/chat/new-compare`, {
+      const res = await fetch(`${API_BASE}/compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          listing_urls: [scan1.listing_url, scan2.listing_url],
+          scan_a_url: scan1.listing_url, 
+          scan_b_url: scan2.listing_url, 
           question: question || null 
         }),
       });
@@ -686,29 +756,67 @@ const ChatInterface = () => {
         throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
       
-      const data = await res.json();
-      
-      // Set the current chat ID to the new compare chat
-      setCurrentChatId(data.chat_id);
-      
-      // Add assistant response
-      const assistantMessage = {
-        role: "assistant",
-        content: data.answer || "I couldn't compare these listings.",
-        isComparison: true,
-        comparedScans: { scan1, scan2 }
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-      
-      // Add follow-up question prompt after comparison
-      const followUpMessage = {
-        role: "assistant",
-        content: "Do you have any questions about this comparison? Feel free to ask anything..."
-      };
-      setMessages(prev => [...prev, followUpMessage]);
-      
-      // Refresh user data to update scan count and load the new compare chat
-      await loadUserData();
+       const data = await res.json();
+       
+       // Add assistant response
+       const assistantMessage = {
+         role: "assistant",
+         content: data.answer || "I couldn't compare these listings.",
+         isComparison: true,
+         comparedScans: { scan1, scan2 }
+       };
+       setMessages(prev => [...prev, assistantMessage]);
+       
+       // Add follow-up question prompt after comparison
+       const followUpMessage = {
+         role: "assistant",
+         content: "Do you have any questions about this comparison? Feel free to ask anything..."
+       };
+       setMessages(prev => [...prev, followUpMessage]);
+       
+       // Create a compare chat entry for Recent Compares sidebar
+       const compareChat = {
+         id: `compare-${Date.now()}`, // Generate unique ID
+         type: 'compare',
+         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
+         created_at: new Date().toISOString(),
+         scan1: scan1,
+         scan2: scan2,
+         result: data.answer
+       };
+       
+       // Add to chats state - same as Recent Scans
+       setChats(prev => {
+         const newChats = [compareChat, ...prev];
+         
+         // Save compare chats to localStorage for persistence
+         const compareChats = newChats.filter(chat => 
+           chat.type === 'compare' && chat.id.startsWith('compare-')
+         );
+         localStorage.setItem('compare_chats', JSON.stringify(compareChats));
+         console.log("DEBUG: Saved compare chats to localStorage:", compareChats);
+         
+         return newChats;
+       });
+       
+       // Refresh user data to update scan count (but preserve the compare chat we just added)
+       const refreshToken = localStorage.getItem("by_token");
+       const [r1, r2] = await Promise.all([
+         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+       ]);
+       
+       if (r1.ok) {
+         const userData = await r1.json();
+         setMe(userData);
+       }
+       
+       if (r2.ok) {
+         const chatsData = await r2.json();
+         // Load compare chats from localStorage and combine with database chats
+         const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
+         setChats([...savedCompareChats, ...chatsData]);
+       }
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
