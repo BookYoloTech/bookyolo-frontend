@@ -261,13 +261,12 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        // Preserve local compare chats when updating chats from database
-        setChats(prevChats => {
-          const localCompareChats = prevChats.filter(chat => 
-            chat.type === 'compare' && chat.id.startsWith('compare-')
-          );
-          return [...localCompareChats, ...chatsData];
-        });
+        // Load compare chats from localStorage
+        const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
+        console.log("DEBUG: Loaded compare chats from localStorage:", savedCompareChats);
+        
+        // Combine saved compare chats with database chats
+        setChats([...savedCompareChats, ...chatsData]);
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
@@ -787,10 +786,37 @@ const ChatInterface = () => {
        };
        
        // Add to chats state - same as Recent Scans
-       setChats(prev => [compareChat, ...prev]);
+       setChats(prev => {
+         const newChats = [compareChat, ...prev];
+         
+         // Save compare chats to localStorage for persistence
+         const compareChats = newChats.filter(chat => 
+           chat.type === 'compare' && chat.id.startsWith('compare-')
+         );
+         localStorage.setItem('compare_chats', JSON.stringify(compareChats));
+         console.log("DEBUG: Saved compare chats to localStorage:", compareChats);
+         
+         return newChats;
+       });
        
-       // Refresh user data to update scan count
-       await loadUserData();
+       // Refresh user data to update scan count (but preserve the compare chat we just added)
+       const refreshToken = localStorage.getItem("by_token");
+       const [r1, r2] = await Promise.all([
+         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+       ]);
+       
+       if (r1.ok) {
+         const userData = await r1.json();
+         setMe(userData);
+       }
+       
+       if (r2.ok) {
+         const chatsData = await r2.json();
+         // Load compare chats from localStorage and combine with database chats
+         const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
+         setChats([...savedCompareChats, ...chatsData]);
+       }
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
