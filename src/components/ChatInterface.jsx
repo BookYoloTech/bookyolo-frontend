@@ -582,9 +582,10 @@ const ChatInterface = () => {
           content: data.answer || "I don't have enough information to answer that question."
         };
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Only refresh user data for regular scan chat questions
+        await loadUserData();
       }
-      
-      await loadUserData(); // Refresh data
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
