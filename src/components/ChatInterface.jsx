@@ -29,6 +29,16 @@ const isCompareRequest = (text) => {
   return text.toLowerCase().includes('compare') && isAirbnbUrl(text);
 };
 
+// Helper function to detect if input is any URL
+const isUrl = (text) => {
+  try {
+    new URL(text);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 // Comparison Selector Component
 const ComparisonSelector = ({ availableScans, onCompare }) => {
   const [selectedScan1, setSelectedScan1] = useState("");
@@ -728,6 +738,9 @@ const ChatInterface = () => {
       await handleCompare(trimmedInput);
     } else if (isAirbnbUrl(trimmedInput)) {
       await handleScan(trimmedInput);
+    } else if (isUrl(trimmedInput)) {
+      // Check if it's a URL but not Airbnb
+      setError("The URL you are trying to scan is from a platform that we do not cover yet. Bear with us as we are expanding quickly.");
     } else {
       await handleAsk(trimmedInput);
     }
