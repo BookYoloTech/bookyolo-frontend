@@ -555,6 +555,9 @@ const ChatInterface = () => {
           content: data.answer || "I don't have enough information to answer that question."
         };
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Since /compare deducted 1 scan but we want 0.5, we need to add 0.5 back to the user's balance
+        setMe(prev => ({ ...prev, remaining: prev.remaining + 0.5 }));
       } else {
         // Handle question in regular scan chat
         const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
