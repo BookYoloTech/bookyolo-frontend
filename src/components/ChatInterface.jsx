@@ -529,13 +529,8 @@ const ChatInterface = () => {
       const currentChat = chats.find(chat => chat.id === currentChatId);
       if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
         // For compare chat questions, we need to manually handle the 0.5 scan deduction
-        // First, get the current user balance
-        const userRes = await fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${token}` } });
-        if (!userRes.ok) {
-          throw new Error("Failed to get user data");
-        }
-        const userData = await userRes.json();
-        const currentBalance = userData.remaining;
+        // Use the current frontend balance (which already has the correct adjustments)
+        const currentBalance = me.remaining;
         
         // Call the compare endpoint
         const res = await fetch(`${API_BASE}/compare`, {
