@@ -1041,7 +1041,7 @@ const ChatInterface = () => {
                     <div className="flex items-center space-x-2 bg-yellow-100 border border-yellow-300 rounded-full px-3 py-1">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                       <span className="text-sm text-yellow-700">
-                        Low balance
+                        Low Balance
                       </span>
                       <button 
                         onClick={() => window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank')}
