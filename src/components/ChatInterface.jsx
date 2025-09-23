@@ -289,7 +289,6 @@ const ChatInterface = () => {
       
       if (localCompareChat) {
         // Handle local compare chat
-        console.log("DEBUG: Setting currentChatId to:", chatId);
         setCurrentChatId(chatId);
         setCurrentScan(null);
         
@@ -297,7 +296,7 @@ const ChatInterface = () => {
         const compareMessages = [
           {
             role: "user",
-            content: `${localCompareChat.scan1.listing_title || localCompareChat.scan1.location} vs ${localCompareChat.scan2.listing_title || localCompareChat.scan2.location}`,
+            content: `Compare: ${localCompareChat.scan1.listing_title || localCompareChat.scan1.location} vs ${localCompareChat.scan2.listing_title || localCompareChat.scan2.location}`,
             timestamp: localCompareChat.created_at
           },
           {
@@ -511,14 +510,7 @@ const ChatInterface = () => {
   };
 
   const handleAsk = async (question) => {
-    console.log("DEBUG: handleAsk called with currentChatId:", currentChatId);
-    console.log("DEBUG: Available chats:", chats);
-    console.log("DEBUG: Current messages:", messages);
-    
-    // Check if we have a current chat or if we're in a compare context
-    const hasCurrentChat = currentChatId || (messages.length > 0 && messages.some(msg => msg.isComparison));
-    
-    if (!hasCurrentChat) {
+    if (!currentChatId) {
       setError("Please scan a listing first before asking questions.");
       return;
     }
@@ -534,27 +526,9 @@ const ChatInterface = () => {
       const token = localStorage.getItem("by_token");
       
       // Check if this is a local compare chat
-      let currentChat = null;
-      if (currentChatId) {
-        currentChat = chats.find(chat => chat.id === currentChatId);
-      } else {
-        // If no currentChatId but we're in a compare context, find the compare chat from messages
-        const compareMessage = messages.find(msg => msg.isComparison && msg.comparedScans);
-        if (compareMessage && compareMessage.comparedScans) {
-          // Find the compare chat that matches this comparison
-          currentChat = chats.find(chat => 
-            chat.type === 'compare' && 
-            chat.scan1 && chat.scan2 &&
-            chat.scan1.listing_url === compareMessage.comparedScans.scan1.listing_url &&
-            chat.scan2.listing_url === compareMessage.comparedScans.scan2.listing_url
-          );
-        }
-      }
-      
-      console.log("DEBUG: Found current chat:", currentChat);
-      
+      const currentChat = chats.find(chat => chat.id === currentChatId);
       if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
-        // For local compare chat questions, use the /compare endpoint
+        // Handle question in local compare chat using the /compare endpoint
         const res = await fetch(`${API_BASE}/compare`, {
           method: "POST",
           headers: {
@@ -581,18 +555,8 @@ const ChatInterface = () => {
           content: data.answer || "I don't have enough information to answer that question."
         };
         setMessages(prev => [...prev, assistantMessage]);
-        
-        // Since /compare deducted 1 scan but we want 0.5, we need to add 0.5 back to the user's balance
-        // We'll do this by refreshing the user data and then manually adjusting
-        const userRes = await fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${token}` } });
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          // Add 0.5 back to the remaining scans
-          setMe(prev => ({ ...prev, remaining: prev.remaining + 0.5 }));
-        }
       } else {
-        // Use the /chat/{chat_id}/ask endpoint for regular scan chat questions
-        // This endpoint properly handles 0.5 scan deduction for questions
+        // Handle question in regular scan chat
         const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
           method: "POST",
           headers: {
@@ -814,14 +778,14 @@ const ChatInterface = () => {
        const compareChat = {
          id: `compare-${Date.now()}`, // Generate unique ID
          type: 'compare',
-         title: `${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
+         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
          created_at: new Date().toISOString(),
          scan1: scan1,
          scan2: scan2,
          result: data.answer
        };
        
-       // Add to chats state and save to localStorage for persistence
+       // Add to chats state - same as Recent Scans
        setChats(prev => {
          const newChats = [compareChat, ...prev];
          
@@ -835,8 +799,24 @@ const ChatInterface = () => {
          return newChats;
        });
        
-       // Refresh user data to update scan count
-       await loadUserData();
+       // Refresh user data to update scan count (but preserve the compare chat we just added)
+       const refreshToken = localStorage.getItem("by_token");
+       const [r1, r2] = await Promise.all([
+         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+       ]);
+       
+       if (r1.ok) {
+         const userData = await r1.json();
+         setMe(userData);
+       }
+       
+       if (r2.ok) {
+         const chatsData = await r2.json();
+         // Load compare chats from localStorage and combine with database chats
+         const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
+         setChats([...savedCompareChats, ...chatsData]);
+       }
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
