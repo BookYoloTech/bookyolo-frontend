@@ -44,7 +44,7 @@ export default function PlanStatus() {
   const handleLogout = () => {
     localStorage.removeItem("by_token");
     localStorage.removeItem("by_user");
-    navigate('/');
+    navigate('/login');
   };
 
   if (loading) {
