@@ -528,7 +528,16 @@ const ChatInterface = () => {
       // Check if this is a local compare chat
       const currentChat = chats.find(chat => chat.id === currentChatId);
       if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
-        // Handle question in local compare chat using the /compare endpoint
+        // For compare chat questions, we need to manually handle the 0.5 scan deduction
+        // First, get the current user balance
+        const userRes = await fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!userRes.ok) {
+          throw new Error("Failed to get user data");
+        }
+        const userData = await userRes.json();
+        const currentBalance = userData.remaining;
+        
+        // Call the compare endpoint
         const res = await fetch(`${API_BASE}/compare`, {
           method: "POST",
           headers: {
@@ -556,8 +565,8 @@ const ChatInterface = () => {
         };
         setMessages(prev => [...prev, assistantMessage]);
         
-        // Since /compare deducted 1 scan but we want 0.5, we need to add 0.5 back to the user's balance
-        setMe(prev => ({ ...prev, remaining: prev.remaining + 0.5 }));
+        // Set the balance to show 0.5 deduction instead of 1
+        setMe(prev => ({ ...prev, remaining: currentBalance - 0.5 }));
       } else {
         // Handle question in regular scan chat
         const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
