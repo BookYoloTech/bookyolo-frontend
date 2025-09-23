@@ -289,6 +289,7 @@ const ChatInterface = () => {
       
       if (localCompareChat) {
         // Handle local compare chat
+        console.log("DEBUG: Loading local compare chat:", chatId);
         setCurrentChatId(chatId);
         setCurrentScan(null);
         
@@ -510,7 +511,14 @@ const ChatInterface = () => {
   };
 
   const handleAsk = async (question) => {
-    if (!currentChatId) {
+    console.log("DEBUG: handleAsk called with currentChatId:", currentChatId);
+    console.log("DEBUG: Available chats:", chats);
+    console.log("DEBUG: Current messages:", messages);
+    
+    // Check if we have a current chat or if we're in a compare chat context
+    const hasCurrentChat = currentChatId || (messages.length > 0 && messages.some(msg => msg.isComparison));
+    
+    if (!hasCurrentChat) {
       setError("Please scan a listing first before asking questions.");
       return;
     }
@@ -526,8 +534,27 @@ const ChatInterface = () => {
       const token = localStorage.getItem("by_token");
       
       // Check if this is a local compare chat
-      const currentChat = chats.find(chat => chat.id === currentChatId);
+      let currentChat = null;
+      if (currentChatId) {
+        currentChat = chats.find(chat => chat.id === currentChatId);
+      } else {
+        // If no currentChatId but we're in a compare context, find the compare chat from messages
+        const compareMessage = messages.find(msg => msg.isComparison && msg.comparedScans);
+        if (compareMessage && compareMessage.comparedScans) {
+          // Find the compare chat that matches this comparison
+          currentChat = chats.find(chat => 
+            chat.type === 'compare' && 
+            chat.scan1 && chat.scan2 &&
+            chat.scan1.listing_url === compareMessage.comparedScans.scan1.listing_url &&
+            chat.scan2.listing_url === compareMessage.comparedScans.scan2.listing_url
+          );
+        }
+      }
+      
+      console.log("DEBUG: Found current chat:", currentChat);
+      
       if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
+        console.log("DEBUG: Processing compare chat question");
         // For local compare chat questions, use the /compare endpoint
         const res = await fetch(`${API_BASE}/compare`, {
           method: "POST",
