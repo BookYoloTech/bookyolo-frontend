@@ -819,7 +819,15 @@ const ChatInterface = () => {
        
        if (r1.ok) {
          const userData = await r1.json();
-         setMe(userData);
+         // For initial comparison (no question), use backend balance (1 scan deduction)
+         // For follow-up questions (with question), adjust to show 0.5 deduction
+         if (question) {
+           // This is a follow-up question, adjust to show 0.5 deduction
+           setMe(prev => ({ ...prev, remaining: userData.remaining + 0.5 }));
+         } else {
+           // This is an initial comparison, use backend balance (1 scan deduction)
+           setMe(userData);
+         }
        }
        
        if (r2.ok) {
