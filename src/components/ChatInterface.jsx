@@ -1040,14 +1040,10 @@ const ChatInterface = () => {
                 Compare
               </button>
               <button
-                onClick={() => {
-                  localStorage.removeItem("by_token");
-                  localStorage.removeItem("by_user");
-                  navigate("/login");
-                }}
+                onClick={() => navigate("/plan-status")}
                 className="flex-1 max-w-24 px-3 py-2.5 bg-button text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
               >
-                Logout
+                Account
               </button>
             </div>
           </div>
@@ -1132,14 +1128,10 @@ const ChatInterface = () => {
               </button>
               
               <button
-                onClick={() => {
-                  localStorage.removeItem("by_token");
-                  localStorage.removeItem("by_user");
-                  navigate("/login");
-                }}
+                onClick={() => navigate("/plan-status")}
                 className="px-4 py-2 bg-button text-white font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity text-sm"
               >
-                Logout
+                Account
               </button>
             </div>
           </div>
