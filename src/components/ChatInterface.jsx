@@ -770,7 +770,7 @@ const ChatInterface = () => {
        const compareChat = {
          id: `compare-${Date.now()}`, // Generate unique ID
          type: 'compare',
-         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
+         title: `${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
          created_at: new Date().toISOString(),
          scan1: scan1,
          scan2: scan2,
