@@ -510,7 +510,10 @@ const ChatInterface = () => {
   };
 
   const handleAsk = async (question) => {
-    if (!currentChatId) {
+    // Check if we have a current chat or if we're in a compare context
+    const hasCurrentChat = currentChatId || (messages.length > 0 && messages.some(msg => msg.isComparison));
+    
+    if (!hasCurrentChat) {
       setError("Please scan a listing first before asking questions.");
       return;
     }
@@ -526,7 +529,23 @@ const ChatInterface = () => {
       const token = localStorage.getItem("by_token");
       
       // Check if this is a local compare chat
-      const currentChat = chats.find(chat => chat.id === currentChatId);
+      let currentChat = null;
+      if (currentChatId) {
+        currentChat = chats.find(chat => chat.id === currentChatId);
+      } else {
+        // If no currentChatId but we're in a compare context, find the compare chat from messages
+        const compareMessage = messages.find(msg => msg.isComparison && msg.comparedScans);
+        if (compareMessage && compareMessage.comparedScans) {
+          // Find the compare chat that matches this comparison
+          currentChat = chats.find(chat => 
+            chat.type === 'compare' && 
+            chat.scan1 && chat.scan2 &&
+            chat.scan1.listing_url === compareMessage.comparedScans.scan1.listing_url &&
+            chat.scan2.listing_url === compareMessage.comparedScans.scan2.listing_url
+          );
+        }
+      }
+      
       if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
         // Handle question in local compare chat using the /compare endpoint
         const res = await fetch(`${API_BASE}/compare`, {
@@ -807,6 +826,9 @@ const ChatInterface = () => {
          
          return newChats;
        });
+       
+       // Set the current chat ID to the new compare chat so follow-up questions work
+       setCurrentChatId(compareChat.id);
        
        // Refresh user data to update scan count (but preserve the compare chat we just added)
        const refreshToken = localStorage.getItem("by_token");
