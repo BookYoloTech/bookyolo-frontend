@@ -253,11 +253,7 @@ const ChatInterface = () => {
       
       if (r1.ok) {
         const userData = await r1.json();
-        console.log("DEBUG: Received user data from /me endpoint:", userData);
         setMe(userData);
-        
-        console.log("DEBUG: User data loaded:", userData);
-        console.log("DEBUG: Remaining scans:", userData.remaining);
         
         // Check for low scan balance (will be handled in UI component)
         if (userData.remaining <= 5 && userData.remaining > 0) {
@@ -407,8 +403,6 @@ const ChatInterface = () => {
     setIsLoading(true);
     setScanProgress(0);
     
-    console.log("DEBUG: Starting scan for URL:", url);
-    console.log("DEBUG: Current balance before scan:", me?.remaining);
     
     // Low scan balance warning is now handled in the UI component
     
@@ -489,9 +483,7 @@ const ChatInterface = () => {
       setMessages(prev => [...prev, postScanMessage]);
       
       // Refresh user data to update scan count and chats
-      console.log("DEBUG: Refreshing user data after scan...");
       await loadUserData();
-      console.log("DEBUG: User data refreshed, current balance:", me?.remaining);
     } catch (e) {
       console.error("Scan error:", e);
       setError(e.message || String(e));
