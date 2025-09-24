@@ -538,9 +538,7 @@ const ChatInterface = () => {
       // Check if this is a local compare chat
       const currentChat = chats.find(chat => chat.id === currentChatId);
       if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
-        // For compare chat questions, we need to manually handle the 0.5 scan deduction
-        // Use the current frontend balance (which already has the correct adjustments)
-        const currentBalance = me.remaining;
+        // For compare chat questions, call the compare endpoint
         
         // Call the compare endpoint
         const res = await fetch(`${API_BASE}/compare`, {
@@ -570,8 +568,8 @@ const ChatInterface = () => {
         };
         setMessages(prev => [...prev, assistantMessage]);
         
-        // Set the balance to show 0.5 deduction instead of 1
-        setMe(prev => ({ ...prev, remaining: currentBalance - 0.5 }));
+        // Reload user data to get updated balance from backend
+        await loadUserData();
       } else {
         // Handle question in regular scan chat
         const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
@@ -832,15 +830,7 @@ const ChatInterface = () => {
        
        if (r1.ok) {
          const userData = await r1.json();
-         // For initial comparison (no question), use backend balance (1 scan deduction)
-         // For follow-up questions (with question), adjust to show 0.5 deduction
-         if (question) {
-           // This is a follow-up question, adjust to show 0.5 deduction
-           setMe(prev => ({ ...prev, remaining: userData.remaining + 0.5 }));
-         } else {
-           // This is an initial comparison, use backend balance (1 scan deduction)
-           setMe(userData);
-         }
+         setMe(userData);
        }
        
        if (r2.ok) {
