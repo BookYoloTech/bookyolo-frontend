@@ -403,6 +403,12 @@ const ChatInterface = () => {
     setIsLoading(true);
     setScanProgress(0);
     
+    // Check if user has sufficient balance for scanning (requires 1 full scan)
+    if (me?.remaining < 1.0) {
+      setError("You don't have enough scans remaining. Please upgrade your plan to continue scanning.");
+      setIsLoading(false);
+      return;
+    }
     
     // Low scan balance warning is now handled in the UI component
     
@@ -520,6 +526,12 @@ const ChatInterface = () => {
   const handleAsk = async (question) => {
     if (!currentChatId) {
       setError("Please scan a listing first before asking questions.");
+      return;
+    }
+
+    // Check if user has sufficient balance for questions (requires 0.5 scans)
+    if (me?.remaining < 0.5) {
+      setError("You don't have enough scans remaining. Please upgrade your plan to continue asking questions.");
       return;
     }
 
@@ -752,6 +764,14 @@ const ChatInterface = () => {
   const handleComparisonSelect = async (scan1, scan2, question = "") => {
     setError("");
     setIsLoading(true);
+    
+    // Check if user has sufficient balance for comparison (requires 1 full scan for initial, 0.5 for questions)
+    const requiredBalance = question ? 0.5 : 1.0;
+    if (me?.remaining < requiredBalance) {
+      setError("You don't have enough scans remaining. Please upgrade your plan to continue comparing.");
+      setIsLoading(false);
+      return;
+    }
     
     try {
       const token = localStorage.getItem("by_token");
