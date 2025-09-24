@@ -1072,7 +1072,7 @@ const ChatInterface = () => {
                         Low Balance
                       </span>
                       <button 
-                        onClick={() => window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank')}
+                        onClick={() => navigate('/plan-status')}
                         className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
                       >
                         Upgrade
@@ -1088,7 +1088,7 @@ const ChatInterface = () => {
                         No scans left
                       </span>
                       <button 
-                        onClick={() => window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank')}
+                        onClick={() => navigate('/plan-status')}
                         className="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
                       >
                         Upgrade
