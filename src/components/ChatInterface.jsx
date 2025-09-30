@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/main-logo.jpg";
+import scanpageLogo from "../assets/scanpage-logo";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
@@ -1323,7 +1324,7 @@ const ChatInterface = () => {
                     </div>
                   ) : (
                     <img 
-                      src={logo} 
+                      src={scanpageLogo} 
                       alt="BookYolo" 
                       className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
                     />
