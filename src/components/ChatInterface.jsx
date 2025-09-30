@@ -352,7 +352,7 @@ const ChatInterface = () => {
         
         // Scroll to top when loading a chat
         setTimeout(() => {
-          const messagesContainer = document.querySelector('.flex-1.overflow-y-auto');
+          const messagesContainer = document.querySelector('.flex-1.overflow-y-auto.p-2');
           if (messagesContainer) {
             messagesContainer.scrollTop = 0;
           }
@@ -428,7 +428,7 @@ const ChatInterface = () => {
         
         // Scroll to top when loading a chat
         setTimeout(() => {
-          const messagesContainer = document.querySelector('.flex-1.overflow-y-auto');
+          const messagesContainer = document.querySelector('.flex-1.overflow-y-auto.p-2');
           if (messagesContainer) {
             messagesContainer.scrollTop = 0;
           }
@@ -1112,16 +1112,16 @@ const ChatInterface = () => {
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
           w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
           {/* Recent Scans Section */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setRecentScansCollapsed(!recentScansCollapsed);
               }}
-              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity"
+              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity flex-shrink-0"
             >
               <span>Recent Scans</span>
               <svg 
@@ -1134,7 +1134,7 @@ const ChatInterface = () => {
               </svg>
             </button>
             {!recentScansCollapsed && (
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2 min-h-0">
                 {chats.filter(chat => chat.type === 'scan').map((chat) => {
                   // Try to get scan data from current messages first, then from scanData state
                   const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
@@ -1171,13 +1171,13 @@ const ChatInterface = () => {
           </div>
           
           {/* Recent Compares Section */}
-          <div className="flex-1 flex flex-col mt-4">
+          <div className="flex-1 flex flex-col mt-4 min-h-0">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setRecentComparesCollapsed(!recentComparesCollapsed);
               }}
-              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity"
+              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity flex-shrink-0"
             >
               <span>Recent Compares</span>
               <svg 
@@ -1190,7 +1190,7 @@ const ChatInterface = () => {
               </svg>
             </button>
             {!recentComparesCollapsed && (
-              <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2 min-h-0">
                 {chats.filter(chat => chat.type === 'compare').map((chat) => (
                   <button
                     key={chat.id}
