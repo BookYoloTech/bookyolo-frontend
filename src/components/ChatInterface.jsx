@@ -1326,7 +1326,7 @@ const ChatInterface = () => {
                     <img 
                       src={scanpageLogo} 
                       alt="BookYolo" 
-                      className="w-full h-full object-cover rounded-xl"
+                      className="w-6 h-6 sm:w-7 sm:h-7 object-contain"
                     />
                   )}
                 </button>
