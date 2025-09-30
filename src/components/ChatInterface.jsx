@@ -1053,7 +1053,7 @@ const ChatInterface = () => {
           {/* Mobile Layout */}
           <div className="lg:hidden">
             {/* Top Row: Navigation */}
-            <div className="flex justify-center items-center pl-20">
+            <div className="flex justify-center items-center">
               <div className="flex space-x-2">
                 <button
                   onClick={startNewChat}
@@ -1150,7 +1150,7 @@ const ChatInterface = () => {
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
           w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
           {/* Recent Scans Section */}
           <div className="flex-1 flex flex-col min-h-0">
@@ -1339,9 +1339,9 @@ const ChatInterface = () => {
           )}
 
           {/* Input Form */}
-          <div className="p-3 sm:p-4 pb-8 sm:pb-4">
+          <div className="p-2 sm:p-4">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-              <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
+              <div className="flex gap-2 sm:gap-4">
                 <input
                   type="text"
                   value={input}
