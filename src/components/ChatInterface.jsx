@@ -212,6 +212,25 @@ const ChatInterface = () => {
   const [scanProgress, setScanProgress] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
+  // Set sidebar to open by default on desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) { // lg breakpoint
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
 
@@ -1013,9 +1032,9 @@ const ChatInterface = () => {
       {/* Hamburger Menu - Absolute Position */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-2 left-2 z-50 p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white shadow-md"
+        className="fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white shadow-lg border border-gray-200"
       >
-        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
@@ -1093,7 +1112,7 @@ const ChatInterface = () => {
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
           w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           {/* Recent Scans Section */}
           <div className="flex-1 flex flex-col">
