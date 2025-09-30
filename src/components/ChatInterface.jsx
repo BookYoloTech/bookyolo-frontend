@@ -140,6 +140,8 @@ const ChatInterface = () => {
   const [scanData, setScanData] = useState({});
   const [showComparisonUI, setShowComparisonUI] = useState(false);
   const [availableScansForComparison, setAvailableScansForComparison] = useState([]);
+  const [recentScansCollapsed, setRecentScansCollapsed] = useState(false);
+  const [recentComparesCollapsed, setRecentComparesCollapsed] = useState(false);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -326,6 +328,14 @@ const ChatInterface = () => {
         ];
         
         setMessages(compareMessages);
+        
+        // Scroll to top when loading a chat
+        setTimeout(() => {
+          const messagesContainer = document.querySelector('.flex-1.overflow-y-auto');
+          if (messagesContainer) {
+            messagesContainer.scrollTop = 0;
+          }
+        }, 100);
         return;
       }
       
@@ -394,6 +404,14 @@ const ChatInterface = () => {
         });
         
         setMessages(processedMessages);
+        
+        // Scroll to top when loading a chat
+        setTimeout(() => {
+          const messagesContainer = document.querySelector('.flex-1.overflow-y-auto');
+          if (messagesContainer) {
+            messagesContainer.scrollTop = 0;
+          }
+        }, 100);
       }
     } catch (e) {
       console.error("Failed to load chat:", e);
@@ -1070,7 +1088,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-120px)] lg:h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-80px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1088,18 +1106,73 @@ const ChatInterface = () => {
         `}>
           {/* Recent Scans Section */}
           <div className="flex-1 flex flex-col">
-            <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
-            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-              {chats.filter(chat => chat.type === 'scan').map((chat) => {
-                // Try to get scan data from current messages first, then from scanData state
-                const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
-                
-                // If we don't have scan data, load it
-                if (!scan && chat.type === 'scan') {
-                  loadScanDataForChat(chat.id);
-                }
-                
-                return (
+            <button
+              onClick={() => setRecentScansCollapsed(!recentScansCollapsed)}
+              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity"
+            >
+              <span>Recent Scans</span>
+              <svg 
+                className={`w-4 h-4 transition-transform ${recentScansCollapsed ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {!recentScansCollapsed && (
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+                {chats.filter(chat => chat.type === 'scan').map((chat) => {
+                  // Try to get scan data from current messages first, then from scanData state
+                  const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+                  
+                  // If we don't have scan data, load it
+                  if (!scan && chat.type === 'scan') {
+                    loadScanDataForChat(chat.id);
+                  }
+                  
+                  return (
+                    <button
+                      key={chat.id}
+                      onClick={() => loadChat(chat.id)}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${
+                        currentChatId === chat.id 
+                          ? 'bg-button text-white' 
+                          : 'bg-white hover:bg-gray-50 border border-accent text-primary'
+                      }`}
+                    >
+                      <div className="font-medium text-sm truncate">
+                        {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
+                      </div>
+                      <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
+                        {scan?.location || new Date(chat.created_at).toLocaleDateString()}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+          
+          {/* Recent Compares Section */}
+          <div className="flex-1 flex flex-col mt-4">
+            <button
+              onClick={() => setRecentComparesCollapsed(!recentComparesCollapsed)}
+              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity"
+            >
+              <span>Recent Compares</span>
+              <svg 
+                className={`w-4 h-4 transition-transform ${recentComparesCollapsed ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {!recentComparesCollapsed && (
+              <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+                {chats.filter(chat => chat.type === 'compare').map((chat) => (
                   <button
                     key={chat.id}
                     onClick={() => loadChat(chat.id)}
@@ -1110,47 +1183,22 @@ const ChatInterface = () => {
                     }`}
                   >
                     <div className="font-medium text-sm truncate">
-                      {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
+                      {chat.title.replace("Compare • ", "")}
                     </div>
                     <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
-                      {scan?.location || new Date(chat.created_at).toLocaleDateString()}
+                      {new Date(chat.created_at).toLocaleDateString()}
                     </div>
                   </button>
-                );
-              })}
-            </div>
-          </div>
-          
-          {/* Recent Compares Section */}
-          <div className="flex-1 flex flex-col mt-4">
-            <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
-            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-              {chats.filter(chat => chat.type === 'compare').map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => loadChat(chat.id)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors ${
-                    currentChatId === chat.id 
-                      ? 'bg-button text-white' 
-                      : 'bg-white hover:bg-gray-50 border border-accent text-primary'
-                  }`}
-                >
-                  <div className="font-medium text-sm truncate">
-                    {chat.title.replace("Compare • ", "")}
-                  </div>
-                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
-                    {new Date(chat.created_at).toLocaleDateString()}
-                  </div>
-                </button>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col w-full lg:w-auto min-h-0">
+        <div className="flex-1 flex flex-col w-full lg:w-auto">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-h-0">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
@@ -1172,7 +1220,7 @@ const ChatInterface = () => {
                 </div>
               </div>
             ) : messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-start text-center px-4 pt-8">
+              <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
                   <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
                     Welcome to BookYolo AI Engine
