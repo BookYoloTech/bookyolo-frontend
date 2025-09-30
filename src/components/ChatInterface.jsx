@@ -1111,9 +1111,9 @@ const ChatInterface = () => {
           w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `} style={{top: 0}}>
+        `}>
           {/* Recent Scans Section */}
-          <div className="flex-1 flex flex-col min-h-0 pt-16">
+          <div className="flex-1 flex flex-col min-h-0">
             <button
               onClick={(e) => {
                 e.stopPropagation();
