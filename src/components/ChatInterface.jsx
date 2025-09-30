@@ -1040,7 +1040,7 @@ const ChatInterface = () => {
       {/* Hamburger Menu - Absolute Position */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white"
+        className="fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white lg:hidden"
       >
         <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -1053,7 +1053,7 @@ const ChatInterface = () => {
           {/* Mobile Layout */}
           <div className="lg:hidden">
             {/* Top Row: Navigation */}
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center pl-12">
               <div className="flex space-x-2">
                 <button
                   onClick={startNewChat}
@@ -1150,7 +1150,7 @@ const ChatInterface = () => {
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
           w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           {/* Recent Scans Section */}
           <div className="flex-1 flex flex-col min-h-0">
@@ -1339,7 +1339,7 @@ const ChatInterface = () => {
           )}
 
           {/* Input Form */}
-          <div className="p-2 sm:p-4">
+          <div className="p-3 sm:p-4 pb-6 sm:pb-4">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
               <div className="flex gap-2 sm:gap-4">
                 <input
@@ -1354,7 +1354,7 @@ const ChatInterface = () => {
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="rounded-xl bg-button text-white px-4 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                  className="rounded-xl bg-button text-white px-3 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center flex-shrink-0"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-1 sm:space-x-2">
