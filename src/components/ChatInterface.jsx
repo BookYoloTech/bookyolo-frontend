@@ -311,8 +311,6 @@ const ChatInterface = () => {
 
   const loadChat = async (chatId) => {
     try {
-      // Close sidebar on mobile when selecting a chat
-      setSidebarOpen(false);
       // Hide comparison UI when loading a chat
       setShowComparisonUI(false);
       
@@ -1032,7 +1030,7 @@ const ChatInterface = () => {
       {/* Hamburger Menu - Absolute Position */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white shadow-lg border border-gray-200"
+        className="fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white shadow-lg"
       >
         <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
