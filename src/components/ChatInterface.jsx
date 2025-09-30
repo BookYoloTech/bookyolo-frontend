@@ -294,6 +294,8 @@ const ChatInterface = () => {
     try {
       // Close sidebar on mobile when selecting a chat
       setSidebarOpen(false);
+      // Hide comparison UI when loading a chat
+      setShowComparisonUI(false);
       
       // Check if this is a local compare chat (not in database)
       const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
@@ -769,6 +771,7 @@ const ChatInterface = () => {
     setCurrentChatId(null);
     setCurrentScan(null);
     setError("");
+    setShowComparisonUI(false); // Hide comparison UI
   };
 
   const handleComparisonSelect = async (scan1, scan2, question = "") => {
@@ -1009,7 +1012,7 @@ const ChatInterface = () => {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
+        <div className="container mx-auto px-3 sm:px-6 py-2 sm:py-3">
           {/* Mobile Layout */}
           <div className="lg:hidden">
             {/* Top Row: Hamburger Menu + Navigation */}
@@ -1088,7 +1091,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1100,9 +1103,9 @@ const ChatInterface = () => {
         {/* Sidebar */}
         <div className={`
           fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
-          w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-4 h-full flex flex-col
+          w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
           {/* Recent Scans Section */}
           <div className="flex-1 flex flex-col">
@@ -1198,7 +1201,7 @@ const ChatInterface = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col w-full lg:w-auto">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4">
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
@@ -1279,7 +1282,7 @@ const ChatInterface = () => {
           )}
 
           {/* Input Form */}
-          <div className="p-3 sm:p-6">
+          <div className="p-2 sm:p-4">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
               <div className="flex gap-2 sm:gap-4">
                 <input
