@@ -143,6 +143,7 @@ const ChatInterface = () => {
   const [availableScansForComparison, setAvailableScansForComparison] = useState([]);
   const [recentScansCollapsed, setRecentScansCollapsed] = useState(false);
   const [recentComparesCollapsed, setRecentComparesCollapsed] = useState(false);
+  const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -314,6 +315,12 @@ const ChatInterface = () => {
     try {
       // Hide comparison UI when loading a chat
       setShowComparisonUI(false);
+      
+      // Set active button based on chat type
+      const chat = chats.find(c => c.id === chatId);
+      if (chat) {
+        setActiveButton(chat.type === 'compare' ? 'compare' : 'scan');
+      }
       
       // Check if this is a local compare chat (not in database)
       const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
@@ -676,6 +683,7 @@ const ChatInterface = () => {
     // If it's a compare request but no specific URLs, show available scans for comparison
     if (isCompareRequest) {
       setError("");
+      setActiveButton('compare'); // Set compare as active
       
       // Wait for scan data to be loaded if it's still loading
       if (isLoadingData) {
@@ -790,6 +798,7 @@ const ChatInterface = () => {
     setCurrentScan(null);
     setError("");
     setShowComparisonUI(false); // Hide comparison UI
+    setActiveButton('scan'); // Set scan as active
   };
 
   const handleComparisonSelect = async (scan1, scan2, question = "") => {
@@ -1048,19 +1057,34 @@ const ChatInterface = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={startNewChat}
-                  className="px-3 py-2 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity ${
+                    activeButton === 'scan' 
+                      ? 'bg-button text-white' 
+                      : 'bg-accent text-primary'
+                  }`}
                 >
                   New Scan
                 </button>
                 <button
                   onClick={() => handleCompare("compare")}
-                  className="px-3 py-2 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity ${
+                    activeButton === 'compare' 
+                      ? 'bg-button text-white' 
+                      : 'bg-accent text-primary'
+                  }`}
                 >
                   Compare
                 </button>
                 <button
-                  onClick={() => navigate("/plan-status")}
-                  className="px-3 py-2 bg-button text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                  onClick={() => {
+                    navigate("/plan-status");
+                    setActiveButton('account');
+                  }}
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity ${
+                    activeButton === 'account' 
+                      ? 'bg-button text-white' 
+                      : 'bg-accent text-primary'
+                  }`}
                 >
                   Account
                 </button>
@@ -1074,21 +1098,36 @@ const ChatInterface = () => {
             <div className="flex items-center space-x-3">
               <button
                 onClick={startNewChat}
-                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-sm"
+                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm ${
+                  activeButton === 'scan' 
+                    ? 'bg-button text-white shadow-sm' 
+                    : 'bg-accent text-primary'
+                }`}
               >
                 New Scan
               </button>
               
               <button
                 onClick={() => handleCompare("compare")}
-                className="px-4 py-2 bg-accent text-primary font-medium rounded-lg hover:opacity-90 transition-opacity text-sm"
+                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm ${
+                  activeButton === 'compare' 
+                    ? 'bg-button text-white shadow-sm' 
+                    : 'bg-accent text-primary'
+                }`}
               >
                 Compare
               </button>
               
               <button
-                onClick={() => navigate("/plan-status")}
-                className="px-4 py-2 bg-button text-white font-medium rounded-lg hover:opacity-90 shadow-sm transition-opacity text-sm"
+                onClick={() => {
+                  navigate("/plan-status");
+                  setActiveButton('account');
+                }}
+                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm ${
+                  activeButton === 'account' 
+                    ? 'bg-button text-white shadow-sm' 
+                    : 'bg-accent text-primary'
+                }`}
               >
                 Account
               </button>
