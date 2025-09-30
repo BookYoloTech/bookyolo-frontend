@@ -138,6 +138,8 @@ const ChatInterface = () => {
   const [me, setMe] = useState(null);
   const [chats, setChats] = useState([]);
   const [scanData, setScanData] = useState({});
+  const [showComparisonUI, setShowComparisonUI] = useState(false);
+  const [availableScansForComparison, setAvailableScansForComparison] = useState([]);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -637,43 +639,33 @@ const ChatInterface = () => {
     if (isCompareRequest) {
       setError("");
       
-      // Add user message
-      const userMessage = { role: "user", content: text, messageType: "compare" };
-      setMessages(prev => [...prev, userMessage]);
-      
       // Wait for scan data to be loaded if it's still loading
       if (isLoadingData) {
         setError("Loading scan data...");
         return;
       }
       
-      // Add assistant response with comparison options
-      const assistantMessage = {
-        role: "assistant",
-        content: "I can help you compare your scanned listings. Here are your available scans:",
-        showComparisonUI: true,
-        availableScans: scanChats.slice(0, 10).map(chat => {
-          // Try to get scan data from current messages first, then from scanData state
-          const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
-          
-          // If we don't have scan data, load it
-          if (!scan && chat.type === 'scan') {
-            loadScanDataForChat(chat.id);
-          }
-          
-          console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
-          
-          return {
-            id: chat.id,
-            listing_url: chat.title.replace("Scan • ", ""),
-            listing_title: scan?.listing_title,
-            location: scan?.location,
-            created_at: chat.created_at
-          };
-        })
-      };
-      console.log("DEBUG: Adding comparison UI message:", assistantMessage);
-      setMessages(prev => [...prev, assistantMessage]);
+      // Show comparison UI directly without adding messages to chat
+      setShowComparisonUI(true);
+      setAvailableScansForComparison(scanChats.slice(0, 10).map(chat => {
+        // Try to get scan data from current messages first, then from scanData state
+        const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+        
+        // If we don't have scan data, load it
+        if (!scan && chat.type === 'scan') {
+          loadScanDataForChat(chat.id);
+        }
+        
+        console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
+        
+        return {
+          id: chat.id,
+          listing_url: chat.title.replace("Scan • ", ""),
+          listing_title: scan?.listing_title,
+          location: scan?.location,
+          created_at: chat.created_at
+        };
+      }));
       return;
     }
 
@@ -764,6 +756,7 @@ const ChatInterface = () => {
   const handleComparisonSelect = async (scan1, scan2, question = "") => {
     setError("");
     setIsLoading(true);
+    setShowComparisonUI(false); // Hide comparison UI
     
     // Check if user has sufficient balance for comparison (requires 1 full scan for initial, 0.5 for questions)
     const requiredBalance = question ? 0.5 : 1.0;
@@ -1001,8 +994,8 @@ const ChatInterface = () => {
         <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
           {/* Mobile Layout */}
           <div className="lg:hidden">
-            {/* Top Row: Hamburger Menu */}
-            <div className="flex justify-start items-center mb-3">
+            {/* Top Row: Hamburger Menu + Navigation */}
+            <div className="flex justify-between items-center">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -1011,33 +1004,42 @@ const ChatInterface = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-            </div>
-            
-            {/* Bottom Row: Navigation - Centered */}
-            <div className="flex justify-center space-x-2">
-              <button
-                onClick={startNewChat}
-                className="flex-1 max-w-24 px-3 py-2.5 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
-              >
-                New Scan
-              </button>
-              <button
-                onClick={() => handleCompare("compare")}
-                className="flex-1 max-w-24 px-3 py-2.5 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
-              >
-                Compare
-              </button>
-              <button
-                onClick={() => navigate("/plan-status")}
-                className="flex-1 max-w-24 px-3 py-2.5 bg-button text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
-              >
-                Account
-              </button>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={startNewChat}
+                  className="px-3 py-2 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                >
+                  New Scan
+                </button>
+                <button
+                  onClick={() => handleCompare("compare")}
+                  className="px-3 py-2 bg-accent text-primary font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                >
+                  Compare
+                </button>
+                <button
+                  onClick={() => navigate("/plan-status")}
+                  className="px-3 py-2 bg-button text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                >
+                  Account
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Desktop Layout */}
-          <div className="hidden lg:flex justify-center items-center">
+          <div className="hidden lg:flex justify-between items-center">
+            {/* Left: Hamburger Menu */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
             {/* Center: Action Buttons */}
             <div className="flex items-center space-x-3">
               <button
@@ -1061,6 +1063,9 @@ const ChatInterface = () => {
                 Account
               </button>
             </div>
+            
+            {/* Right: Empty space for balance */}
+            <div className="w-10"></div>
           </div>
         </div>
       </div>
@@ -1081,18 +1086,6 @@ const ChatInterface = () => {
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          {/* Hamburger Menu Button at Top Left */}
-          <div className="flex justify-start mb-4">
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"
-            >
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-          
           {/* Recent Scans Section */}
           <div className="flex-1 flex flex-col">
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
@@ -1155,11 +1148,31 @@ const ChatInterface = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col w-full lg:w-auto">
+        <div className="flex-1 flex flex-col w-full lg:w-auto min-h-0">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
-            {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center px-4">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-h-0">
+            {showComparisonUI ? (
+              <div className="max-w-4xl mx-auto w-full">
+                <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="text-sm text-primary">I can help you compare your scanned listings. Here are your available scans:</div>
+                    <button
+                      onClick={() => setShowComparisonUI(false)}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <ComparisonSelector 
+                    availableScans={availableScansForComparison}
+                    onCompare={handleComparisonSelect}
+                  />
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-start text-center px-4 pt-8">
                 <div className="max-w-md">
                   <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
                     Welcome to BookYolo AI Engine
