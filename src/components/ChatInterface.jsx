@@ -997,43 +997,23 @@ const ChatInterface = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <div className="bg-white sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
           {/* Mobile Layout */}
           <div className="lg:hidden">
-            {/* Top Row: Logo + Menu */}
-            <div className="flex justify-between items-center mb-3">
+            {/* Top Row: Hamburger Menu */}
+            <div className="flex justify-start items-center mb-3">
               <button
-                onClick={() => navigate("/")}
-                className="flex items-center hover:opacity-80 transition-opacity"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <img 
-                  src={logo} 
-                  alt="BookYolo" 
-                  className="h-8 w-auto"
-                />
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               </button>
-              
-              <div className="flex items-center space-x-3">
-                {typeof me?.remaining === "number" && (
-                  <div className="text-sm text-primary">
-                    <span className="font-semibold">
-                      {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)}
-                    </span> scans left
-                  </div>
-                )}
-                <button
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-              </div>
             </div>
             
-            {/* Bottom Row: Navigation */}
+            {/* Bottom Row: Navigation - Centered */}
             <div className="flex justify-center space-x-2">
               <button
                 onClick={startNewChat}
@@ -1057,69 +1037,8 @@ const ChatInterface = () => {
           </div>
 
           {/* Desktop Layout */}
-          <div className="hidden lg:flex justify-between items-center">
-            {/* Left: Scan Balance */}
-            <div className="flex items-center space-x-4">
-              {typeof me?.remaining === "number" && (
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-2 bg-accent rounded-full px-3 py-1">
-                    <div className="w-2 h-2 bg-button rounded-full"></div>
-                    <span className="text-sm text-primary">
-                      <span className="font-semibold">
-                        {me.remaining % 1 === 0 ? me.remaining : me.remaining.toFixed(1)}
-                      </span> 
-                      <span> scans left</span>
-                    </span>
-                  </div>
-                  
-                  {/* Low Scan Balance Warning */}
-                  {me.remaining <= 5 && me.remaining > 0 && (
-                    <div className="flex items-center space-x-2 bg-yellow-100 border border-yellow-300 rounded-full px-3 py-1">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <span className="text-sm text-yellow-700">
-                        Low Balance
-                      </span>
-                      <button 
-                        onClick={() => navigate('/plan-status')}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
-                      >
-                        Upgrade
-                      </button>
-                    </div>
-                  )}
-                  
-                  {/* Zero Scan Balance Warning */}
-                  {me.remaining <= 0 && (
-                    <div className="flex items-center space-x-2 bg-red-100 border border-red-300 rounded-full px-3 py-1">
-                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <span className="text-sm text-red-700">
-                        No scans left
-                      </span>
-                      <button 
-                        onClick={() => navigate('/plan-status')}
-                        className="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
-                      >
-                        Upgrade
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            {/* Center: BookYolo Logo */}
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center hover:opacity-80 transition-opacity"
-            >
-              <img 
-                src={logo} 
-                alt="BookYolo" 
-                className="h-10 w-auto"
-              />
-            </button>
-            
-            {/* Right: Action Buttons */}
+          <div className="hidden lg:flex justify-center items-center">
+            {/* Center: Action Buttons */}
             <div className="flex items-center space-x-3">
               <button
                 onClick={startNewChat}
@@ -1162,9 +1081,21 @@ const ChatInterface = () => {
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          {/* Property Scans Section - 2/3 height */}
-          <div className="flex-1 flex flex-col mb-4" style={{height: 'calc(66.67% - 1rem)'}}>
-            <h3 className="text-lg font-semibold text-primary mb-3">Property Scans</h3>
+          {/* Hamburger Menu Button at Top Left */}
+          <div className="flex justify-start mb-4">
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-2 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"
+            >
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+          
+          {/* Recent Scans Section */}
+          <div className="flex-1 flex flex-col">
+            <h3 className="text-lg font-semibold text-primary mb-3">Recent Scans</h3>
             <div className="flex-1 overflow-y-auto space-y-2 pr-2">
               {chats.filter(chat => chat.type === 'scan').map((chat) => {
                 // Try to get scan data from current messages first, then from scanData state
@@ -1181,14 +1112,14 @@ const ChatInterface = () => {
                     onClick={() => loadChat(chat.id)}
                     className={`w-full text-left p-3 rounded-lg transition-colors ${
                       currentChatId === chat.id 
-                        ? 'bg-button text-button' 
-                        : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                        ? 'bg-button text-white' 
+                        : 'bg-white hover:bg-gray-50 border border-accent text-primary'
                     }`}
                   >
                     <div className="font-medium text-sm truncate">
                       {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
                     </div>
-                    <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                    <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
                       {scan?.location || new Date(chat.created_at).toLocaleDateString()}
                     </div>
                   </button>
@@ -1197,8 +1128,8 @@ const ChatInterface = () => {
             </div>
           </div>
           
-          {/* Recent Compares Section - 1/3 height */}
-          <div className="flex-1 flex flex-col" style={{height: 'calc(33.33% - 1rem)'}}>
+          {/* Recent Compares Section */}
+          <div className="flex-1 flex flex-col mt-4">
             <h3 className="text-lg font-semibold text-primary mb-3">Recent Compares</h3>
             <div className="flex-1 overflow-y-auto space-y-2 pr-2">
               {chats.filter(chat => chat.type === 'compare').map((chat) => (
@@ -1207,14 +1138,14 @@ const ChatInterface = () => {
                   onClick={() => loadChat(chat.id)}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     currentChatId === chat.id 
-                      ? 'bg-button text-button' 
-                      : 'bg-white hover:bg-white/70 border border-accent text-primary'
+                      ? 'bg-button text-white' 
+                      : 'bg-white hover:bg-gray-50 border border-accent text-primary'
                   }`}
                 >
                   <div className="font-medium text-sm truncate">
-                    {chat.title || "Property Comparison"}
+                    {chat.title.replace("Compare • ", "")}
                   </div>
-                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-button opacity-70' : 'text-primary opacity-60'}`}>
+                  <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
                     {new Date(chat.created_at).toLocaleDateString()}
                   </div>
                 </button>
@@ -1287,7 +1218,7 @@ const ChatInterface = () => {
           )}
 
           {/* Input Form */}
-          <div className="border-t border-accent p-3 sm:p-6">
+          <div className="p-3 sm:p-6">
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
               <div className="flex gap-2 sm:gap-4">
                 <input
@@ -1302,7 +1233,7 @@ const ChatInterface = () => {
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="rounded-xl bg-button text-button px-4 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="rounded-xl bg-button text-white px-4 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-1 sm:space-x-2">
@@ -1310,9 +1241,11 @@ const ChatInterface = () => {
                       <span className="text-xs sm:text-sm hidden sm:inline">Processing...</span>
                     </div>
                   ) : (
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
+                    <img 
+                      src={logo} 
+                      alt="BookYolo" 
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                    />
                   )}
                 </button>
               </div>
