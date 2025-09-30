@@ -1009,23 +1009,24 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen bg-white overflow-hidden">
+      {/* Hamburger Menu - Absolute Position */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="fixed top-2 left-2 z-50 p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white shadow-md"
+      >
+        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-6 py-2 sm:py-3">
           {/* Mobile Layout */}
           <div className="lg:hidden">
-            {/* Top Row: Hamburger Menu + Navigation */}
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              
+            {/* Top Row: Navigation */}
+            <div className="flex justify-center items-center">
               <div className="flex space-x-2">
                 <button
                   onClick={startNewChat}
@@ -1050,17 +1051,7 @@ const ChatInterface = () => {
           </div>
 
           {/* Desktop Layout */}
-          <div className="hidden lg:flex justify-between items-center">
-            {/* Left: Hamburger Menu */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            
+          <div className="hidden lg:flex justify-center items-center">
             {/* Center: Action Buttons */}
             <div className="flex items-center space-x-3">
               <button
@@ -1084,14 +1075,11 @@ const ChatInterface = () => {
                 Account
               </button>
             </div>
-            
-            {/* Right: Empty space for balance */}
-            <div className="w-10"></div>
           </div>
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-70px)]">
+      <div className="flex h-[calc(100vh-60px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1110,7 +1098,10 @@ const ChatInterface = () => {
           {/* Recent Scans Section */}
           <div className="flex-1 flex flex-col">
             <button
-              onClick={() => setRecentScansCollapsed(!recentScansCollapsed)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setRecentScansCollapsed(!recentScansCollapsed);
+              }}
               className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity"
             >
               <span>Recent Scans</span>
@@ -1137,7 +1128,10 @@ const ChatInterface = () => {
                   return (
                     <button
                       key={chat.id}
-                      onClick={() => loadChat(chat.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        loadChat(chat.id);
+                      }}
                       className={`w-full text-left p-3 rounded-lg transition-colors ${
                         currentChatId === chat.id 
                           ? 'bg-button text-white' 
@@ -1160,7 +1154,10 @@ const ChatInterface = () => {
           {/* Recent Compares Section */}
           <div className="flex-1 flex flex-col mt-4">
             <button
-              onClick={() => setRecentComparesCollapsed(!recentComparesCollapsed)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setRecentComparesCollapsed(!recentComparesCollapsed);
+              }}
               className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity"
             >
               <span>Recent Compares</span>
@@ -1178,7 +1175,10 @@ const ChatInterface = () => {
                 {chats.filter(chat => chat.type === 'compare').map((chat) => (
                   <button
                     key={chat.id}
-                    onClick={() => loadChat(chat.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      loadChat(chat.id);
+                    }}
                     className={`w-full text-left p-3 rounded-lg transition-colors ${
                       currentChatId === chat.id 
                         ? 'bg-button text-white' 
