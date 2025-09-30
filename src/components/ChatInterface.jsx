@@ -213,18 +213,14 @@ const ChatInterface = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userToggledSidebar, setUserToggledSidebar] = useState(false);
   
-  // Set sidebar to open by default on desktop, but respect user toggles
+  // Set sidebar to open by default on desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) { // lg breakpoint
-        if (!userToggledSidebar) {
-          setSidebarOpen(true);
-        }
+        setSidebarOpen(true);
       } else {
         setSidebarOpen(false);
-        setUserToggledSidebar(false);
       }
     };
     
@@ -235,7 +231,7 @@ const ChatInterface = () => {
     window.addEventListener('resize', handleResize);
     
     return () => window.removeEventListener('resize', handleResize);
-  }, [userToggledSidebar]);
+  }, []);
   
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
@@ -1043,10 +1039,7 @@ const ChatInterface = () => {
     <div className="h-screen bg-white overflow-hidden">
       {/* Hamburger Menu - Absolute Position */}
       <button
-        onClick={() => {
-          setSidebarOpen(!sidebarOpen);
-          setUserToggledSidebar(true);
-        }}
+        onClick={() => setSidebarOpen(!sidebarOpen)}
         className="fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white"
       >
         <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
