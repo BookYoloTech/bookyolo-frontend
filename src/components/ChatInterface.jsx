@@ -1037,10 +1037,12 @@ const ChatInterface = () => {
 
   return (
     <div className="h-screen bg-white overflow-hidden">
-      {/* Hamburger Menu - Absolute Position */}
+      {/* Hamburger Menu - Absolute Position - Hidden on mobile when sidebar is open */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white"
+        className={`fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white ${
+          sidebarOpen ? 'lg:block hidden' : 'block'
+        }`}
       >
         <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -1338,10 +1340,10 @@ const ChatInterface = () => {
             </div>
           )}
 
-          {/* Input Form */}
-          <div className="p-2 sm:p-4">
-            <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-              <div className="flex gap-2 sm:gap-4">
+            {/* Input Form */}
+            <div className="p-2 sm:p-4">
+              <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+                <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
                   type="text"
                   value={input}
