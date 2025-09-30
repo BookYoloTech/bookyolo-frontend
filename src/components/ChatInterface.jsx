@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/main-logo.jpg";
-import scanpageLogo from "../assets/scanpage-logo";
+import scanpageLogo from "../assets/scanpage-logo.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
