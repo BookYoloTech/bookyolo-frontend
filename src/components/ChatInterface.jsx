@@ -146,6 +146,19 @@ const ChatInterface = () => {
   const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
   const inputRef = useRef(null);
 
+  // Ensure input is responsive on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      // Force focus on mobile devices when viewport changes
+      if (window.innerWidth < 768 && inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
     console.log("DEBUG: getScanDataFromCurrentMessages called for chatId:", chatId);
@@ -1341,7 +1354,7 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="p-2 sm:p-4 pb-4 sm:pb-4">
+            <div className="p-2 sm:p-4 pb-20 sm:pb-4">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
@@ -1349,14 +1362,17 @@ const ChatInterface = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onTouchStart={() => {
+                    // Ensure input is focused on mobile touch
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }}
                   onClick={() => {
                     // Ensure input is focused and responsive on mobile
-                    setTimeout(() => {
-                      if (inputRef.current) {
-                        inputRef.current.focus();
-                        inputRef.current.click();
-                      }
-                    }, 100);
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
                   }}
                   placeholder="Paste an Airbnb property URL to scan and ask any questions..."
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
@@ -1365,6 +1381,7 @@ const ChatInterface = () => {
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck="false"
+                  inputMode="text"
                 />
                 <button
                   type="submit"
