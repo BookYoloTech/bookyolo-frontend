@@ -95,6 +95,7 @@ export default function Login() {
                 className="h-12 w-auto"
               />
             </button>
+            <h2 className="text-xl font-bold text-primary">Welcome Back</h2>
           </div>
 
           {err && <div className="mb-3 text-sm text-red-600">{err}</div>}
