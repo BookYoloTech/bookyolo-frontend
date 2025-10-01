@@ -146,13 +146,36 @@ const ChatInterface = () => {
   const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
   const inputRef = useRef(null);
 
-  // Ensure input is properly initialized for mobile
+  // Handle mobile keyboard and viewport changes
   useEffect(() => {
+    const handleResize = () => {
+      // Force a re-render when viewport changes (keyboard opens/closes)
+      window.scrollTo(0, 0);
+    };
+
+    const handleFocus = () => {
+      // Ensure app stays responsive when input is focused
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    
     if (inputRef.current) {
-      // Force focus on mobile when component mounts
-      inputRef.current.focus();
-      inputRef.current.blur(); // Then blur to reset state
+      inputRef.current.addEventListener('focus', handleFocus);
     }
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      if (inputRef.current) {
+        inputRef.current.removeEventListener('focus', handleFocus);
+      }
+    };
   }, []);
 
   // Helper function to get scan data from current messages
@@ -1046,7 +1069,10 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible">
+    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible" style={{ 
+      height: '100vh',
+      height: '100svh' // Small viewport height - adjusts when keyboard opens
+    }}>
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1147,7 +1173,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)]">
+      <div className="flex h-[calc(100svh-70px)] lg:min-h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1365,17 +1391,6 @@ const ChatInterface = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onTouchStart={(e) => {
-                    e.preventDefault();
-                    if (inputRef.current) {
-                      inputRef.current.focus();
-                    }
-                  }}
-                  onClick={() => {
-                    if (inputRef.current) {
-                      inputRef.current.focus();
-                    }
-                  }}
                   placeholder="Paste an Airbnb property URL to scan and ask any questions..."
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
@@ -1383,7 +1398,8 @@ const ChatInterface = () => {
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck="false"
-                  inputMode="text"
+                  inputMode="url"
+                  enterKeyHint="go"
                 />
                 <button
                   type="submit"
