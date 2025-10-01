@@ -1038,7 +1038,10 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible">
+    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible" style={{
+      height: '100vh',
+      height: '100svh' // Adjusts when keyboard opens to prevent white space
+    }}>
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1139,7 +1142,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)]">
+      <div className="flex h-[calc(100svh-70px)] lg:min-h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
