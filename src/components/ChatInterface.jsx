@@ -1040,7 +1040,7 @@ const ChatInterface = () => {
       {/* Hamburger Menu - Absolute Position - Hidden on mobile when sidebar is open */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className={`fixed top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white ${
+        className={`fixed top-2 left-2 z-[9999] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white ${
           sidebarOpen ? 'lg:block hidden' : 'block'
         }`}
       >
