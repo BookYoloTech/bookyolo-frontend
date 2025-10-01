@@ -146,6 +146,14 @@ const ChatInterface = () => {
   const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
   const inputRef = useRef(null);
 
+  // Ensure input is properly initialized for mobile
+  useEffect(() => {
+    if (inputRef.current) {
+      // Force focus on mobile when component mounts
+      inputRef.current.focus();
+      inputRef.current.blur(); // Then blur to reset state
+    }
+  }, []);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -1342,7 +1350,14 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="p-2 sm:p-4 pb-16 sm:pb-4">
+            <div 
+              className="p-2 sm:p-4 pb-16 sm:pb-4"
+              onTouchStart={() => {
+                if (inputRef.current) {
+                  inputRef.current.focus();
+                }
+              }}
+            >
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
@@ -1350,8 +1365,13 @@ const ChatInterface = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onFocus={() => {
-                    // Ensure input is properly focused
+                  onTouchStart={(e) => {
+                    e.preventDefault();
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }}
+                  onClick={() => {
                     if (inputRef.current) {
                       inputRef.current.focus();
                     }
