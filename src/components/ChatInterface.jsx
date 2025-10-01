@@ -920,7 +920,7 @@ const ChatInterface = () => {
     const isQuestion = isUser && message.messageType === "question";
     
     return (
-      <div key={index} className={`flex ${isUser || isQuestion ? 'justify-end' : 'justify-start'} mb-6`}>
+      <div key={index} className={`flex ${isQuestion ? 'justify-end' : 'justify-start'} mb-6`}>
         <div className={`max-w-4xl w-full ${
           isUser && !isQuestion
             ? 'bg-button text-button rounded-2xl px-4 py-3 ml-auto max-w-3xl' 
