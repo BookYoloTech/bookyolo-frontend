@@ -1067,7 +1067,7 @@ const ChatInterface = () => {
             .mobile-chat-area {
               flex: 1 !important;
               overflow-y: auto !important;
-              padding-bottom: 0 !important;
+              padding-bottom: 5rem !important;
             }
             
             .mobile-input-area {
