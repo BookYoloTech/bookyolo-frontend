@@ -149,17 +149,35 @@ const ChatInterface = () => {
   // Handle mobile keyboard and viewport changes
   useEffect(() => {
     const handleResize = () => {
-      // Force a re-render when viewport changes (keyboard opens/closes)
-      window.scrollTo(0, 0);
+      // Prevent scroll issues when keyboard opens/closes
+      if (window.innerWidth <= 639) {
+        window.scrollTo(0, 0);
+        // Force layout recalculation
+        document.body.style.height = '100vh';
+        setTimeout(() => {
+          document.body.style.height = '';
+        }, 100);
+      }
     };
 
     const handleFocus = () => {
-      // Ensure app stays responsive when input is focused
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
+      // Ensure app stays responsive when input is focused on mobile
+      if (window.innerWidth <= 639) {
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        }, 200);
+      }
+    };
+
+    const handleBlur = () => {
+      // Ensure app stays responsive when keyboard is dismissed
+      if (window.innerWidth <= 639) {
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+        }, 100);
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -167,6 +185,7 @@ const ChatInterface = () => {
     
     if (inputRef.current) {
       inputRef.current.addEventListener('focus', handleFocus);
+      inputRef.current.addEventListener('blur', handleBlur);
     }
 
     return () => {
@@ -174,6 +193,7 @@ const ChatInterface = () => {
       window.removeEventListener('orientationchange', handleResize);
       if (inputRef.current) {
         inputRef.current.removeEventListener('focus', handleFocus);
+        inputRef.current.removeEventListener('blur', handleBlur);
       }
     };
   }, []);
@@ -1071,7 +1091,8 @@ const ChatInterface = () => {
   return (
     <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible" style={{ 
       height: '100vh',
-      height: '100svh' // Small viewport height - adjusts when keyboard opens
+      height: '100svh', // Small viewport height - adjusts when keyboard opens
+      minHeight: '100vh' // Ensure minimum height on mobile
     }}>
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
@@ -1173,7 +1194,9 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100svh-70px)] lg:min-h-[calc(100vh-70px)]">
+      <div className="flex h-[calc(100svh-70px)] lg:min-h-[calc(100vh-70px)]" style={{
+        minHeight: 'calc(100vh - 70px)' // Ensure minimum height on mobile
+      }}>
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1377,7 +1400,7 @@ const ChatInterface = () => {
 
             {/* Input Form */}
             <div 
-              className="p-2 sm:p-4 pb-16 sm:pb-4"
+              className="p-2 sm:p-4 pb-4 sm:pb-4"
               onTouchStart={() => {
                 if (inputRef.current) {
                   inputRef.current.focus();
