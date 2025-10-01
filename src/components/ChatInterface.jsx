@@ -1125,7 +1125,7 @@ const ChatInterface = () => {
                       : 'bg-accent text-primary'
                   }`}
                 >
-                  New Scan
+                  Scan
                 </button>
                 <button
                   onClick={() => handleCompare("compare")}
@@ -1166,7 +1166,7 @@ const ChatInterface = () => {
                     : 'bg-accent text-primary'
                 }`}
               >
-                New Scan
+                Scan
               </button>
               
               <button

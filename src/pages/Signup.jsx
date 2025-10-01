@@ -54,10 +54,10 @@ export default function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="w-full max-w-md">
         <div className="bg-white p-6 sm:p-8">
-          <div className="text-center mb-6">
+          <div className="text-center mb-8">
             <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center justify-center mb-3 mx-auto hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center mb-6 mx-auto hover:opacity-80 transition-opacity"
             >
               <img 
                 src={logo} 
