@@ -146,31 +146,6 @@ const ChatInterface = () => {
   const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
   const inputRef = useRef(null);
 
-  // Handle mobile keyboard white space issue
-  useEffect(() => {
-    const handleVisualViewportChange = () => {
-      if (window.visualViewport && window.innerWidth <= 639) {
-        const viewport = window.visualViewport;
-        const height = viewport.height;
-        
-        // Adjust container height when keyboard opens/closes
-        const container = document.querySelector('.h-screen');
-        if (container) {
-          container.style.height = `${height}px`;
-        }
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleVisualViewportChange);
-    }
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleVisualViewportChange);
-      }
-    };
-  }, []);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
