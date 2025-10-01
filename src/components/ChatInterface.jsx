@@ -149,52 +149,18 @@ const ChatInterface = () => {
   // Handle mobile keyboard and viewport changes
   useEffect(() => {
     const handleResize = () => {
-      // Prevent scroll issues when keyboard opens/closes
+      // Simple scroll reset for mobile
       if (window.innerWidth <= 639) {
         window.scrollTo(0, 0);
-        // Force layout recalculation
-        document.body.style.height = '100vh';
-        setTimeout(() => {
-          document.body.style.height = '';
-        }, 100);
-      }
-    };
-
-    const handleFocus = () => {
-      // Ensure app stays responsive when input is focused on mobile
-      if (window.innerWidth <= 639) {
-        setTimeout(() => {
-          if (inputRef.current) {
-            inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }
-        }, 200);
-      }
-    };
-
-    const handleBlur = () => {
-      // Ensure app stays responsive when keyboard is dismissed
-      if (window.innerWidth <= 639) {
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-        }, 100);
       }
     };
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
-    
-    if (inputRef.current) {
-      inputRef.current.addEventListener('focus', handleFocus);
-      inputRef.current.addEventListener('blur', handleBlur);
-    }
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
-      if (inputRef.current) {
-        inputRef.current.removeEventListener('focus', handleFocus);
-        inputRef.current.removeEventListener('blur', handleBlur);
-      }
     };
   }, []);
 
@@ -1400,7 +1366,7 @@ const ChatInterface = () => {
 
             {/* Input Form */}
             <div 
-              className="p-2 sm:p-4 pb-4 sm:pb-4"
+              className="p-2 sm:p-4 pb-8 sm:pb-4"
               onTouchStart={() => {
                 if (inputRef.current) {
                   inputRef.current.focus();
@@ -1414,6 +1380,11 @@ const ChatInterface = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onClick={() => {
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }}
                   placeholder="Paste an Airbnb property URL to scan and ask any questions..."
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
