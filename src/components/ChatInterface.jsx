@@ -924,7 +924,7 @@ const ChatInterface = () => {
     console.log("RENDERING MESSAGE:", { isUser, index, content: message.content });
     
     return (
-      <div key={index} className={`flex ${isUser ? 'justify-end user-message-force' : 'justify-start'} mb-6`} style={isUser ? {justifyContent: 'flex-end', backgroundColor: 'red', border: '5px solid yellow', display: 'flex'} : {justifyContent: 'flex-start', display: 'flex'}}>
+      <div key={index} className={`flex ${isUser ? 'justify-end user-message-force' : 'justify-start'} mb-6`} style={isUser ? {justifyContent: 'flex-end', display: 'flex', width: '100%'} : {justifyContent: 'flex-start', display: 'flex'}}>
         <div className={`max-w-4xl w-full ${
           isUser
             ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto max-w-3xl'
@@ -1087,8 +1087,8 @@ const ChatInterface = () => {
           /* FORCE USER MESSAGES TO ALIGN RIGHT */
           .user-message-force {
             justify-content: flex-end !important;
-            background-color: red !important;
-            border: 5px solid yellow !important;
+            display: flex !important;
+            width: 100% !important;
           }
           
           .user-message-force > div {
@@ -1097,6 +1097,7 @@ const ChatInterface = () => {
             margin-left: auto !important;
             margin-right: 0 !important;
             border: 5px solid green !important;
+            max-width: 70% !important;
           }
         `}
       </style>
