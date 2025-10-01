@@ -1043,19 +1043,45 @@ const ChatInterface = () => {
         {`
           @media screen and (max-width: 639px) {
             .input-container {
-              padding-bottom: 1rem !important;
+              padding-bottom: 5rem !important;
             }
             
             /* When keyboard opens (reduced viewport height), reduce padding */
             @media screen and (max-height: 500px) {
               .input-container {
-                padding-bottom: 0.25rem !important;
+                padding-bottom: 0.5rem !important;
               }
+            }
+            
+            /* Fixed layout for mobile */
+            .mobile-fixed-layout {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+              display: flex !important;
+              flex-direction: column !important;
+            }
+            
+            .mobile-chat-area {
+              flex: 1 !important;
+              overflow-y: auto !important;
+              padding-bottom: 0 !important;
+            }
+            
+            .mobile-input-area {
+              position: fixed !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              background: white !important;
+              z-index: 10 !important;
             }
           }
         `}
       </style>
-      <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible">
+      <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout">
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1278,7 +1304,7 @@ const ChatInterface = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col w-full lg:w-auto">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-2 sm:p-4">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area">
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
@@ -1359,7 +1385,7 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="input-container p-2 sm:p-4 pb-20 sm:pb-4">
+            <div className="input-container p-2 sm:p-4 pb-20 sm:pb-4 mobile-input-area">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
