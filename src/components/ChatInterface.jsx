@@ -939,14 +939,21 @@ const ChatInterface = () => {
               <div className="mb-4 sm:mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
                   <div className="text-primary font-medium text-sm sm:text-base">{message.scanData.listing_title || "Property Listing"}</div>
-                  <span className={`inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
+                  <span className={`inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
                     {message.scanData.label}
                   </span>
                 </div>
                 {message.scanData.location && (
                   <div className="text-primary mb-2 text-sm sm:text-base">{message.scanData.location}</div>
                 )}
-                <div className="text-primary underline break-all text-xs sm:text-sm">{message.scanData.listing_url}</div>
+                <a 
+                  href={message.scanData.listing_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary underline break-all text-xs sm:text-sm hover:text-button transition-colors"
+                >
+                  {message.scanData.listing_url}
+                </a>
               </div>
 
               {/* What To Expect */}
