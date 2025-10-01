@@ -921,8 +921,10 @@ const ChatInterface = () => {
     const isUserMessage = isUser;
     const isScanRequest = isUser && message.content && message.content.includes("http");
     
+    console.log("RENDERING MESSAGE:", { isUser, index, content: message.content });
+    
     return (
-      <div key={index} className={`flex ${isUser ? 'justify-end user-message' : 'justify-start'} mb-6`} style={isUser ? {justifyContent: 'flex-end'} : {justifyContent: 'flex-start'}}>
+      <div key={index} className={`flex ${isUser ? 'justify-end user-message-force' : 'justify-start'} mb-6`} style={isUser ? {justifyContent: 'flex-end', backgroundColor: 'red', border: '5px solid yellow', display: 'flex'} : {justifyContent: 'flex-start', display: 'flex'}}>
         <div className={`max-w-4xl w-full ${
           isUser
             ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto max-w-3xl'
@@ -1041,6 +1043,7 @@ const ChatInterface = () => {
     <>
       <style>
         {`
+          /* FORCE REFRESH: ${Date.now()} */
           @media screen and (max-width: 639px) {
             .input-container {
               padding-bottom: 5rem !important;
@@ -1082,15 +1085,18 @@ const ChatInterface = () => {
           }
           
           /* FORCE USER MESSAGES TO ALIGN RIGHT */
-          .user-message {
+          .user-message-force {
             justify-content: flex-end !important;
+            background-color: red !important;
+            border: 5px solid yellow !important;
           }
           
-          .user-message > div {
+          .user-message-force > div {
             background-color: #f3f4f6 !important;
             color: #374151 !important;
             margin-left: auto !important;
             margin-right: 0 !important;
+            border: 5px solid green !important;
           }
         `}
       </style>
