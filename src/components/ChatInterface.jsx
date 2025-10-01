@@ -917,15 +917,15 @@ const ChatInterface = () => {
     const isUser = message.role === "user";
     const isError = message.isError;
     const isWarning = message.isWarning;
-    
-    // FORCE DEBUG: Add console log to see what's happening
-    console.log("Message:", message.role, message.content, "isUser:", isUser);
+    const isQuestion = isUser && (message.messageType === "question" || (message.content && !message.content.includes("http")));
+    const isUserMessage = isUser;
+    const isScanRequest = isUser && message.content && message.content.includes("http");
     
     return (
-      <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`} style={{backgroundColor: isUser ? 'yellow' : 'transparent'}}>
+      <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
         <div className={`max-w-4xl w-full ${
           isUser
-            ? 'bg-red-500 text-white rounded-2xl px-4 py-3 ml-auto max-w-3xl'
+            ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto max-w-3xl'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isWarning
