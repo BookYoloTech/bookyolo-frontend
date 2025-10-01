@@ -144,6 +144,7 @@ const ChatInterface = () => {
   const [recentScansCollapsed, setRecentScansCollapsed] = useState(false);
   const [recentComparesCollapsed, setRecentComparesCollapsed] = useState(false);
   const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
+  const inputRef = useRef(null);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -1036,7 +1037,11 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
+    <div className="h-screen bg-white overflow-hidden" style={{ 
+      height: '100vh',
+      height: '100dvh', // Dynamic viewport height for mobile
+      paddingBottom: 'env(safe-area-inset-bottom)' // Handle safe area on mobile
+    }}>
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1340,17 +1345,30 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="p-2 sm:p-4">
+            <div className="p-2 sm:p-4 pb-8 sm:pb-4">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
+                  ref={inputRef}
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onClick={() => {
+                    // Ensure input is focused and responsive on mobile
+                    setTimeout(() => {
+                      if (inputRef.current) {
+                        inputRef.current.focus();
+                        inputRef.current.click();
+                      }
+                    }, 100);
+                  }}
                   placeholder="Paste an Airbnb property URL to scan and ask any questions..."
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
-                  rows="2"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
                 />
                 <button
                   type="submit"
