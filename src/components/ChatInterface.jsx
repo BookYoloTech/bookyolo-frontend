@@ -1043,13 +1043,13 @@ const ChatInterface = () => {
         {`
           @media screen and (max-width: 639px) {
             .input-container {
-              padding-bottom: 1rem !important;
+              padding-bottom: 3rem !important;
             }
             
-            /* When keyboard opens, reduce padding */
+            /* When keyboard opens, reduce padding but keep clearance */
             @media screen and (max-height: 500px) {
               .input-container {
-                padding-bottom: 0.5rem !important;
+                padding-bottom: 1.5rem !important;
               }
             }
           }
