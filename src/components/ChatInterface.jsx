@@ -1038,7 +1038,7 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible">
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1139,7 +1139,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex min-h-[calc(100vh-70px)]">
+      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1261,7 +1261,7 @@ const ChatInterface = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col w-full lg:w-auto">
           {/* Messages */}
-          <div className="flex-1 p-2 sm:p-4">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4">
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
@@ -1342,7 +1342,7 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="p-2 sm:p-4 pb-4 sm:pb-4">
+            <div className="p-2 sm:p-4 pb-16 sm:pb-4">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
