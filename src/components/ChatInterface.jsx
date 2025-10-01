@@ -1036,20 +1036,22 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
-      {/* Hamburger Menu - Absolute Position - Hidden on mobile when sidebar is open */}
+    <>
+      {/* Hamburger Menu - Fixed Position - Hidden on mobile when sidebar is open */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         className={`fixed top-2 left-2 z-[9999] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white ${
           sidebarOpen ? 'lg:block hidden' : 'block'
         }`}
+        style={{ position: 'fixed' }}
       >
         <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
       
-      {/* Header */}
+      <div className="h-screen bg-white overflow-hidden">
+        {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-6 py-2 sm:py-3">
           {/* Mobile Layout */}
@@ -1377,6 +1379,7 @@ const ChatInterface = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
