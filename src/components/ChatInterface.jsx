@@ -921,10 +921,8 @@ const ChatInterface = () => {
     const isUserMessage = isUser;
     const isScanRequest = isUser && message.content && message.content.includes("http");
     
-    console.log("RENDERING MESSAGE:", { isUser, index, content: message.content });
-    
     return (
-      <div key={index} className={`flex ${isUser ? 'justify-end user-message-force' : 'justify-start'} mb-6`} style={isUser ? {justifyContent: 'flex-end', display: 'flex', width: '100%'} : {justifyContent: 'flex-start', display: 'flex'}}>
+      <div key={index} className={`flex ${isUser ? 'justify-end user-message-force' : 'justify-start'} mb-6`}>
         <div className={`max-w-4xl w-full ${
           isUser
             ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto max-w-3xl'
@@ -1092,11 +1090,8 @@ const ChatInterface = () => {
           }
           
           .user-message-force > div {
-            background-color: #f3f4f6 !important;
-            color: #374151 !important;
             margin-left: auto !important;
             margin-right: 0 !important;
-            border: 5px solid green !important;
             max-width: 70% !important;
           }
         `}
