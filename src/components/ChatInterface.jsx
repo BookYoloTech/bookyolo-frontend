@@ -1344,9 +1344,9 @@ const ChatInterface = () => {
             ) : messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
-                  <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
-                    Welcome to BookYolo AI Engine
-                  </h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
+                  Hi, I am BookYolo AI
+                </h2>
                   <p className="text-primary opacity-70 mb-6 text-sm sm:text-base">
                     Paste any Airbnb property URL to scan it
                   </p>
@@ -1409,7 +1409,7 @@ const ChatInterface = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Paste an Airbnb property URL to scan and ask any questions..."
+                  placeholder="Scan or Ask Anything…"
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
                   autoComplete="off"
