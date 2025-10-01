@@ -920,12 +920,12 @@ const ChatInterface = () => {
     const isQuestion = isUser && message.messageType === "question";
     
     return (
-      <div key={index} className={`flex ${isUser && !isQuestion ? 'justify-end' : 'justify-start'} mb-6`}>
+      <div key={index} className={`flex ${isUser || isQuestion ? 'justify-end' : 'justify-start'} mb-6`}>
         <div className={`max-w-4xl w-full ${
           isUser && !isQuestion
             ? 'bg-button text-button rounded-2xl px-4 py-3 ml-auto max-w-3xl' 
             : isQuestion
-            ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 max-w-3xl'
+            ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto max-w-3xl'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isWarning
@@ -1019,7 +1019,7 @@ const ChatInterface = () => {
               />
             </div>
           ) : (
-            <div className="text-sm whitespace-pre-wrap break-all">{message.content}</div>
+            <div className="text-base whitespace-pre-wrap break-all">{message.content}</div>
           )}
         </div>
       </div>
