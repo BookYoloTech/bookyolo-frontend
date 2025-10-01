@@ -1038,24 +1038,7 @@ const ChatInterface = () => {
   }
 
   return (
-    <>
-      <style>
-        {`
-          @media screen and (max-width: 639px) {
-            .input-container {
-              padding-bottom: 3rem !important;
-            }
-            
-            /* When keyboard opens, reduce padding but keep clearance */
-            @media screen and (max-height: 500px) {
-              .input-container {
-                padding-bottom: 1.5rem !important;
-              }
-            }
-          }
-        `}
-      </style>
-      <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible">
+    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible">
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1359,7 +1342,7 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="input-container p-2 sm:p-4 pb-20 sm:pb-4">
+            <div className="p-2 sm:p-4 pb-20 sm:pb-4">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
@@ -1401,7 +1384,6 @@ const ChatInterface = () => {
         </div>
       </div>
     </div>
-    </>
   );
 };
 
