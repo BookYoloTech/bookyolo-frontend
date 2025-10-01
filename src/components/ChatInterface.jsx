@@ -1084,6 +1084,7 @@ const ChatInterface = () => {
           /* FORCE USER MESSAGES TO ALIGN RIGHT */
           .user-message {
             justify-content: flex-end !important;
+            background-color: red !important;
           }
           
           .user-message > div {
@@ -1091,6 +1092,7 @@ const ChatInterface = () => {
             color: #374151 !important;
             margin-left: auto !important;
             margin-right: 0 !important;
+            border: 3px solid blue !important;
           }
         `}
       </style>
