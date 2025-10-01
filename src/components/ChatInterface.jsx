@@ -146,23 +146,6 @@ const ChatInterface = () => {
   const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
   const inputRef = useRef(null);
 
-  // Handle mobile keyboard and viewport changes
-  useEffect(() => {
-    const handleResize = () => {
-      // Simple scroll reset for mobile
-      if (window.innerWidth <= 639) {
-        window.scrollTo(0, 0);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-    };
-  }, []);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -1055,11 +1038,7 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible" style={{ 
-      height: '100vh',
-      height: '100svh', // Small viewport height - adjusts when keyboard opens
-      minHeight: '100vh' // Ensure minimum height on mobile
-    }}>
+    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible">
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1160,9 +1139,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100svh-70px)] lg:min-h-[calc(100vh-70px)]" style={{
-        minHeight: 'calc(100vh - 70px)' // Ensure minimum height on mobile
-      }}>
+      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1365,14 +1342,7 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div 
-              className="p-2 sm:p-4 pb-8 sm:pb-4"
-              onTouchStart={() => {
-                if (inputRef.current) {
-                  inputRef.current.focus();
-                }
-              }}
-            >
+            <div className="p-2 sm:p-4 pb-20 sm:pb-4">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
@@ -1380,11 +1350,6 @@ const ChatInterface = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onClick={() => {
-                    if (inputRef.current) {
-                      inputRef.current.focus();
-                    }
-                  }}
                   placeholder="Paste an Airbnb property URL to scan and ask any questions..."
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all"
                   disabled={isLoading}
