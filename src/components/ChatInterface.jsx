@@ -1037,11 +1037,7 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden" style={{ 
-      height: '100vh',
-      height: '100dvh', // Dynamic viewport height for mobile
-      paddingBottom: 'env(safe-area-inset-bottom)' // Handle safe area on mobile
-    }}>
+    <div className="h-screen bg-white overflow-hidden">
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1142,7 +1138,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-60px)]">
+      <div className="flex h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1345,7 +1341,7 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="p-2 sm:p-4 pb-8 sm:pb-4">
+            <div className="p-2 sm:p-4 pb-4 sm:pb-4">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
