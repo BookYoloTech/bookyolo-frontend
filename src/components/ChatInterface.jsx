@@ -146,37 +146,6 @@ const ChatInterface = () => {
   const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
   const inputRef = useRef(null);
 
-  // Handle mobile keyboard and viewport changes
-  useEffect(() => {
-    const handleResize = () => {
-      // Force a re-render when viewport changes (keyboard opens/closes)
-      window.scrollTo(0, 0);
-    };
-
-    const handleFocus = () => {
-      // Ensure app stays responsive when input is focused
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 300);
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-    
-    if (inputRef.current) {
-      inputRef.current.addEventListener('focus', handleFocus);
-    }
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-      if (inputRef.current) {
-        inputRef.current.removeEventListener('focus', handleFocus);
-      }
-    };
-  }, []);
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
@@ -1069,10 +1038,7 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible" style={{ 
-      height: '100vh',
-      height: '100svh' // Small viewport height - adjusts when keyboard opens
-    }}>
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white sticky top-0 z-50">
         {/* Hamburger Menu - Inside Header */}
@@ -1173,7 +1139,7 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      <div className="flex h-[calc(100svh-70px)] lg:min-h-[calc(100vh-70px)]">
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1295,7 +1261,7 @@ const ChatInterface = () => {
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col w-full lg:w-auto">
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-2 sm:p-4">
+          <div className="flex-1 p-2 sm:p-4">
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
@@ -1376,14 +1342,7 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div 
-              className="p-2 sm:p-4 pb-16 sm:pb-4"
-              onTouchStart={() => {
-                if (inputRef.current) {
-                  inputRef.current.focus();
-                }
-              }}
-            >
+            <div className="p-2 sm:p-4 pb-2 sm:pb-4">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
                 <input
@@ -1400,6 +1359,7 @@ const ChatInterface = () => {
                   spellCheck="false"
                   inputMode="url"
                   enterKeyHint="go"
+                  autoFocus={false}
                 />
                 <button
                   type="submit"
