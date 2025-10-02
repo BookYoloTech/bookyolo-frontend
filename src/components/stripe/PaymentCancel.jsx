@@ -29,16 +29,16 @@ export default function PaymentCancel() {
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/plan-status")}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Go to Dashboard
+              Go to Account
             </button>
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/scan")}
               className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
             >
-              Back to Home
+              Back to Scan
             </button>
           </div>
         </div>

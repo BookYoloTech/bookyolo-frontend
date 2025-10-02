@@ -48,9 +48,9 @@ export default function PaymentSuccess() {
         setStatus("success");
         setMessage("Payment successful! Your premium subscription is now active.");
         
-        // Redirect to homepage after successful payment
+        // Redirect to account page after successful payment
         setTimeout(() => {
-          navigate("/", { replace: true });
+          navigate("/plan-status", { replace: true });
         }, 2000);
       } else {
         const errorData = await response.json();
@@ -89,7 +89,7 @@ export default function PaymentSuccess() {
                 <ul className="text-sm text-green-700 space-y-1">
                   <li>• Your premium subscription is now active</li>
                   <li>• You have 300 additional scans per year</li>
-                  <li>• Redirecting to homepage...</li>
+                  <li>• Redirecting to account page...</li>
                 </ul>
               </div>
             </>
@@ -106,16 +106,16 @@ export default function PaymentSuccess() {
               <p className="text-gray-600 mb-4">{message}</p>
               <div className="space-y-3">
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/plan-status")}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Go to Homepage
+                  Go to Account
                 </button>
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/scan")}
                   className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  Back to Home
+                  Back to Scan
                 </button>
               </div>
             </>
