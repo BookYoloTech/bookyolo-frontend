@@ -174,13 +174,13 @@ export default function PlanStatus() {
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl font-bold text-white">
-                {user?.user?.first_name ? user.user.first_name.charAt(0).toUpperCase() : 'U'}
+                {user?.user?.full_name ? user.user.full_name.charAt(0).toUpperCase() : 'U'}
               </span>
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Settings</h1>
             <p className="text-gray-600">Manage your BookYolo account</p>
-            {user?.user?.first_name && (
-              <p className="text-lg font-medium text-gray-800 mt-2">{user.user.first_name}</p>
+            {user?.user?.full_name && (
+              <p className="text-lg font-medium text-gray-800 mt-2">{user.user.full_name}</p>
             )}
             {user?.user?.email && (
               <p className="text-sm text-gray-600 mt-1">{user.user.email}</p>
@@ -355,10 +355,10 @@ export default function PlanStatus() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                 <input
                   type="text"
-                  defaultValue={user?.user?.first_name || ''}
+                  defaultValue={user?.user?.full_name || ''}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
                 />
               </div>
