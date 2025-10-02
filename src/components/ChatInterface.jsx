@@ -68,7 +68,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-primary mb-2">First Listing</label>
+          <label className="block text-sm font-semibold text-primary mb-2">Listing A</label>
           <select 
             className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
             value={selectedScan1} 
@@ -84,7 +84,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-primary mb-2">Second Listing</label>
+          <label className="block text-sm font-semibold text-primary mb-2">Listing B</label>
           <select 
             className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
             value={selectedScan2} 
