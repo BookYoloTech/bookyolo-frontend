@@ -231,6 +231,13 @@ export default function PlanStatus() {
               </div>
             )}
 
+            {/* Pricing Info */}
+            {!isPremium && (
+              <p className="text-sm text-gray-600 text-center mb-3">
+                300 extra scans per year for $20
+              </p>
+            )}
+
             {/* Upgrade/Downgrade Button */}
             {!isPremium ? (
               <button
@@ -264,12 +271,6 @@ export default function PlanStatus() {
               </button>
             )}
 
-            {/* Pricing Info */}
-            {!isPremium && (
-              <p className="text-sm text-gray-600 text-center mt-2">
-                300 extra scans per year for $20
-              </p>
-            )}
 
             {/* Referral Link */}
             <button
