@@ -1222,7 +1222,7 @@ const ChatInterface = () => {
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
           {/* Recent Scans Section */}
-          <div className="flex-1 flex flex-col min-h-0">
+          <div className={`flex flex-col min-h-0 ${recentScansCollapsed ? 'flex-shrink-0' : 'flex-1'}`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -1278,7 +1278,7 @@ const ChatInterface = () => {
           </div>
           
           {/* Recent Compares Section */}
-          <div className="flex-1 flex flex-col mt-4 min-h-0">
+          <div className={`flex flex-col mt-4 min-h-0 ${recentComparesCollapsed ? 'flex-shrink-0' : 'flex-1'}`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
