@@ -1106,7 +1106,7 @@ const ChatInterface = () => {
       </style>
       <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout">
       {/* Header */}
-      <div className="bg-white sticky top-0 z-50">
+      <div className="bg-white sticky top-0 z-[70]">
         {/* Hamburger Menu - Inside Header */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -1135,12 +1135,22 @@ const ChatInterface = () => {
                   Scan
                 </button>
                 <button
-                  onClick={() => handleCompare("compare")}
-                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("Mobile Compare button clicked");
+                    handleCompare("compare");
+                  }}
+                  onTouchStart={(e) => {
+                    e.preventDefault();
+                    console.log("Mobile Compare button touch start");
+                  }}
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity touch-manipulation ${
                     activeButton === 'compare' 
                       ? 'bg-button text-white' 
                       : 'bg-accent text-primary'
                   }`}
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
                   Compare
                 </button>
