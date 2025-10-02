@@ -678,7 +678,7 @@ const ChatInterface = () => {
     const scanChats = chats.filter(chat => chat.type === 'scan');
     
     if (isCompareRequest && scanChats.length < 2) {
-      setError("You need at least 2 scanned listings to compare. Please scan more listings first.");
+      setError("Please scan at least 2 listings first before you can compare them.");
       return;
     }
 
