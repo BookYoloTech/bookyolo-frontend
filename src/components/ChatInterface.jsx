@@ -1026,7 +1026,7 @@ const ChatInterface = () => {
               />
             </div>
           ) : (
-            <div className="text-base whitespace-pre-wrap break-all">{message.content}</div>
+            <div className="text-base whitespace-pre-wrap px-2 sm:px-4 leading-relaxed">{message.content}</div>
           )}
         </div>
       </div>
