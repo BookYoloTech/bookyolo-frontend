@@ -1423,7 +1423,7 @@ const ChatInterface = () => {
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck="false"
-                  inputMode="url"
+                  inputMode="text"
                   enterKeyHint="go"
                 />
                 <button
