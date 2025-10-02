@@ -9,6 +9,8 @@ export default function PlanStatus() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -47,12 +49,29 @@ export default function PlanStatus() {
     navigate('/login');
   };
 
+  const copyReferralLink = () => {
+    const referralLink = `${window.location.origin}/signup?ref=${user?.user?.id || 'user'}`;
+    navigator.clipboard.writeText(referralLink).then(() => {
+      alert('Referral link copied to clipboard!');
+    });
+  };
+
+  const handleUpgrade = () => {
+    // Navigate to payment page (existing functionality)
+    window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank');
+  };
+
+  const handleDowngrade = () => {
+    // Navigate to downgrade page (existing functionality)
+    window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your plan...</p>
+          <p className="mt-4 text-gray-600">Loading your account...</p>
         </div>
       </div>
     );
@@ -81,21 +100,11 @@ export default function PlanStatus() {
   }
 
   const isPremium = user?.plan === 'premium';
-  const planColor = isPremium ? 'green' : 'blue';
-  const planIcon = isPremium ? (
-    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  ) : (
-    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  );
 
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <button
             onClick={() => navigate('/')}
@@ -108,186 +117,249 @@ export default function PlanStatus() {
             />
             <span className="text-sm font-medium text-gray-900">BookYolo</span>
           </button>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600">
-              {user?.user?.email || 'User'}
-            </span>
-            <button 
-              onClick={handleLogout}
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
+          <button 
+            onClick={handleLogout}
+            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Logout
+          </button>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Plan Status Header */}
+        <div className="max-w-2xl mx-auto">
+          {/* Account Header */}
           <div className="text-center mb-8">
-            <div className={`w-16 h-16 ${isPremium ? 'bg-green-100' : 'bg-gray-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
-              {planIcon}
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {isPremium ? 'Premium Plan' : 'Free Plan'}
-            </h1>
-            <p className="text-gray-600">
-              {isPremium ? 'You have access to all premium features' : 'Upgrade to unlock premium features'}
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Settings</h1>
+            <p className="text-gray-600">Manage your BookYolo account</p>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Plan Details */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Usage Overview */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Usage Overview</h2>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Scans Used</span>
-                    <span className="font-semibold text-gray-900">
-                      {user?.used || 0} / {user?.limits?.total_limit || 50}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Remaining Scans</span>
-                    <span className={`font-semibold ${(user?.remaining || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {user?.remaining || 0}
-                    </span>
-                  </div>
-                  {isPremium && user?.subscription_expires && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Expires</span>
-                      <span className="font-semibold text-gray-900">
-                        {new Date(user.subscription_expires).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
+          {/* Current Plan & Scan Balance */}
+          <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Plan & Usage</h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Plan</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  isPremium 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {isPremium ? 'BookYolo Premium' : 'BookYolo Free'}
+                </span>
               </div>
-
-              {/* Usage Progress */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage Progress</h3>
-                <div className="space-y-3">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        (user?.remaining || 0) <= 0 ? 'bg-red-500' : 
-                        (user?.remaining || 0) <= 5 ? 'bg-yellow-500' : 
-                        'bg-green-500'
-                      }`}
-                      style={{ 
-                        width: `${Math.min(100, ((user?.used || 0) / (user?.limits?.total_limit || 50)) * 100)}%` 
-                      }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    {Math.round(((user?.used || 0) / (user?.limits?.total_limit || 50)) * 100)}% of your scans used
-                  </p>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Remaining Scans</span>
+                <span className={`font-semibold ${(user?.remaining || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {user?.remaining || 0}
+                </span>
               </div>
-
-              {/* Plan Features */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Plan Features</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Annual Scans</span>
-                    <span className="font-semibold text-gray-900">
-                      {isPremium ? '350' : '50'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">AI Analysis</span>
-                    <span className="text-green-600 font-semibold">✓</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Red Flag Detection</span>
-                    <span className="text-green-600 font-semibold">✓</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Priority Support</span>
-                    <span className={isPremium ? 'text-green-600 font-semibold' : 'text-gray-400'}>
-                      {isPremium ? '✓' : '✗'}
-                    </span>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Total Scans Used</span>
+                <span className="font-semibold text-gray-900">{user?.used || 0}</span>
               </div>
+              {isPremium && user?.subscription_expires && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Expires</span>
+                  <span className="font-semibold text-gray-900">
+                    {new Date(user.subscription_expires).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
             </div>
+          </div>
 
-            {/* Right Column - Actions */}
-            <div className="space-y-6">
-              {/* Current Plan Card */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Plan</h3>
-                <div className="text-center">
-                  <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
-                    isPremium 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {isPremium ? 'Premium' : 'Free'}
-                  </div>
-                  {!isPremium && (
-                    <p className="text-sm text-gray-600 mt-3">
-                      Upgrade to get more scans and premium features
-                    </p>
-                  )}
-                </div>
-              </div>
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            {/* Upgrade/Downgrade Button */}
+            {!isPremium ? (
+              <button
+                onClick={handleUpgrade}
+                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Upgrade to BookYolo Premium
+              </button>
+            ) : (
+              <button
+                onClick={handleDowngrade}
+                className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-semibold flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                </svg>
+                Downgrade to BookYolo Free
+              </button>
+            )}
 
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                {!isPremium && (
-                  <button
-                    onClick={() => navigate('/dashboard')}
-                    className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold"
-                  >
-                    Upgrade to Premium
-                  </button>
-                )}
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors font-semibold"
-                >
-                  Go to Dashboard
-                </button>
-                <button
-                  onClick={() => navigate('/')}
-                  className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
-                >
-                  Back to Home
-                </button>
-              </div>
+            {/* Referral Link */}
+            <button
+              onClick={copyReferralLink}
+              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+              </svg>
+              Share with 3 friends and get BookYolo Premium for free
+            </button>
 
-              {/* Quick Stats */}
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Quick Stats</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Scans</span>
-                    <span className="font-medium text-gray-900">{user?.used || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Plan Limit</span>
-                    <span className="font-medium text-gray-900">{user?.limits?.total_limit || 50}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Usage</span>
-                    <span className="font-medium text-gray-900">
-                      {Math.round(((user?.used || 0) / (user?.limits?.total_limit || 50)) * 100)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {/* Edit Profile */}
+            <button
+              onClick={() => setShowEditProfile(true)}
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit Profile
+            </button>
+
+            {/* Account Management */}
+            <button
+              onClick={() => setShowDeleteAccount(true)}
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Account Management
+            </button>
+
+            {/* Contact Support */}
+            <button
+              onClick={() => window.open('mailto:support@bookyolo.ai', '_blank')}
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z" />
+              </svg>
+              Contact Support
+            </button>
+          </div>
+
+          {/* Legal Links */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <a 
+                href="/terms" 
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Terms of Service
+              </a>
+              <a 
+                href="/privacy" 
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </a>
+              <a 
+                href="/cookies" 
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Cookie Policy
+              </a>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {showEditProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <input
+                  type="text"
+                  defaultValue={user?.user?.first_name || ''}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  defaultValue={user?.user?.email || ''}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                <input
+                  type="password"
+                  placeholder="Leave blank to keep current"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowEditProfile(false)}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Implement profile update functionality
+                  alert('Profile update functionality will be implemented');
+                  setShowEditProfile(false);
+                }}
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {showDeleteAccount && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Management</h3>
+            <p className="text-gray-600 mb-6">
+              This will permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteAccount(false)}
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Implement account deletion functionality
+                  alert('Account deletion functionality will be implemented');
+                  setShowDeleteAccount(false);
+                }}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Delete Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
