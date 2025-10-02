@@ -235,10 +235,6 @@ const ChatInterface = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Debug: Log sidebar state changes
-  useEffect(() => {
-    console.log('Sidebar state changed:', sidebarOpen);
-  }, [sidebarOpen]);
   
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
@@ -306,6 +302,7 @@ const ChatInterface = () => {
         
         // Combine saved compare chats with database chats
         setChats([...savedCompareChats, ...chatsData]);
+        
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
@@ -1241,7 +1238,7 @@ const ChatInterface = () => {
         
         {/* Sidebar */}
         <div className={`
-          fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+          fixed lg:static inset-y-0 left-0 z-[60] lg:z-auto
           w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -1350,7 +1347,7 @@ const ChatInterface = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col w-full lg:w-auto">
+        <div className="flex-1 flex flex-col lg:w-auto">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area">
             {showComparisonUI ? (
