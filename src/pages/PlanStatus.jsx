@@ -11,6 +11,9 @@ export default function PlanStatus() {
   const [error, setError] = useState('');
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [upgradeError, setUpgradeError] = useState('');
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -56,9 +59,49 @@ export default function PlanStatus() {
     });
   };
 
-  const handleUpgrade = () => {
-    // Navigate to payment page (existing functionality)
-    window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank');
+  const copyEmailToClipboard = () => {
+    navigator.clipboard.writeText('help@bookyolo.com');
+    alert('Email address copied to clipboard!');
+  };
+
+  const handleUpgrade = async () => {
+    if (!user) {
+      setUpgradeError("Please log in to upgrade");
+      return;
+    }
+
+    const token = localStorage.getItem("by_token");
+    if (!token) {
+      setUpgradeError("Please log in to upgrade");
+      return;
+    }
+
+    setUpgradeLoading(true);
+    setUpgradeError('');
+
+    try {
+      const response = await fetch(`${API_BASE}/stripe/create-checkout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to create checkout session");
+      }
+
+      const { checkout_url } = await response.json();
+      
+      // Redirect to Stripe Checkout
+      window.location.href = checkout_url;
+    } catch (err) {
+      setUpgradeError(err.message || "Payment setup failed");
+    } finally {
+      setUpgradeLoading(false);
+    }
   };
 
   const handleDowngrade = () => {
@@ -177,16 +220,33 @@ export default function PlanStatus() {
 
           {/* Action Buttons */}
           <div className="space-y-4">
+            {/* Upgrade Error */}
+            {upgradeError && (
+              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+                {upgradeError}
+              </div>
+            )}
+
             {/* Upgrade/Downgrade Button */}
             {!isPremium ? (
               <button
                 onClick={handleUpgrade}
-                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                disabled={upgradeLoading}
+                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                Upgrade to BookYolo Premium
+                {upgradeLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Setting up payment...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                    Upgrade to BookYolo Premium - $20/year
+                  </>
+                )}
               </button>
             ) : (
               <button
@@ -236,7 +296,7 @@ export default function PlanStatus() {
 
             {/* Contact Support */}
             <button
-              onClick={() => window.open('mailto:support@bookyolo.ai', '_blank')}
+              onClick={() => setShowContactModal(true)}
               className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -357,6 +417,62 @@ export default function PlanStatus() {
                 Delete Account
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Support Modal */}
+      {showContactModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 00-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Contact Support</h3>
+              <p className="text-gray-600">Get help from our support team</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Email us at:</p>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900">help@bookyolo.com</span>
+                  <button
+                    onClick={copyEmailToClipboard}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex gap-3">
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=help@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Open Gmail
+                </a>
+                <a
+                  href="mailto:help@bookyolo.com?subject=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
+                  className="flex-1 bg-gray-200 text-gray-800 text-center py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                >
+                  Default Email
+                </a>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="w-full mt-6 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
