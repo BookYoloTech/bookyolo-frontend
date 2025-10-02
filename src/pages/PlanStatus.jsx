@@ -326,7 +326,7 @@ export default function PlanStatus() {
                 Privacy Policy
               </a>
               <a 
-                href="/cookies" 
+                href="https://bookyolo.com/cookie-policy" 
                 className="text-gray-600 hover:text-gray-900 transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
