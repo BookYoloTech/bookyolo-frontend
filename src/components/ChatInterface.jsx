@@ -1017,7 +1017,7 @@ const ChatInterface = () => {
             </div>
           ) : message.showComparisonUI ? (
             // Comparison UI
-            <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
+            <div className="bg-white rounded-3xl border border-accent p-6">
               <div className="text-sm text-primary mb-4">{message.content}</div>
               {console.log("DEBUG: Rendering comparison UI with scans:", message.availableScans)}
               <ComparisonSelector 
@@ -1330,17 +1330,9 @@ const ChatInterface = () => {
           <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area">
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
-                <div className="bg-white rounded-3xl shadow-xl border border-accent p-6">
-                  <div className="flex justify-between items-center mb-4">
+                <div className="bg-white rounded-3xl border border-accent p-6">
+                  <div className="mb-4">
                     <div className="text-sm text-primary">I can help you compare your scanned listings. Here are your available scans:</div>
-                    <button
-                      onClick={() => setShowComparisonUI(false)}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
                   </div>
                   <ComparisonSelector 
                     availableScans={availableScansForComparison}
