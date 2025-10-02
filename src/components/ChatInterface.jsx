@@ -1051,7 +1051,7 @@ const ChatInterface = () => {
           /* FORCE REFRESH: ${Date.now()} */
           @media screen and (max-width: 639px) {
             .input-container {
-              padding-bottom: 5rem !important;
+              padding-bottom: 7rem !important;
             }
             
             /* When keyboard opens (reduced viewport height), reduce padding */
@@ -1075,14 +1075,7 @@ const ChatInterface = () => {
             .mobile-chat-area {
               flex: 1 !important;
               overflow-y: auto !important;
-              padding-bottom: 6rem !important;
-            }
-            
-            /* Chrome mobile specific fix - only reduce padding for Chrome */
-            @media screen and (-webkit-min-device-pixel-ratio: 0) {
-              .mobile-chat-area {
-                padding-bottom: 5.5rem !important;
-              }
+              padding-bottom: 8rem !important;
             }
             
             .mobile-input-area {
