@@ -180,7 +180,10 @@ export default function PlanStatus() {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Settings</h1>
             <p className="text-gray-600">Manage your BookYolo account</p>
             {user?.user?.first_name && (
-              <p className="text-lg font-medium text-gray-800 mt-2">Welcome, {user.user.first_name}!</p>
+              <p className="text-lg font-medium text-gray-800 mt-2">{user.user.first_name}</p>
+            )}
+            {user?.user?.email && (
+              <p className="text-sm text-gray-600 mt-1">{user.user.email}</p>
             )}
           </div>
 
