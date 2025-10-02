@@ -334,6 +334,13 @@ export default function PlanStatus() {
                 Cookie Policy
               </a>
             </div>
+            
+            {/* Disclaimer */}
+            <div className="mt-6 text-center">
+              <p className="text-xs text-gray-500 leading-relaxed max-w-2xl mx-auto">
+                BookYolo is an Independent AI Engine that analyzes public vacation rental, hotel and hospitality listing information. We are not affiliated with, endorsed by or sponsored by any online travel agency. All trademarks remain the property of their respective owners. BookYolo does not guarantee booking outcomes. Always double-check before booking.
+              </p>
+            </div>
           </div>
         </div>
       </div>
