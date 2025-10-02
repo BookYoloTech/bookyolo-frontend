@@ -310,7 +310,7 @@ export default function PlanStatus() {
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex flex-wrap justify-center gap-6 text-sm">
               <a 
-                href="/terms" 
+                href="https://bookyolo.com/terms-of-services" 
                 className="text-gray-600 hover:text-gray-900 transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -318,7 +318,7 @@ export default function PlanStatus() {
                 Terms of Service
               </a>
               <a 
-                href="/privacy" 
+                href="https://bookyolo.com/privacy-policy" 
                 className="text-gray-600 hover:text-gray-900 transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
