@@ -104,7 +104,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
         <label className="block text-sm font-semibold text-primary mb-2">Comparison Question (Optional)</label>
         <input
           className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
-          placeholder="e.g., Which is better for families? Which has better location?"
+          placeholder="e.g. which is better for families?"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
         />
