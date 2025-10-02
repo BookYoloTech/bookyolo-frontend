@@ -74,7 +74,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
             value={selectedScan1} 
             onChange={(e) => setSelectedScan1(e.target.value)}
           >
-            <option value="">Select first listing</option>
+            <option value="">Select listing A</option>
             {availableScans.map((scan) => (
               <option key={scan.id} value={scan.id}>
                 {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
@@ -90,7 +90,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
             value={selectedScan2} 
             onChange={(e) => setSelectedScan2(e.target.value)}
           >
-            <option value="">Select second listing</option>
+            <option value="">Select listing B</option>
             {availableScans.map((scan) => (
               <option key={scan.id} value={scan.id}>
                 {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
