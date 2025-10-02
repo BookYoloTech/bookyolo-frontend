@@ -234,6 +234,11 @@ const ChatInterface = () => {
     
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Debug: Log sidebar state changes
+  useEffect(() => {
+    console.log('Sidebar state changed:', sidebarOpen);
+  }, [sidebarOpen]);
   
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
@@ -1111,7 +1116,7 @@ const ChatInterface = () => {
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className={`absolute top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white ${
-            sidebarOpen ? 'lg:block hidden' : 'block'
+            sidebarOpen ? 'hidden lg:block' : 'block'
           }`}
         >
           <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
