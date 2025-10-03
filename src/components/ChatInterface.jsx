@@ -450,6 +450,7 @@ const ChatInterface = () => {
     setError("");
     setIsLoading(true);
     setScanProgress(0);
+    setActiveButton('scan'); // Set scan button as active during scanning
     
     // Check if user has sufficient balance for scanning (requires 1 full scan)
     if (me?.remaining < 1.0) {
@@ -568,8 +569,8 @@ const ChatInterface = () => {
     } finally {
       setIsLoading(false);
       setTimeout(() => setScanProgress(0), 800);
-      // Reset button state after scan completion
-      setActiveButton('scan');
+      // Reset button state to normal after scan completion
+      setActiveButton(null);
     }
   };
 
@@ -801,13 +802,14 @@ const ChatInterface = () => {
     setCurrentScan(null);
     setError("");
     setShowComparisonUI(false); // Hide comparison UI
-    setActiveButton('scan'); // Set scan as active
+    setActiveButton(null); // Reset to normal state - no active button
   };
 
   const handleComparisonSelect = async (scan1, scan2, question = "") => {
     setError("");
     setIsLoading(true);
     setShowComparisonUI(false); // Hide comparison UI
+    setActiveButton('compare'); // Set compare button as active during comparison
     
     // Check if user has sufficient balance for comparison (requires 1 full scan for initial, 0.5 for questions)
     const requiredBalance = question ? 0.5 : 1.0;
@@ -911,8 +913,8 @@ const ChatInterface = () => {
       }]);
     } finally {
       setIsLoading(false);
-      // Reset button state after comparison completion
-      setActiveButton('compare');
+      // Reset button state to normal after comparison completion
+      setActiveButton(null);
     }
   };
 
