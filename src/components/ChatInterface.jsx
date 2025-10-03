@@ -1417,7 +1417,7 @@ const ChatInterface = () => {
                   />
                 </div>
               </div>
-            ) : messages.length === 0 ? (
+            ) : messages.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
                 <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
@@ -1434,6 +1434,13 @@ const ChatInterface = () => {
                     <p>• Have you noted any issues regarding street noise?</p>
                     <p>• How is the kitchen?</p>
                   </div>
+                </div>
+              </div>
+            ) : messages.length === 0 && isLoading ? (
+              <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-button"></div>
+                  <span className="text-primary">Loading...</span>
                 </div>
               </div>
             ) : (
