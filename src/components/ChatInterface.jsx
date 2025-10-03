@@ -113,7 +113,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
       <button
         onClick={handleCompare}
         disabled={isComparing || !selectedScan1 || !selectedScan2 || selectedScan1 === selectedScan2}
-        className="w-full rounded-xl bg-button text-button px-6 py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        className="w-full rounded-xl bg-button text-button px-6 py-3 font-semibold hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-all"
       >
         {isComparing ? (
           <div className="flex items-center justify-center space-x-2">
@@ -1514,7 +1514,7 @@ const ChatInterface = () => {
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="rounded-xl bg-button text-white px-4 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                  className="rounded-xl bg-button text-white px-4 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-all flex items-center justify-center"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-1 sm:space-x-2">

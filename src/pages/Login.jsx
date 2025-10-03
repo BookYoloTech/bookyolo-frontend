@@ -87,7 +87,7 @@ export default function Login() {
           <div className="text-center mb-8">
             <button 
               onClick={() => window.location.href = '/'}
-              className="flex items-center justify-center mb-6 mx-auto hover:opacity-80 transition-opacity"
+              className="flex items-center justify-center mb-6 mx-auto hover:opacity-80 transition-opacity cursor-pointer"
             >
               <img 
                 src={logo} 
@@ -119,13 +119,13 @@ export default function Login() {
               <button 
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
-                className="text-sm text-primary opacity-70 hover:opacity-100 font-medium"
+                className="text-sm text-primary opacity-70 hover:opacity-100 font-medium cursor-pointer"
               >
                 Forgot password?
               </button>
             </div>
             <button disabled={loading}
-              className="w-full py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90">
+              className="w-full py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90 cursor-pointer disabled:cursor-not-allowed">
               {loading ? "Signing in…" : "Sign in"}
             </button>
           </form>
@@ -133,7 +133,7 @@ export default function Login() {
           <div className="mt-4 text-center text-sm">
             <div>
               Don't have an account?{" "}
-              <a href="/signup" className="text-primary opacity-70 hover:opacity-100 font-medium">Sign up</a>
+              <a href="/signup" className="text-primary opacity-70 hover:opacity-100 font-medium cursor-pointer">Sign up</a>
             </div>
           </div>
 

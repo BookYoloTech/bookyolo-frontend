@@ -106,7 +106,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+              className="w-full py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               {loading ? "Signing in..." : "Sign In as Admin"}
             </button>
@@ -116,7 +116,7 @@ export default function AdminLogin() {
           <div className="mt-4 text-center">
             <button
               onClick={() => navigate("/login")}
-              className="text-sm text-primary opacity-70 hover:opacity-100 font-medium"
+              className="text-sm text-primary opacity-70 hover:opacity-100 font-medium cursor-pointer"
             >
               ← Back to User Login
             </button>
