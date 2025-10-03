@@ -55,8 +55,9 @@ export default function PlanStatus() {
 
   const copyReferralLink = () => {
     const referralLink = `${window.location.origin}/signup?ref=${user?.user?.id || 'user'}`;
-    navigator.clipboard.writeText(referralLink).then(() => {
-      alert('Referral link copied to clipboard!');
+    const sharingMessage = `Hey! Just found this: BookYolo. It's an AI travel tool that uncovers all the hidden details of rentals and hotels. You get the full story before booking — no more surprises when you arrive. ${referralLink}`;
+    navigator.clipboard.writeText(sharingMessage).then(() => {
+      alert('Sharing message and referral link copied to clipboard!');
     });
   };
 
