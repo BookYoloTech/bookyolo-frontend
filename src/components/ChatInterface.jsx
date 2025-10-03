@@ -216,14 +216,11 @@ const ChatInterface = () => {
   const [scanProgress, setScanProgress] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  // Set sidebar to open by default on desktop
+  // Set sidebar to closed by default on all devices
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) { // lg breakpoint
-        setSidebarOpen(true);
-      } else {
-        setSidebarOpen(false);
-      }
+      // Keep sidebar closed by default on all screen sizes
+      setSidebarOpen(false);
     };
     
     // Set initial state
@@ -1118,7 +1115,7 @@ const ChatInterface = () => {
         {/* Hamburger Menu - Inside Header */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className={`absolute top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white ${
+          className={`absolute top-2 left-2 z-[60] p-2 rounded-lg hover:bg-gray-100 transition-colors bg-white cursor-pointer ${
             sidebarOpen ? 'hidden lg:block' : 'block'
           }`}
         >
@@ -1134,7 +1131,7 @@ const ChatInterface = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={startNewChat}
-                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity ${
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity cursor-pointer ${
                     activeButton === 'scan' 
                       ? 'bg-button text-white' 
                       : 'bg-accent text-primary'
@@ -1153,7 +1150,7 @@ const ChatInterface = () => {
                     e.preventDefault();
                     console.log("Mobile Compare button touch start");
                   }}
-                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity touch-manipulation ${
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity touch-manipulation cursor-pointer ${
                     activeButton === 'compare' 
                       ? 'bg-button text-white' 
                       : 'bg-accent text-primary'
@@ -1167,7 +1164,7 @@ const ChatInterface = () => {
                     navigate("/plan-status");
                     setActiveButton('account');
                   }}
-                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity ${
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity cursor-pointer ${
                     activeButton === 'account' 
                       ? 'bg-button text-white' 
                       : 'bg-accent text-primary'
@@ -1180,12 +1177,12 @@ const ChatInterface = () => {
           </div>
 
           {/* Desktop Layout */}
-          <div className="hidden lg:flex justify-center items-center">
+          <div className="hidden lg:flex justify-center items-center w-full">
             {/* Center: Action Buttons */}
             <div className="flex items-center space-x-3">
               <button
                 onClick={startNewChat}
-                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm ${
+                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm cursor-pointer ${
                   activeButton === 'scan' 
                     ? 'bg-button text-white shadow-sm' 
                     : 'bg-accent text-primary'
@@ -1196,7 +1193,7 @@ const ChatInterface = () => {
               
               <button
                 onClick={() => handleCompare("compare")}
-                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm ${
+                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm cursor-pointer ${
                   activeButton === 'compare' 
                     ? 'bg-button text-white shadow-sm' 
                     : 'bg-accent text-primary'
@@ -1210,7 +1207,7 @@ const ChatInterface = () => {
                   navigate("/plan-status");
                   setActiveButton('account');
                 }}
-                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm ${
+                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm cursor-pointer ${
                   activeButton === 'account' 
                     ? 'bg-button text-white shadow-sm' 
                     : 'bg-accent text-primary'
@@ -1244,8 +1241,8 @@ const ChatInterface = () => {
         
         {/* Sidebar */}
         <div className={`
-          fixed lg:static inset-y-0 left-0 z-[80] lg:z-auto
-          w-80 border-r border-accent bg-white shadow-xl lg:shadow-none p-3 h-full flex flex-col
+          fixed inset-y-0 left-0 z-[80]
+          w-80 border-r border-accent bg-white shadow-xl p-3 h-full flex flex-col
           transform transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
@@ -1256,7 +1253,7 @@ const ChatInterface = () => {
                 e.stopPropagation();
                 setRecentScansCollapsed(!recentScansCollapsed);
               }}
-              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity flex-shrink-0"
+              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity flex-shrink-0 cursor-pointer"
             >
               <span>Recent Scans</span>
               <svg 
@@ -1286,7 +1283,7 @@ const ChatInterface = () => {
                         e.stopPropagation();
                         loadChat(chat.id);
                       }}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
+                      className={`w-full text-left p-3 rounded-lg transition-colors cursor-pointer ${
                         currentChatId === chat.id 
                           ? 'bg-button text-white' 
                           : 'bg-white hover:bg-gray-50 border border-accent text-primary'
@@ -1312,7 +1309,7 @@ const ChatInterface = () => {
                 e.stopPropagation();
                 setRecentComparesCollapsed(!recentComparesCollapsed);
               }}
-              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity flex-shrink-0"
+              className="flex items-center justify-between text-lg font-semibold text-primary mb-3 hover:opacity-70 transition-opacity flex-shrink-0 cursor-pointer"
             >
               <span>Recent Compares</span>
               <svg 
@@ -1333,7 +1330,7 @@ const ChatInterface = () => {
                       e.stopPropagation();
                       loadChat(chat.id);
                     }}
-                    className={`w-full text-left p-3 rounded-lg transition-colors ${
+                    className={`w-full text-left p-3 rounded-lg transition-colors cursor-pointer ${
                       currentChatId === chat.id 
                         ? 'bg-button text-white' 
                         : 'bg-white hover:bg-gray-50 border border-accent text-primary'
@@ -1353,7 +1350,7 @@ const ChatInterface = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col lg:w-auto">
+        <div className="flex-1 flex flex-col w-full">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area">
             {showComparisonUI ? (
