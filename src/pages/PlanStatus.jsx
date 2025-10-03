@@ -133,9 +133,9 @@ export default function PlanStatus() {
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors"
+            <button
+              onClick={() => navigate('/')}
+              className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
           >
             Back to Home
           </button>
@@ -153,7 +153,7 @@ export default function PlanStatus() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <button
             onClick={() => navigate('/scan')}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
           >
             <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -161,7 +161,7 @@ export default function PlanStatus() {
           </button>
           <button 
             onClick={handleLogout}
-            className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="text-sm text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
           >
             Logout
           </button>
@@ -235,7 +235,7 @@ export default function PlanStatus() {
               <button
                 onClick={handleUpgrade}
                 disabled={upgradeLoading}
-                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold flex flex-col items-center justify-center gap-1 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
                 {upgradeLoading ? (
                   <>
@@ -256,7 +256,7 @@ export default function PlanStatus() {
             ) : (
               <button
                 onClick={handleDowngrade}
-                className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-semibold flex items-center justify-center gap-2 cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
@@ -269,7 +269,7 @@ export default function PlanStatus() {
             {/* Referral Link */}
             <button
               onClick={() => setShowReferralModal(true)}
-              className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors font-semibold flex items-center justify-center gap-2"
+              className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors font-semibold flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
@@ -280,7 +280,7 @@ export default function PlanStatus() {
             {/* Edit Profile */}
             <button
               onClick={() => setShowEditProfile(true)}
-              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -291,7 +291,7 @@ export default function PlanStatus() {
             {/* Contact Support */}
             <button
               onClick={() => setShowContactModal(true)}
-              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z" />
@@ -302,7 +302,7 @@ export default function PlanStatus() {
             {/* Delete Account */}
             <button
               onClick={() => setShowDeleteAccount(true)}
-              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2"
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -316,7 +316,7 @@ export default function PlanStatus() {
             <div className="flex flex-wrap justify-center gap-6 text-sm">
               <a 
                 href="https://bookyolo.com/terms-of-services" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -324,7 +324,7 @@ export default function PlanStatus() {
               </a>
               <a 
                 href="https://bookyolo.com/privacy-policy" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -332,7 +332,7 @@ export default function PlanStatus() {
               </a>
               <a 
                 href="https://bookyolo.com/cookie-policy" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+                className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -392,7 +392,7 @@ export default function PlanStatus() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowEditProfile(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -422,7 +422,7 @@ export default function PlanStatus() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteAccount(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -462,7 +462,7 @@ export default function PlanStatus() {
                   <span className="font-medium text-gray-900">help@bookyolo.com</span>
                   <button
                     onClick={copyEmailToClipboard}
-                    className="text-gray-900 hover:text-gray-700 text-sm font-medium"
+                    className="text-gray-900 hover:text-gray-700 text-sm font-medium cursor-pointer"
                   >
                     Copy
                   </button>
@@ -489,7 +489,7 @@ export default function PlanStatus() {
 
             <button
               onClick={() => setShowContactModal(false)}
-              className="w-full mt-6 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+              className="w-full mt-6 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -580,7 +580,7 @@ export default function PlanStatus() {
 
             <button
               onClick={() => setShowReferralModal(false)}
-              className="w-full mt-6 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+              className="w-full mt-6 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
             >
               Close
             </button>
