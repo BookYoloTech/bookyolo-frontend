@@ -532,7 +532,7 @@ export default function PlanStatus() {
                 <p className="text-sm font-medium text-gray-700">Share on:</p>
                 <div className="grid grid-cols-2 gap-3">
                   <a
-                    href={`https://twitter.com/intent/tweet?text=Check out BookYolo - the AI-powered Airbnb property analyzer!&url=${encodeURIComponent(`${window.location.origin}/signup?ref=${user?.user?.id}`)}`}
+                    href={`https://twitter.com/intent/tweet?text=Hey! Just found this: BookYolo. It's an AI travel tool that uncovers all the hidden details of rentals and hotels. You get the full story before booking — no more surprises when you arrive.&url=${encodeURIComponent(`${window.location.origin}/signup?ref=${user?.user?.id}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
@@ -554,7 +554,7 @@ export default function PlanStatus() {
                     Facebook
                   </a>
                   <a
-                    href={`https://wa.me/?text=${encodeURIComponent(`Check out BookYolo - the AI-powered Airbnb property analyzer! ${window.location.origin}/signup?ref=${user?.user?.id}`)}`}
+                    href={`https://wa.me/?text=${encodeURIComponent(`Hey! Just found this: BookYolo. It's an AI travel tool that uncovers all the hidden details of rentals and hotels. You get the full story before booking — no more surprises when you arrive. ${window.location.origin}/signup?ref=${user?.user?.id}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
@@ -565,7 +565,7 @@ export default function PlanStatus() {
                     WhatsApp
                   </a>
                   <a
-                    href={`mailto:?subject=Check out BookYolo&body=Hi! I found this amazing AI-powered Airbnb property analyzer called BookYolo. Check it out: ${window.location.origin}/signup?ref=${user?.user?.id}`}
+                    href={`mailto:?subject=Check out BookYolo&body=Hey! Just found this: BookYolo. It's an AI travel tool that uncovers all the hidden details of rentals and hotels. You get the full story before booking — no more surprises when you arrive. ${window.location.origin}/signup?ref=${user?.user?.id}`}
                     className="flex items-center justify-center gap-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
