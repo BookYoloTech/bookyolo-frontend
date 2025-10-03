@@ -143,7 +143,7 @@ const ChatInterface = () => {
   const [availableScansForComparison, setAvailableScansForComparison] = useState([]);
   const [recentScansCollapsed, setRecentScansCollapsed] = useState(false);
   const [recentComparesCollapsed, setRecentComparesCollapsed] = useState(false);
-  const [activeButton, setActiveButton] = useState('scan'); // 'scan', 'compare', 'account'
+  const [activeButton, setActiveButton] = useState(null); // 'scan', 'compare', 'account', or null for normal state
   const inputRef = useRef(null);
 
 
@@ -1137,7 +1137,7 @@ const ChatInterface = () => {
                       : 'bg-accent text-primary'
                   }`}
                 >
-                  Scan
+                  Scan {activeButton === 'scan' ? '(ACTIVE)' : '(NORMAL)'}
                 </button>
                 <button
                   onClick={(e) => {
@@ -1157,7 +1157,7 @@ const ChatInterface = () => {
                   }`}
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
-                  Compare
+                  Compare {activeButton === 'compare' ? '(ACTIVE)' : '(NORMAL)'}
                 </button>
                 <button
                   onClick={() => {
@@ -1188,7 +1188,7 @@ const ChatInterface = () => {
                     : 'bg-accent text-primary'
                 }`}
               >
-                Scan
+                Scan {activeButton === 'scan' ? '(ACTIVE)' : '(NORMAL)'}
               </button>
               
               <button
@@ -1199,7 +1199,7 @@ const ChatInterface = () => {
                     : 'bg-accent text-primary'
                 }`}
               >
-                Compare
+                Compare {activeButton === 'compare' ? '(ACTIVE)' : '(NORMAL)'}
               </button>
               
               <button
