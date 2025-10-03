@@ -15,7 +15,6 @@ export default function PlanStatus() {
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
   const [upgradeError, setUpgradeError] = useState('');
-  const [copySuccess, setCopySuccess] = useState('');
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -58,16 +57,13 @@ export default function PlanStatus() {
     const referralLink = `${window.location.origin}/signup?ref=${user?.user?.id || 'user'}`;
     const sharingMessage = `Hey! Just found this: BookYolo. It's an AI travel tool that uncovers all the hidden details of rentals and hotels. You get the full story before booking — no more surprises when you arrive. ${referralLink}`;
     navigator.clipboard.writeText(sharingMessage).then(() => {
-      setCopySuccess('Referral link copied!');
-      setTimeout(() => setCopySuccess(''), 2000);
+      alert('Sharing message and referral link copied to clipboard!');
     });
   };
 
   const copyEmailToClipboard = () => {
-    navigator.clipboard.writeText('help@bookyolo.com').then(() => {
-      setCopySuccess('Email copied!');
-      setTimeout(() => setCopySuccess(''), 2000);
-    });
+    navigator.clipboard.writeText('help@bookyolo.com');
+    alert('Email address copied to clipboard!');
   };
 
   const handleUpgrade = async () => {
@@ -171,13 +167,6 @@ export default function PlanStatus() {
           </button>
         </div>
       </header>
-
-      {/* Copy Success Toast */}
-      {copySuccess && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-300">
-          {copySuccess}
-        </div>
-      )}
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
