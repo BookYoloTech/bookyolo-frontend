@@ -320,6 +320,9 @@ const ChatInterface = () => {
       // Hide comparison UI when loading a chat
       setShowComparisonUI(false);
       
+      // Clear any error notifications when loading a chat
+      setError("");
+      
       // Don't change activeButton when loading past chats - keep buttons in normal state
       // activeButton should only be set when starting NEW scans/comparisons
       
