@@ -320,11 +320,8 @@ const ChatInterface = () => {
       // Hide comparison UI when loading a chat
       setShowComparisonUI(false);
       
-      // Set active button based on chat type
-      const chat = chats.find(c => c.id === chatId);
-      if (chat) {
-        setActiveButton(chat.type === 'compare' ? 'compare' : 'scan');
-      }
+      // Don't change activeButton when loading past chats - keep buttons in normal state
+      // activeButton should only be set when starting NEW scans/comparisons
       
       // Check if this is a local compare chat (not in database)
       const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
@@ -571,6 +568,8 @@ const ChatInterface = () => {
     } finally {
       setIsLoading(false);
       setTimeout(() => setScanProgress(0), 800);
+      // Reset button state after scan completion
+      setActiveButton('scan');
     }
   };
 
@@ -912,6 +911,8 @@ const ChatInterface = () => {
       }]);
     } finally {
       setIsLoading(false);
+      // Reset button state after comparison completion
+      setActiveButton('compare');
     }
   };
 
