@@ -266,20 +266,6 @@ const ChatInterface = () => {
     return () => clearInterval(tickRef.current);
   }, [isLoading, scanProgress]);
 
-  // Helper function to clear old localStorage data for other users
-  const clearOldUserData = useCallback((currentUserId) => {
-    // Get all localStorage keys
-    const keys = Object.keys(localStorage);
-    
-    // Find and remove compare_chats keys for other users
-    keys.forEach(key => {
-      if (key.startsWith('compare_chats_') && !key.endsWith(`_${currentUserId}`)) {
-        localStorage.removeItem(key);
-        console.log("DEBUG: Cleared old compare data for key:", key);
-      }
-    });
-  }, []);
-
   const loadUserData = useCallback(async () => {
     try {
       const token = localStorage.getItem("by_token");
@@ -294,9 +280,6 @@ const ChatInterface = () => {
         const userData = await r1.json();
         setMe(userData);
         
-        // Clear old localStorage data for other users
-        clearOldUserData(userData.user.id);
-        
         // Check for low scan balance (will be handled in UI component)
         if (userData.remaining <= 5 && userData.remaining > 0) {
           console.log("DEBUG: Low scan balance detected:", userData.remaining);
@@ -310,10 +293,9 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        // Load compare chats from localStorage (user-specific)
-        const userCompareKey = `compare_chats_${userData.user.id}`;
-        const savedCompareChats = JSON.parse(localStorage.getItem(userCompareKey) || '[]');
-        console.log("DEBUG: Loaded compare chats from localStorage for user:", userData.user.id, savedCompareChats);
+        // Load compare chats from localStorage
+        const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
+        console.log("DEBUG: Loaded compare chats from localStorage:", savedCompareChats);
         
         // Combine saved compare chats with database chats
         setChats([...savedCompareChats, ...chatsData]);
@@ -328,7 +310,7 @@ const ChatInterface = () => {
     } finally {
       setIsLoadingData(false);
     }
-  }, [clearOldUserData]);
+  }, []);
 
   const loadChat = async (chatId) => {
     try {
@@ -897,13 +879,12 @@ const ChatInterface = () => {
        setChats(prev => {
          const newChats = [compareChat, ...prev];
          
-        // Save compare chats to localStorage for persistence (user-specific)
-        const compareChats = newChats.filter(chat => 
-          chat.type === 'compare' && chat.id.startsWith('compare-')
-        );
-        const userCompareKey = `compare_chats_${me.user.id}`;
-        localStorage.setItem(userCompareKey, JSON.stringify(compareChats));
-        console.log("DEBUG: Saved compare chats to localStorage for user:", me.user.id, compareChats);
+         // Save compare chats to localStorage for persistence
+         const compareChats = newChats.filter(chat => 
+           chat.type === 'compare' && chat.id.startsWith('compare-')
+         );
+         localStorage.setItem('compare_chats', JSON.stringify(compareChats));
+         console.log("DEBUG: Saved compare chats to localStorage:", compareChats);
          
          return newChats;
        });
@@ -922,10 +903,9 @@ const ChatInterface = () => {
        
        if (r2.ok) {
          const chatsData = await r2.json();
-        // Load compare chats from localStorage and combine with database chats (user-specific)
-        const userCompareKey = `compare_chats_${me.user.id}`;
-        const savedCompareChats = JSON.parse(localStorage.getItem(userCompareKey) || '[]');
-        setChats([...savedCompareChats, ...chatsData]);
+         // Load compare chats from localStorage and combine with database chats
+         const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
+         setChats([...savedCompareChats, ...chatsData]);
        }
     } catch (e) {
       setError(e.message || String(e));
