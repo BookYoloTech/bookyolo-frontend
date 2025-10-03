@@ -1014,7 +1014,7 @@ const ChatInterface = () => {
               {/* Information */}
               <div className="mb-4 sm:mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
-                  <div className="text-primary font-medium text-sm sm:text-base">{message.scanData.listing_title || "Property Listing"}</div>
+                  <div className="text-primary font-medium text-sm sm:text-base" style={{ fontWeight: '600' }}>{message.scanData.listing_title || "Property Listing"}</div>
                   <span className={`inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold w-fit ${labelStyle(message.scanData.label).bg} ${labelStyle(message.scanData.label).text}`}>
                     {message.scanData.label}
                   </span>
@@ -1108,7 +1108,7 @@ const ChatInterface = () => {
               <div className="mb-4">
                 <h3 className="font-semibold text-gray-800 mb-2">Listing A:</h3>
                 <div className="text-gray-700 mb-1">
-                  <strong>{message.comparedScans.scan1.listing_title || 'Title not available'}</strong>
+                  <strong className="font-bold" style={{ fontWeight: 'bold' }}>{message.comparedScans.scan1.listing_title || 'Title not available'}</strong>
                 </div>
                 <div className="text-sm text-blue-600 break-all">
                   <a 
@@ -1126,7 +1126,7 @@ const ChatInterface = () => {
               <div className="mb-4">
                 <h3 className="font-semibold text-gray-800 mb-2">Listing B:</h3>
                 <div className="text-gray-700 mb-1">
-                  <strong>{message.comparedScans.scan2.listing_title || 'Title not available'}</strong>
+                  <strong className="font-bold" style={{ fontWeight: 'bold' }}>{message.comparedScans.scan2.listing_title || 'Title not available'}</strong>
                 </div>
                 <div className="text-sm text-blue-600 break-all">
                   <a 
