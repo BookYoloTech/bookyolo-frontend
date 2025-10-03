@@ -256,6 +256,36 @@ const ChatInterface = () => {
     loadUserData();
   }, [navigate]);
 
+  // Additional check for compare chats on mount (Edge compatibility)
+  useEffect(() => {
+    const checkCompareChats = () => {
+      try {
+        const compareChatsData = localStorage.getItem('compare_chats');
+        if (compareChatsData) {
+          const compareChats = JSON.parse(compareChatsData);
+          console.log("DEBUG: Additional check - compare chats found:", compareChats);
+          if (compareChats.length > 0) {
+            setChats(prev => {
+              const existingCompareIds = prev.filter(chat => chat.type === 'compare').map(chat => chat.id);
+              const newCompareChats = compareChats.filter(chat => !existingCompareIds.includes(chat.id));
+              if (newCompareChats.length > 0) {
+                console.log("DEBUG: Adding missing compare chats:", newCompareChats);
+                return [...newCompareChats, ...prev];
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (error) {
+        console.error("DEBUG: Error in additional compare chats check:", error);
+      }
+    };
+
+    // Run check after a short delay to ensure component is fully mounted
+    const timeoutId = setTimeout(checkCompareChats, 1000);
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   // Smooth progress for scan
   useEffect(() => {
     if (isLoading && scanProgress > 0) {
@@ -293,9 +323,19 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        // Load compare chats from localStorage
-        const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
-        console.log("DEBUG: Loaded compare chats from localStorage:", savedCompareChats);
+        // Load compare chats from localStorage with Edge compatibility
+        let savedCompareChats = [];
+        try {
+          const compareChatsData = localStorage.getItem('compare_chats');
+          console.log("DEBUG: Raw compare chats data from localStorage:", compareChatsData);
+          savedCompareChats = compareChatsData ? JSON.parse(compareChatsData) : [];
+          console.log("DEBUG: Parsed compare chats from localStorage:", savedCompareChats);
+        } catch (error) {
+          console.error("DEBUG: Error parsing compare chats from localStorage:", error);
+          // Clear corrupted data
+          localStorage.removeItem('compare_chats');
+          savedCompareChats = [];
+        }
         
         // Combine saved compare chats with database chats
         setChats([...savedCompareChats, ...chatsData]);
@@ -879,12 +919,24 @@ const ChatInterface = () => {
        setChats(prev => {
          const newChats = [compareChat, ...prev];
          
-         // Save compare chats to localStorage for persistence
-         const compareChats = newChats.filter(chat => 
-           chat.type === 'compare' && chat.id.startsWith('compare-')
-         );
-         localStorage.setItem('compare_chats', JSON.stringify(compareChats));
-         console.log("DEBUG: Saved compare chats to localStorage:", compareChats);
+        // Save compare chats to localStorage for persistence with Edge compatibility
+        const compareChats = newChats.filter(chat => 
+          chat.type === 'compare' && chat.id.startsWith('compare-')
+        );
+        try {
+          localStorage.setItem('compare_chats', JSON.stringify(compareChats));
+          console.log("DEBUG: Saved compare chats to localStorage:", compareChats);
+        } catch (error) {
+          console.error("DEBUG: Error saving compare chats to localStorage:", error);
+          // Edge might have storage quota issues, try to clear old data
+          try {
+            localStorage.removeItem('compare_chats');
+            localStorage.setItem('compare_chats', JSON.stringify(compareChats));
+            console.log("DEBUG: Retried saving compare chats after clearing old data");
+          } catch (retryError) {
+            console.error("DEBUG: Failed to save compare chats even after retry:", retryError);
+          }
+        }
          
          return newChats;
        });
@@ -1375,7 +1427,12 @@ const ChatInterface = () => {
             </button>
             {!recentComparesCollapsed && (
               <div className="flex-1 overflow-y-auto space-y-2 pr-2 min-h-0">
-                {chats.filter(chat => chat.type === 'compare').map((chat) => (
+                {(() => {
+                  const compareChats = chats.filter(chat => chat.type === 'compare');
+                  console.log("DEBUG: All chats:", chats);
+                  console.log("DEBUG: Compare chats filtered:", compareChats);
+                  console.log("DEBUG: Chat types:", chats.map(chat => ({ id: chat.id, type: chat.type, title: chat.title })));
+                  return compareChats.map((chat) => (
                   <button
                     key={chat.id}
                     onClick={(e) => {
@@ -1395,7 +1452,8 @@ const ChatInterface = () => {
                       {new Date(chat.created_at).toLocaleDateString()}
                     </div>
                   </button>
-                ))}
+                  ));
+                })()}
               </div>
             )}
           </div>
