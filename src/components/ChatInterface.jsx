@@ -1177,7 +1177,10 @@ const ChatInterface = () => {
             <div className="flex justify-center items-center">
               <div className="flex space-x-2">
                 <button
-                  onClick={startNewChat}
+                  onClick={() => {
+                    setSidebarOpen(false); // Close sidebar on mobile
+                    startNewChat();
+                  }}
                   className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity cursor-pointer ${
                     activeButton === 'scan' 
                       ? 'bg-button text-white' 
@@ -1191,6 +1194,7 @@ const ChatInterface = () => {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log("Mobile Compare button clicked");
+                    setSidebarOpen(false); // Close sidebar on mobile
                     handleCompare("compare");
                   }}
                   onTouchStart={(e) => {
@@ -1208,6 +1212,7 @@ const ChatInterface = () => {
                 </button>
                 <button
                   onClick={() => {
+                    setSidebarOpen(false); // Close sidebar on mobile
                     navigate("/plan-status");
                     setActiveButton('account');
                   }}
