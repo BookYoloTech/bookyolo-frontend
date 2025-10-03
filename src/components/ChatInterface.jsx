@@ -1137,7 +1137,7 @@ const ChatInterface = () => {
                       : 'bg-accent text-primary'
                   }`}
                 >
-                  Scan {activeButton === 'scan' ? '(ACTIVE)' : '(NORMAL)'}
+                  Scan
                 </button>
                 <button
                   onClick={(e) => {
@@ -1157,7 +1157,7 @@ const ChatInterface = () => {
                   }`}
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
-                  Compare {activeButton === 'compare' ? '(ACTIVE)' : '(NORMAL)'}
+                  Compare
                 </button>
                 <button
                   onClick={() => {
@@ -1188,7 +1188,7 @@ const ChatInterface = () => {
                     : 'bg-accent text-primary'
                 }`}
               >
-                Scan {activeButton === 'scan' ? '(ACTIVE)' : '(NORMAL)'}
+                Scan
               </button>
               
               <button
@@ -1199,7 +1199,7 @@ const ChatInterface = () => {
                     : 'bg-accent text-primary'
                 }`}
               >
-                Compare {activeButton === 'compare' ? '(ACTIVE)' : '(NORMAL)'}
+                Compare
               </button>
               
               <button
