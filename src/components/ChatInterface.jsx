@@ -70,7 +70,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
         <div>
           <label className="block text-sm font-semibold text-primary mb-2">Listing A</label>
           <select 
-            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
+            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button cursor-pointer"
             value={selectedScan1} 
             onChange={(e) => setSelectedScan1(e.target.value)}
           >
@@ -86,7 +86,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
         <div>
           <label className="block text-sm font-semibold text-primary mb-2">Listing B</label>
           <select 
-            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
+            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button cursor-pointer"
             value={selectedScan2} 
             onChange={(e) => setSelectedScan2(e.target.value)}
           >
@@ -103,7 +103,7 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
       <div>
         <label className="block text-sm font-semibold text-primary mb-2">Comparison Question (Optional)</label>
         <input
-          className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button"
+          className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button cursor-pointer"
           placeholder="e.g. which is better for families?"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}

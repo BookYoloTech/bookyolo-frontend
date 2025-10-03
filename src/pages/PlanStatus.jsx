@@ -521,7 +521,7 @@ export default function PlanStatus() {
                   </span>
                   <button
                     onClick={copyReferralLink}
-                    className="text-gray-900 hover:text-gray-700 text-sm font-medium ml-2 flex-shrink-0"
+                    className="text-gray-900 hover:text-gray-700 text-sm font-medium ml-2 flex-shrink-0 cursor-pointer"
                   >
                     Copy
                   </button>
