@@ -260,7 +260,17 @@ const ChatInterface = () => {
   useEffect(() => {
     const checkCompareChats = () => {
       try {
+        // Test localStorage functionality
+        console.log("DEBUG: Testing localStorage functionality...");
+        const testKey = 'bookyolo_test';
+        const testValue = 'test_value_' + Date.now();
+        localStorage.setItem(testKey, testValue);
+        const retrievedValue = localStorage.getItem(testKey);
+        console.log("DEBUG: localStorage test - stored:", testValue, "retrieved:", retrievedValue);
+        localStorage.removeItem(testKey);
+        
         const compareChatsData = localStorage.getItem('compare_chats');
+        console.log("DEBUG: Additional check - compare chats data:", compareChatsData);
         if (compareChatsData) {
           const compareChats = JSON.parse(compareChatsData);
           console.log("DEBUG: Additional check - compare chats found:", compareChats);
@@ -275,6 +285,8 @@ const ChatInterface = () => {
               return prev;
             });
           }
+        } else {
+          console.log("DEBUG: No compare chats data found in localStorage");
         }
       } catch (error) {
         console.error("DEBUG: Error in additional compare chats check:", error);
@@ -895,6 +907,7 @@ const ChatInterface = () => {
          scan2: scan2,
          result: data.answer
        };
+       console.log("DEBUG: Created compare chat:", compareChat);
        
        // Set the current chat ID to the compare chat so follow-up questions work
        setCurrentChatId(compareChat.id);
@@ -917,7 +930,9 @@ const ChatInterface = () => {
        
        // Add to chats state - same as Recent Scans
        setChats(prev => {
+         console.log("DEBUG: Previous chats before adding compare:", prev);
          const newChats = [compareChat, ...prev];
+         console.log("DEBUG: New chats after adding compare:", newChats);
          
         // Save compare chats to localStorage for persistence with Edge compatibility
         const compareChats = newChats.filter(chat => 
@@ -1238,6 +1253,7 @@ const ChatInterface = () => {
                       ? 'bg-button text-white' 
                       : 'bg-accent text-primary'
                   }`}
+                  style={{ cursor: 'pointer' }}
                 >
                   Scan
                 </button>
@@ -1291,6 +1307,7 @@ const ChatInterface = () => {
                     ? 'bg-button text-white shadow-sm' 
                     : 'bg-accent text-primary'
                 }`}
+                style={{ cursor: 'pointer' }}
               >
                 Scan
               </button>

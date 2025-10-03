@@ -102,13 +102,15 @@ const Header = ({ onLogin, onSignup, onLogout, authed = false, me = null }) => {
                 )}
                 <button
                   onClick={() => window.location.href = '/plan-status'}
-                  className="hidden sm:inline px-3 py-1.5 text-xs text-primary border border-accent rounded hover:bg-accent"
+                  className="hidden sm:inline px-3 py-1.5 text-xs text-primary border border-accent rounded hover:bg-accent cursor-pointer"
+                  style={{ cursor: 'pointer' }}
                 >
                   Plan Status
                 </button>
                 <button
                   onClick={() => window.location.href = '/scan'}
-                  className="px-4 py-2.5 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm"
+                  className="px-4 py-2.5 bg-button text-button font-medium rounded-lg hover:opacity-90 shadow-sm cursor-pointer"
+                  style={{ cursor: 'pointer' }}
                 >
                   Scan
                 </button>
