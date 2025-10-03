@@ -1038,29 +1038,43 @@ const ChatInterface = () => {
             // Comparison result with listing details
             <div className="space-y-4">
               {/* Listing A Details */}
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="mb-4">
                 <h3 className="font-semibold text-gray-800 mb-2">Listing A:</h3>
                 <div className="text-gray-700 mb-1">
                   <strong>{message.comparedScans.scan1.listing_title || 'Title not available'}</strong>
                 </div>
-                <div className="text-sm text-gray-600 break-all">
-                  {message.comparedScans.scan1.listing_url}
+                <div className="text-sm text-blue-600 break-all">
+                  <a 
+                    href={message.comparedScans.scan1.listing_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {message.comparedScans.scan1.listing_url}
+                  </a>
                 </div>
               </div>
               
               {/* Listing B Details */}
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="mb-4">
                 <h3 className="font-semibold text-gray-800 mb-2">Listing B:</h3>
                 <div className="text-gray-700 mb-1">
                   <strong>{message.comparedScans.scan2.listing_title || 'Title not available'}</strong>
                 </div>
-                <div className="text-sm text-gray-600 break-all">
-                  {message.comparedScans.scan2.listing_url}
+                <div className="text-sm text-blue-600 break-all">
+                  <a 
+                    href={message.comparedScans.scan2.listing_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {message.comparedScans.scan2.listing_url}
+                  </a>
                 </div>
               </div>
               
               {/* Comparative Analysis */}
-              <div className="bg-white border-t border-gray-200 pt-4">
+              <div className="pt-4 border-t border-gray-200">
                 <h3 className="font-semibold text-gray-800 mb-3">Comparative Analysis:</h3>
                 <div className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</div>
               </div>
