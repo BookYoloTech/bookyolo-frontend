@@ -349,21 +349,29 @@ const ChatInterface = () => {
                   let title1 = null;
                   let title2 = null;
                   
+                  console.log("DEBUG: All lines in content:", lines);
+                  
                   for (let i = 0; i < lines.length; i++) {
                     if (lines[i].includes('Listing A:')) {
-                      // Get the next non-empty line
+                      console.log("DEBUG: Found Listing A at line", i);
+                      // Get the next non-empty line that's not a URL
                       for (let j = i + 1; j < lines.length; j++) {
-                        if (lines[j].trim() && !lines[j].includes('http')) {
-                          title1 = lines[j].trim();
+                        const line = lines[j].trim();
+                        if (line && !line.includes('http') && !line.includes('Listing B:')) {
+                          title1 = line;
+                          console.log("DEBUG: Found title1:", title1);
                           break;
                         }
                       }
                     }
                     if (lines[i].includes('Listing B:')) {
-                      // Get the next non-empty line
+                      console.log("DEBUG: Found Listing B at line", i);
+                      // Get the next non-empty line that's not a URL
                       for (let j = i + 1; j < lines.length; j++) {
-                        if (lines[j].trim() && !lines[j].includes('http')) {
-                          title2 = lines[j].trim();
+                        const line = lines[j].trim();
+                        if (line && !line.includes('http') && !line.includes('Comparative Analysis:')) {
+                          title2 = line;
+                          console.log("DEBUG: Found title2:", title2);
                           break;
                         }
                       }
@@ -376,6 +384,21 @@ const ChatInterface = () => {
                       ...chat,
                       title: `${title1} vs ${title2}`
                     };
+                  } else if (title1 || title2) {
+                    // If we only have one title, try to get the other from the original title
+                    console.log("DEBUG: Only found one title:", title1 || title2);
+                    const existingTitle = chat.title;
+                    if (existingTitle.includes(' vs ')) {
+                      // Keep the existing format if it already has "vs"
+                      return chat;
+                    } else {
+                      // If we have one title, use it for both or create a fallback
+                      const singleTitle = title1 || title2;
+                      return {
+                        ...chat,
+                        title: `${singleTitle} vs ${singleTitle}`
+                      };
+                    }
                   }
                 }
               }
