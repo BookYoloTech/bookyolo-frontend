@@ -318,8 +318,51 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
+        // Process compare chats to fetch actual titles
+        const processedChats = await Promise.all(chatsData.map(async (chat) => {
+          if (chat.type === 'compare' && chat.scan_ids && chat.scan_ids.length >= 2) {
+            try {
+              console.log("DEBUG: Processing compare chat:", chat.id, "with scan_ids:", chat.scan_ids);
+              
+              // Fetch scan data for both scans to get actual titles
+              const [scan1Res, scan2Res] = await Promise.all([
+                fetch(`${API_BASE}/scan/${chat.scan_ids[0]}`, {
+                  headers: { Authorization: `Bearer ${token}` }
+                }),
+                fetch(`${API_BASE}/scan/${chat.scan_ids[1]}`, {
+                  headers: { Authorization: `Bearer ${token}` }
+                })
+              ]);
+              
+              if (scan1Res.ok && scan2Res.ok) {
+                const scan1Data = await scan1Res.json();
+                const scan2Data = await scan2Res.json();
+                
+                console.log("DEBUG: Scan1 data:", scan1Data);
+                console.log("DEBUG: Scan2 data:", scan2Data);
+                
+                // Update the title with actual listing titles
+                const title1 = scan1Data.listing_title || `Listing ${scan1Data.listing_url.split('/').pop().substring(0, 8)}...`;
+                const title2 = scan2Data.listing_title || `Listing ${scan2Data.listing_url.split('/').pop().substring(0, 8)}...`;
+                
+                console.log("DEBUG: Updated compare title:", `${title1} vs ${title2}`);
+                
+                return {
+                  ...chat,
+                  title: `${title1} vs ${title2}`
+                };
+              } else {
+                console.log("DEBUG: Failed to fetch scan data for compare chat:", scan1Res.status, scan2Res.status);
+              }
+            } catch (e) {
+              console.error('Failed to fetch scan data for compare chat:', e);
+            }
+          }
+          return chat;
+        }));
+        
         // Use database chats directly (includes both scans and compares)
-        setChats(chatsData);
+        setChats(processedChats);
         
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
