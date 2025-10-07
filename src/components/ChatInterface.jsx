@@ -8,13 +8,13 @@ const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.verc
 const labelStyle = (label) => {
   const map = {
     "Outstanding Stay": { bg: "bg-green-500", text: "text-white" },
-    "Excellent Stay": { bg: "bg-yellow-green-500", text: "text-white" },
-    "Looks Legit": { bg: "bg-yellow-green-500", text: "text-white" },
+    "Excellent Stay": { bg: "bg-green-400", text: "text-white" },
+    "Looks Legit": { bg: "bg-yellow-400", text: "text-white" },
     "Probably OK": { bg: "bg-yellow-500", text: "text-white" },
     "A Bit Risky": { bg: "bg-orange-500", text: "text-white" },
     "Looks Sketchy": { bg: "bg-red-500", text: "text-white" },
-    "Travel Trap": { bg: "bg-red-500", text: "text-white" },
-    "Booking Nightmare": { bg: "bg-red-500", text: "text-white" },
+    "Travel Trap": { bg: "bg-red-600", text: "text-white" },
+    "Booking Nightmare": { bg: "bg-red-700", text: "text-white" },
     "Insufficient Data": { bg: "bg-gray-500", text: "text-white" },
   };
   return map[label] || { bg: "bg-gray-500", text: "text-white" };
@@ -1285,7 +1285,7 @@ const ChatInterface = () => {
               <div className="mb-4 sm:mb-6">
                 <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Deep Inspection Analysis</h3>
                 <div className="text-primary mb-4">
-                  This place passed {message.scanData.inspection_score || "92"} out of 100 inspection checks.
+                  {message.scanData.inspection_summary || "This place passed 92 out of 100 inspection checks."}
                 </div>
                 <div className="space-y-4">
                   {(message.scanData.categories || []).map((c, i) => (
