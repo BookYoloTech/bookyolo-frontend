@@ -40,6 +40,29 @@ const isUrl = (text) => {
   }
 };
 
+// Helper function to make URLs clickable in text
+const makeUrlsClickable = (text) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  
+  return parts.map((part, index) => {
+    if (urlRegex.test(part)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline break-all"
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 // Comparison Selector Component
 const ComparisonSelector = ({ availableScans, onCompare }) => {
   const [selectedScan1, setSelectedScan1] = useState("");
@@ -1120,11 +1143,11 @@ const ChatInterface = () => {
               {/* Comparative Analysis */}
               <div className="pt-4 border-t border-gray-200">
                 <h3 className="font-semibold text-gray-800 mb-3">Comparative Analysis:</h3>
-                <div className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</div>
+                <div className="text-base whitespace-pre-wrap leading-relaxed">{makeUrlsClickable(message.content)}</div>
               </div>
             </div>
           ) : (
-            <div className="text-base whitespace-pre-wrap px-2 sm:px-4 leading-relaxed">{message.content}</div>
+            <div className="text-base whitespace-pre-wrap px-2 sm:px-4 leading-relaxed">{makeUrlsClickable(message.content)}</div>
           )}
         </div>
       </div>
