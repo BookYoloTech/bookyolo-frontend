@@ -485,8 +485,15 @@ const ChatInterface = () => {
           // If this is an assistant message in a compare chat but we don't have scan data,
           // check if the content contains the formatted comparison structure
           if (msg.role === 'assistant' && data.chat.type === 'compare' && !compareScanData) {
+            console.log("DEBUG: Processing compare message without scan data");
+            console.log("DEBUG: Message content:", msg.content);
+            console.log("DEBUG: Has Listing A:", msg.content.includes('Listing A:'));
+            console.log("DEBUG: Has Listing B:", msg.content.includes('Listing B:'));
+            console.log("DEBUG: Has Comparative Analysis:", msg.content.includes('Comparative Analysis:'));
+            
             // Check if content has the expected format: "Listing A:\n...\nListing B:\n...\nComparative Analysis:\n..."
             if (msg.content.includes('Listing A:') && msg.content.includes('Listing B:') && msg.content.includes('Comparative Analysis:')) {
+              console.log("DEBUG: Found formatted comparison content, processing...");
               message.isComparison = true;
               // Extract URLs from the content to create a basic comparedScans object
               const urlRegex = /https?:\/\/[^\s]+/g;
@@ -496,44 +503,73 @@ const ChatInterface = () => {
                 let title1 = msg.content.split('Listing A:')[1]?.split('\n')[1]?.trim() || 'Title not available';
                 let title2 = msg.content.split('Listing B:')[1]?.split('\n')[1]?.trim() || 'Title not available';
                 
+                console.log("DEBUG: Extracted title1 from content:", title1);
+                console.log("DEBUG: Extracted title2 from content:", title2);
+                
                 // If titles are still generic, try to fetch from database
-                if (title1 === 'Title not available' || title1.startsWith('Listing ')) {
-                  // Try to fetch actual titles from the database
-                  try {
-                    const token = localStorage.getItem("by_token");
-                    const [scan1Res, scan2Res] = await Promise.all([
-                      fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[0])}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                      }),
-                      fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[1])}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                      })
-                    ]);
+                if (title1 === 'Title not available' || title1.startsWith('Listing ') || title1 === 'None') {
+                  console.log("DEBUG: Titles are generic, will fetch from database...");
+                  // We'll fetch titles asynchronously and update the message later
+                  // For now, use fallback titles
+                  const roomId1 = urls[0].split('/').pop();
+                  const roomId2 = urls[1].split('/').pop();
+                  title1 = `Listing ${roomId1.substring(0, 8)}...`;
+                  title2 = `Listing ${roomId2.substring(0, 8)}...`;
+                  console.log("DEBUG: Using fallback titles:", title1, title2);
+                  
+                  // Fetch actual titles asynchronously
+                  const token = localStorage.getItem("by_token");
+                  Promise.all([
+                    fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[0])}`, {
+                      headers: { Authorization: `Bearer ${token}` }
+                    }),
+                    fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[1])}`, {
+                      headers: { Authorization: `Bearer ${token}` }
+                    })
+                  ]).then(async ([scan1Res, scan2Res]) => {
+                    console.log("DEBUG: Scan1 response status:", scan1Res.status);
+                    console.log("DEBUG: Scan2 response status:", scan2Res.status);
+                    
+                    let newTitle1 = title1;
+                    let newTitle2 = title2;
                     
                     if (scan1Res.ok) {
                       const scan1Data = await scan1Res.json();
+                      console.log("DEBUG: Scan1 data:", scan1Data);
                       if (scan1Data.length > 0 && scan1Data[0].listing_title) {
-                        title1 = scan1Data[0].listing_title;
+                        newTitle1 = scan1Data[0].listing_title;
+                        console.log("DEBUG: Updated title1 from database:", newTitle1);
                       }
                     }
                     
                     if (scan2Res.ok) {
                       const scan2Data = await scan2Res.json();
+                      console.log("DEBUG: Scan2 data:", scan2Data);
                       if (scan2Data.length > 0 && scan2Data[0].listing_title) {
-                        title2 = scan2Data[0].listing_title;
+                        newTitle2 = scan2Data[0].listing_title;
+                        console.log("DEBUG: Updated title2 from database:", newTitle2);
                       }
                     }
-                  } catch (e) {
+                    
+                    // Update the message with the new titles
+                    setMessages(prevMessages => 
+                      prevMessages.map(msg => {
+                        if (msg === message) {
+                          return {
+                            ...msg,
+                            comparedScans: {
+                              ...msg.comparedScans,
+                              scan1: { ...msg.comparedScans.scan1, listing_title: newTitle1 },
+                              scan2: { ...msg.comparedScans.scan2, listing_title: newTitle2 }
+                            }
+                          };
+                        }
+                        return msg;
+                      })
+                    );
+                  }).catch(e => {
                     console.error('Failed to fetch scan titles:', e);
-                  }
-                  
-                  // Fallback if still no titles
-                  if (title1 === 'Title not available' || title1.startsWith('Listing ')) {
-                    const roomId1 = urls[0].split('/').pop();
-                    const roomId2 = urls[1].split('/').pop();
-                    title1 = `Listing ${roomId1.substring(0, 8)}...`;
-                    title2 = `Listing ${roomId2.substring(0, 8)}...`;
-                  }
+                  });
                 }
                 
                 message.comparedScans = {
@@ -561,12 +597,16 @@ const ChatInterface = () => {
         
         // For compare chats, ensure we have the follow-up message
         if (data.chat.type === 'compare') {
+          console.log("DEBUG: Checking for follow-up message in compare chat");
           const hasFollowUpMessage = processedMessages.some(msg => 
             msg.role === 'assistant' && 
             msg.content.includes('Do you have any questions about this comparison')
           );
           
+          console.log("DEBUG: Has follow-up message:", hasFollowUpMessage);
+          
           if (!hasFollowUpMessage) {
+            console.log("DEBUG: Adding follow-up message");
             // Add the follow-up message
             processedMessages.push({
               role: 'assistant',
