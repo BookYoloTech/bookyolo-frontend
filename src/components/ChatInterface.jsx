@@ -203,45 +203,6 @@ const ChatInterface = () => {
             
             return scanData;
           }
-        } else if (chatData.chat.type === 'compare' && chatData.chat.scan_ids && chatData.chat.scan_ids.length >= 2) {
-          // For compare chats, load both scans to get both titles
-          const [scan1Res, scan2Res] = await Promise.all([
-            fetch(`${API_BASE}/scan/${chatData.chat.scan_ids[0]}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            }),
-            fetch(`${API_BASE}/scan/${chatData.chat.scan_ids[1]}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            })
-          ]);
-          
-          if (scan1Res.ok && scan2Res.ok) {
-            const [scan1Data, scan2Data] = await Promise.all([
-              scan1Res.json(),
-              scan2Res.json()
-            ]);
-            
-            console.log("DEBUG: loadScanDataForChat - compare scan1:", scan1Data.listing_title);
-            console.log("DEBUG: loadScanDataForChat - compare scan2:", scan2Data.listing_title);
-            
-            // Create a combined title for the compare
-            const combinedTitle = `${scan1Data.listing_title || 'Listing A'} vs ${scan2Data.listing_title || 'Listing B'}`;
-            
-            // Store the combined data
-            const combinedData = {
-              listing_title: combinedTitle,
-              location: `${scan1Data.location || ''} vs ${scan2Data.location || ''}`,
-              scan1: scan1Data,
-              scan2: scan2Data
-            };
-            
-            // Update the scanData state
-            setScanData(prev => ({
-              ...prev,
-              [chatId]: combinedData
-            }));
-            
-            return combinedData;
-          }
         }
       }
     } catch (e) {
@@ -1462,37 +1423,27 @@ const ChatInterface = () => {
               <div className="flex-1 overflow-y-auto space-y-2 pr-2 min-h-0">
                 {(() => {
                   const compareChats = chats.filter(chat => chat.type === 'compare');
-                  return compareChats.map((chat) => {
-                    // Try to get scan data from current messages first, then from scanData state
-                    const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
-                    
-                    // If we don't have scan data, load it
-                    if (!scan && chat.type === 'compare') {
-                      loadScanDataForChat(chat.id);
-                    }
-                    
-                    return (
-                    <button
-                      key={chat.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        loadChat(chat.id);
-                      }}
-                      className={`w-full text-left p-3 rounded-lg transition-colors cursor-pointer ${
-                        currentChatId === chat.id 
-                          ? 'bg-button text-white' 
-                          : 'bg-white hover:bg-gray-50 border border-accent text-primary'
-                      }`}
-                    >
-                      <div className="font-medium text-sm truncate">
-                        {scan?.listing_title || scan?.location || chat.title.replace("Compare • ", "")}
-                      </div>
-                      <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
-                        {scan?.location || new Date(chat.created_at).toLocaleDateString()}
-                      </div>
-                    </button>
-                    );
-                  });
+                  return compareChats.map((chat) => (
+                  <button
+                    key={chat.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      loadChat(chat.id);
+                    }}
+                    className={`w-full text-left p-3 rounded-lg transition-colors cursor-pointer ${
+                      currentChatId === chat.id 
+                        ? 'bg-button text-white' 
+                        : 'bg-white hover:bg-gray-50 border border-accent text-primary'
+                    }`}
+                  >
+                    <div className="font-medium text-sm truncate">
+                      {chat.title.replace("Compare • ", "")}
+                    </div>
+                    <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
+                      {new Date(chat.created_at).toLocaleDateString()}
+                    </div>
+                  </button>
+                  ));
                 })()}
               </div>
             )}
