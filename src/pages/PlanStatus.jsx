@@ -15,6 +15,16 @@ export default function PlanStatus() {
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
   const [upgradeError, setUpgradeError] = useState('');
+  
+  // Edit Profile states
+  const [editProfileLoading, setEditProfileLoading] = useState(false);
+  const [editProfileError, setEditProfileError] = useState('');
+  const [editProfileSuccess, setEditProfileSuccess] = useState('');
+  
+  // Delete Account states
+  const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -109,6 +119,87 @@ export default function PlanStatus() {
   const handleDowngrade = () => {
     // Navigate to downgrade page (existing functionality)
     window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank');
+  };
+
+  const handleUpdateProfile = async (formData) => {
+    const token = localStorage.getItem("by_token");
+    if (!token) {
+      setEditProfileError("Please log in to update your profile");
+      return;
+    }
+
+    setEditProfileLoading(true);
+    setEditProfileError('');
+    setEditProfileSuccess('');
+
+    try {
+      const response = await fetch(`${API_BASE}/update-profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to update profile");
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      setEditProfileSuccess("Profile updated successfully!");
+      setShowEditProfile(false);
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setEditProfileSuccess(''), 3000);
+    } catch (err) {
+      setEditProfileError(err.message || "Failed to update profile");
+    } finally {
+      setEditProfileLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      setDeleteAccountError("Please type 'DELETE' to confirm");
+      return;
+    }
+
+    const token = localStorage.getItem("by_token");
+    if (!token) {
+      setDeleteAccountError("Please log in to delete your account");
+      return;
+    }
+
+    setDeleteAccountLoading(true);
+    setDeleteAccountError('');
+
+    try {
+      const response = await fetch(`${API_BASE}/delete-account`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ confirm_text: deleteConfirmText }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to delete account");
+      }
+
+      // Account deleted successfully, redirect to login
+      localStorage.removeItem("by_token");
+      localStorage.removeItem("by_user");
+      navigate('/login');
+    } catch (err) {
+      setDeleteAccountError(err.message || "Failed to delete account");
+    } finally {
+      setDeleteAccountLoading(false);
+    }
   };
 
   if (loading) {
@@ -355,58 +446,93 @@ export default function PlanStatus() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  defaultValue={user?.user?.full_name || ''}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+            
+            {/* Success Message */}
+            {editProfileSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800">{editProfileSuccess}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  defaultValue={user?.user?.email || ''}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+            )}
+            
+            {/* Error Message */}
+            {editProfileError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">{editProfileError}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                <input
-                  type="password"
-                  placeholder="Leave blank to keep current"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+            )}
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const data = {
+                full_name: formData.get('full_name'),
+                email: formData.get('email'),
+                new_password: formData.get('new_password') || null,
+                confirm_password: formData.get('confirm_password') || null,
+              };
+              handleUpdateProfile(data);
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    defaultValue={user?.user?.full_name || ''}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    defaultValue={user?.user?.email || ''}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                  <input
+                    type="password"
+                    name="new_password"
+                    placeholder="Leave blank to keep current"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    placeholder="Confirm new password"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-                <input
-                  type="password"
-                  placeholder="Confirm new password"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+              <div className="flex gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditProfile(false);
+                    setEditProfileError('');
+                    setEditProfileSuccess('');
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editProfileLoading}
+                  className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {editProfileLoading ? 'Saving...' : 'Save Changes'}
+                </button>
               </div>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowEditProfile(false)}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  // TODO: Implement profile update functionality
-                  alert('Profile update functionality will be implemented');
-                  setShowEditProfile(false);
-                }}
-                className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                Save Changes
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       )}
@@ -419,22 +545,44 @@ export default function PlanStatus() {
             <p className="text-gray-600 mb-6">
               This will permanently delete your account and all associated data. This action cannot be undone.
             </p>
+            
+            {/* Error Message */}
+            {deleteAccountError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">{deleteAccountError}</p>
+              </div>
+            )}
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Type "DELETE" to confirm:
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE to confirm"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600"
+              />
+            </div>
+            
             <div className="flex gap-3">
               <button
-                onClick={() => setShowDeleteAccount(false)}
+                onClick={() => {
+                  setShowDeleteAccount(false);
+                  setDeleteAccountError('');
+                  setDeleteConfirmText('');
+                }}
                 className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  // TODO: Implement account deletion functionality
-                  alert('Account deletion functionality will be implemented');
-                  setShowDeleteAccount(false);
-                }}
-                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+                onClick={handleDeleteAccount}
+                disabled={deleteAccountLoading || deleteConfirmText !== 'DELETE'}
+                className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
-                Delete Account
+                {deleteAccountLoading ? 'Deleting...' : 'Delete Account'}
               </button>
             </div>
           </div>
