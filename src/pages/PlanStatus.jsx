@@ -443,7 +443,7 @@ export default function PlanStatus() {
 
       {/* Edit Profile Modal */}
       {showEditProfile && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile</h3>
             
@@ -539,7 +539,7 @@ export default function PlanStatus() {
 
       {/* Delete Account Modal */}
       {showDeleteAccount && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Account</h3>
             <p className="text-gray-600 mb-6">
@@ -591,7 +591,7 @@ export default function PlanStatus() {
 
       {/* Contact Support Modal */}
       {showContactModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -647,7 +647,7 @@ export default function PlanStatus() {
 
       {/* Referral Modal */}
       {showReferralModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
