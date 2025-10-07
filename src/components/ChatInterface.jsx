@@ -482,6 +482,36 @@ const ChatInterface = () => {
             message.comparedScans = compareScanData;
           }
           
+          // If this is an assistant message in a compare chat but we don't have scan data,
+          // check if the content contains the formatted comparison structure
+          if (msg.role === 'assistant' && data.chat.type === 'compare' && !compareScanData) {
+            // Check if content has the expected format: "Listing A:\n...\nListing B:\n...\nComparative Analysis:\n..."
+            if (msg.content.includes('Listing A:') && msg.content.includes('Listing B:') && msg.content.includes('Comparative Analysis:')) {
+              message.isComparison = true;
+              // Extract URLs from the content to create a basic comparedScans object
+              const urlRegex = /https?:\/\/[^\s]+/g;
+              const urls = msg.content.match(urlRegex) || [];
+              if (urls.length >= 2) {
+                message.comparedScans = {
+                  scan1: { 
+                    listing_url: urls[0],
+                    listing_title: msg.content.split('Listing A:')[1]?.split('\n')[1]?.trim() || 'Title not available'
+                  },
+                  scan2: { 
+                    listing_url: urls[1],
+                    listing_title: msg.content.split('Listing B:')[1]?.split('\n')[1]?.trim() || 'Title not available'
+                  }
+                };
+                
+                // Extract just the Comparative Analysis part for the main content
+                const analysisStart = msg.content.indexOf('Comparative Analysis:');
+                if (analysisStart !== -1) {
+                  message.content = msg.content.substring(analysisStart + 'Comparative Analysis:'.length).trim();
+                }
+              }
+            }
+          }
+          
           return message;
         });
         
