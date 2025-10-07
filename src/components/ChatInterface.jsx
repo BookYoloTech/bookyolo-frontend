@@ -886,14 +886,15 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      const res = await fetch(`${API_BASE}/chat/new-compare`, {
+      const res = await fetch(`${API_BASE}/compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          listing_urls: [scan1.listing_url, scan2.listing_url], 
+          scan_a_url: scan1.listing_url, 
+          scan_b_url: scan2.listing_url, 
           question: question || null 
         }),
       });
