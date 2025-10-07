@@ -384,20 +384,51 @@ const ChatInterface = () => {
                       ...chat,
                       title: `${title1} vs ${title2}`
                     };
-                  } else if (title1 || title2) {
-                    // If we only have one title, try to get the other from the original title
-                    console.log("DEBUG: Only found one title:", title1 || title2);
-                    const existingTitle = chat.title;
-                    if (existingTitle.includes(' vs ')) {
-                      // Keep the existing format if it already has "vs"
-                      return chat;
-                    } else {
-                      // If we have one title, use it for both or create a fallback
-                      const singleTitle = title1 || title2;
+                  } else {
+                    // If we don't have both titles, try a different approach
+                    console.log("DEBUG: Missing titles, trying alternative extraction");
+                    
+                    // Try to find titles anywhere in the content
+                    const content = assistantMessage.content;
+                    
+                    // Look for patterns like "Bright and spacious" or "Modern Airbnb" or "Luxurious"
+                    const titlePatterns = [
+                      /Bright and spacious[^]*?(?=\n|$)/i,
+                      /Modern Airbnb[^]*?(?=\n|$)/i,
+                      /Luxurious[^]*?(?=\n|$)/i,
+                      /Cozy[^]*?(?=\n|$)/i,
+                      /Spacious[^]*?(?=\n|$)/i
+                    ];
+                    
+                    const foundTitles = [];
+                    for (const pattern of titlePatterns) {
+                      const match = content.match(pattern);
+                      if (match) {
+                        const title = match[0].trim();
+                        if (title.length > 10 && !title.includes('http') && !foundTitles.includes(title)) {
+                          foundTitles.push(title);
+                        }
+                      }
+                    }
+                    
+                    console.log("DEBUG: Found titles with patterns:", foundTitles);
+                    
+                    if (foundTitles.length >= 2) {
                       return {
                         ...chat,
-                        title: `${singleTitle} vs ${singleTitle}`
+                        title: `${foundTitles[0]} vs ${foundTitles[1]}`
                       };
+                    } else if (foundTitles.length === 1) {
+                      // If we only found one title, try to get the other from URLs
+                      const urls = content.match(/https?:\/\/[^\s]+/g) || [];
+                      if (urls.length >= 2) {
+                        const roomId1 = urls[0].split('/').pop().substring(0, 8);
+                        const roomId2 = urls[1].split('/').pop().substring(0, 8);
+                        return {
+                          ...chat,
+                          title: `${foundTitles[0]} vs Listing ${roomId2}...`
+                        };
+                      }
                     }
                   }
                 }
