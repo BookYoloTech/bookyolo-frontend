@@ -782,8 +782,33 @@ const ChatInterface = () => {
         
         const data = await res.json();
         
-        // Set the current chat ID from the database response
-        setCurrentChatId(data.chat_id);
+        // Save the compare result to the database
+        try {
+          const saveRes = await fetch(`${API_BASE}/save-compare`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              scan_a_url: urls[0],
+              scan_b_url: urls[1],
+              answer: data.answer,
+              question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null
+            }),
+          });
+          
+          if (saveRes.ok) {
+            const saveData = await saveRes.json();
+            setCurrentChatId(saveData.chat_id);
+          } else {
+            console.error("Failed to save compare to database:", await saveRes.text());
+            setCurrentChatId(`compare-${Date.now()}`);
+          }
+        } catch (saveError) {
+          console.error("Error saving compare to database:", saveError);
+          setCurrentChatId(`compare-${Date.now()}`);
+        }
         
         // Add assistant response
         const assistantMessage = {
@@ -879,8 +904,33 @@ const ChatInterface = () => {
       
        const data = await res.json();
        
-       // Set the current chat ID from the database response
-       setCurrentChatId(data.chat_id);
+       // Save the compare result to the database
+       try {
+         const saveRes = await fetch(`${API_BASE}/save-compare`, {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+             Authorization: `Bearer ${token}`,
+           },
+           body: JSON.stringify({
+             scan_a_url: scan1.listing_url,
+             scan_b_url: scan2.listing_url,
+             answer: data.answer,
+             question: question || null
+           }),
+         });
+         
+         if (saveRes.ok) {
+           const saveData = await saveRes.json();
+           setCurrentChatId(saveData.chat_id);
+         } else {
+           console.error("Failed to save compare to database:", await saveRes.text());
+           setCurrentChatId(`compare-${Date.now()}`);
+         }
+       } catch (saveError) {
+         console.error("Error saving compare to database:", saveError);
+         setCurrentChatId(`compare-${Date.now()}`);
+       }
        
        // Add assistant response
        const assistantMessage = {
@@ -899,21 +949,7 @@ const ChatInterface = () => {
        setMessages(prev => [...prev, followUpMessage]);
        
        // Refresh user data and chats from database
-       const refreshToken = localStorage.getItem("by_token");
-       const [r1, r2] = await Promise.all([
-         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
-         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
-       ]);
-       
-       if (r1.ok) {
-         const userData = await r1.json();
-         setMe(userData);
-       }
-       
-       if (r2.ok) {
-         const chatsData = await r2.json();
-         setChats(chatsData);
-       }
+       await loadUserData();
     } catch (e) {
       setError(e.message || String(e));
       // Add error message
