@@ -203,25 +203,44 @@ const ChatInterface = () => {
             
             return scanData;
           }
-        } else if (chatData.chat.type === 'compare' && chatData.chat.scan_ids && chatData.chat.scan_ids.length > 0) {
-          // For compare chats, load the first scan to get the title
-          const scanRes = await fetch(`${API_BASE}/scan/${chatData.chat.scan_ids[0]}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+        } else if (chatData.chat.type === 'compare' && chatData.chat.scan_ids && chatData.chat.scan_ids.length >= 2) {
+          // For compare chats, load both scans to get both titles
+          const [scan1Res, scan2Res] = await Promise.all([
+            fetch(`${API_BASE}/scan/${chatData.chat.scan_ids[0]}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }),
+            fetch(`${API_BASE}/scan/${chatData.chat.scan_ids[1]}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          ]);
           
-          if (scanRes.ok) {
-            const scanData = await scanRes.json();
-            console.log("DEBUG: loadScanDataForChat - compare scan data loaded:", scanData);
-            console.log("DEBUG: loadScanDataForChat - compare listing_title:", scanData.listing_title);
-            console.log("DEBUG: loadScanDataForChat - compare location:", scanData.location);
+          if (scan1Res.ok && scan2Res.ok) {
+            const [scan1Data, scan2Data] = await Promise.all([
+              scan1Res.json(),
+              scan2Res.json()
+            ]);
+            
+            console.log("DEBUG: loadScanDataForChat - compare scan1:", scan1Data.listing_title);
+            console.log("DEBUG: loadScanDataForChat - compare scan2:", scan2Data.listing_title);
+            
+            // Create a combined title for the compare
+            const combinedTitle = `${scan1Data.listing_title || 'Listing A'} vs ${scan2Data.listing_title || 'Listing B'}`;
+            
+            // Store the combined data
+            const combinedData = {
+              listing_title: combinedTitle,
+              location: `${scan1Data.location || ''} vs ${scan2Data.location || ''}`,
+              scan1: scan1Data,
+              scan2: scan2Data
+            };
             
             // Update the scanData state
             setScanData(prev => ({
               ...prev,
-              [chatId]: scanData
+              [chatId]: combinedData
             }));
             
-            return scanData;
+            return combinedData;
           }
         }
       }
