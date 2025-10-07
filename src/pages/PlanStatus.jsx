@@ -444,7 +444,7 @@ export default function PlanStatus() {
       {/* Edit Profile Modal */}
       {showEditProfile && (
         <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile</h3>
             
             {/* Success Message */}
@@ -540,7 +540,7 @@ export default function PlanStatus() {
       {/* Delete Account Modal */}
       {showDeleteAccount && (
         <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-gradient-to-br from-red-50 via-white to-orange-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Account</h3>
             <p className="text-gray-600 mb-6">
               This will permanently delete your account and all associated data. This action cannot be undone.
@@ -592,7 +592,7 @@ export default function PlanStatus() {
       {/* Contact Support Modal */}
       {showContactModal && (
         <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-gradient-to-br from-green-50 via-white to-blue-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -648,7 +648,7 @@ export default function PlanStatus() {
       {/* Referral Modal */}
       {showReferralModal && (
         <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
