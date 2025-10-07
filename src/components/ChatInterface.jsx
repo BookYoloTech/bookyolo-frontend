@@ -1788,7 +1788,7 @@ const ChatInterface = () => {
             {/* Input Form */}
             <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area">
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-                <div className="flex gap-2 sm:gap-4 px-2 sm:px-0">
+                <div className="flex gap-2 sm:gap-4 px-2 sm:px-4">
                 <textarea
                   ref={inputRef}
                   value={input}
