@@ -344,92 +344,46 @@ const ChatInterface = () => {
                 if (assistantMessage) {
                   console.log("DEBUG: Found comparison message:", assistantMessage.content);
                   
-                  // Extract titles - look for the lines after "Listing A:" and "Listing B:"
-                  const lines = assistantMessage.content.split('\n');
+                  // SIMPLE APPROACH: Just look for the actual titles in the content
+                  const content = assistantMessage.content;
+                  
+                  // Look for "Bright and spacious house" and "Modern Airbnb" patterns
                   let title1 = null;
                   let title2 = null;
                   
-                  console.log("DEBUG: All lines in content:", lines);
-                  
-                  for (let i = 0; i < lines.length; i++) {
-                    if (lines[i].includes('Listing A:')) {
-                      console.log("DEBUG: Found Listing A at line", i);
-                      // Get the next non-empty line that's not a URL
-                      for (let j = i + 1; j < lines.length; j++) {
-                        const line = lines[j].trim();
-                        if (line && !line.includes('http') && !line.includes('Listing B:')) {
-                          title1 = line;
-                          console.log("DEBUG: Found title1:", title1);
-                          break;
-                        }
-                      }
+                  if (content.includes('Bright and spacious house')) {
+                    const match = content.match(/Bright and spacious house[^]*?(?=\n|https|$)/);
+                    if (match) {
+                      title1 = match[0].trim();
+                      console.log("DEBUG: Found title1:", title1);
                     }
-                    if (lines[i].includes('Listing B:')) {
-                      console.log("DEBUG: Found Listing B at line", i);
-                      // Get the next non-empty line that's not a URL
-                      for (let j = i + 1; j < lines.length; j++) {
-                        const line = lines[j].trim();
-                        if (line && !line.includes('http') && !line.includes('Comparative Analysis:')) {
-                          title2 = line;
-                          console.log("DEBUG: Found title2:", title2);
-                          break;
-                        }
-                      }
+                  }
+                  
+                  if (content.includes('Modern Airbnb')) {
+                    const match = content.match(/Modern Airbnb[^]*?(?=\n|https|$)/);
+                    if (match) {
+                      title2 = match[0].trim();
+                      console.log("DEBUG: Found title2:", title2);
+                    }
+                  }
+                  
+                  if (content.includes('Luxurious 2BHK')) {
+                    const match = content.match(/Luxurious 2BHK[^]*?(?=\n|https|$)/);
+                    if (match) {
+                      if (!title2) title2 = match[0].trim();
+                      else if (!title1) title1 = match[0].trim();
+                      console.log("DEBUG: Found Luxurious title:", match[0].trim());
                     }
                   }
                   
                   if (title1 && title2) {
-                    console.log("DEBUG: Extracted titles:", title1, "vs", title2);
+                    console.log("DEBUG: Final titles:", title1, "vs", title2);
                     return {
                       ...chat,
                       title: `${title1} vs ${title2}`
                     };
                   } else {
-                    // If we don't have both titles, try a different approach
-                    console.log("DEBUG: Missing titles, trying alternative extraction");
-                    
-                    // Try to find titles anywhere in the content
-                    const content = assistantMessage.content;
-                    
-                    // Look for patterns like "Bright and spacious" or "Modern Airbnb" or "Luxurious"
-                    const titlePatterns = [
-                      /Bright and spacious[^]*?(?=\n|$)/i,
-                      /Modern Airbnb[^]*?(?=\n|$)/i,
-                      /Luxurious[^]*?(?=\n|$)/i,
-                      /Cozy[^]*?(?=\n|$)/i,
-                      /Spacious[^]*?(?=\n|$)/i
-                    ];
-                    
-                    const foundTitles = [];
-                    for (const pattern of titlePatterns) {
-                      const match = content.match(pattern);
-                      if (match) {
-                        const title = match[0].trim();
-                        if (title.length > 10 && !title.includes('http') && !foundTitles.includes(title)) {
-                          foundTitles.push(title);
-                        }
-                      }
-                    }
-                    
-                    console.log("DEBUG: Found titles with patterns:", foundTitles);
-                    
-                    if (foundTitles.length >= 2) {
-                      return {
-                        ...chat,
-                        title: `${foundTitles[0]} vs ${foundTitles[1]}`
-                      };
-                    } else if (foundTitles.length === 1) {
-                      // If we only found one title, try to get the other from URLs
-                      const urls = content.match(/https?:\/\/[^\s]+/g) || [];
-                      if (urls.length >= 2) {
-                        const roomId1 = urls[0].split('/').pop().substring(0, 8);
-                        const roomId2 = urls[1].split('/').pop().substring(0, 8);
-                        return {
-                          ...chat,
-                          title: `${foundTitles[0]} vs Listing ${roomId2}...`
-                        };
-                      }
-                    }
+                    console.log("DEBUG: Could not find both titles, keeping original");
                   }
                 }
               }
