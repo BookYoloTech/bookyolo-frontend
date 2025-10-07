@@ -782,9 +782,35 @@ const ChatInterface = () => {
         
         const data = await res.json();
         
-        // Set a temporary chat ID for the comparison
-        const tempChatId = `compare-${Date.now()}`;
-        setCurrentChatId(tempChatId);
+        // Save the compare result to the database
+        try {
+          const saveRes = await fetch(`${API_BASE}/save-compare-result`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              scan_a_url: urls[0],
+              scan_b_url: urls[1],
+              answer: data.answer,
+              question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null
+            }),
+          });
+          
+          if (saveRes.ok) {
+            const saveData = await saveRes.json();
+            setCurrentChatId(saveData.chat_id);
+          } else {
+            console.error("Failed to save compare to database:", await saveRes.text());
+            // Still continue with the comparison even if save fails
+            setCurrentChatId(`compare-${Date.now()}`);
+          }
+        } catch (saveError) {
+          console.error("Error saving compare to database:", saveError);
+          // Still continue with the comparison even if save fails
+          setCurrentChatId(`compare-${Date.now()}`);
+        }
         
         // Add assistant response
         const assistantMessage = {
@@ -797,19 +823,6 @@ const ChatInterface = () => {
           }
         };
         setMessages(prev => [...prev, assistantMessage]);
-        
-        // Add compare chat to the chats list for Recent Compares
-        const compareChat = {
-          id: tempChatId,
-          type: 'compare',
-          title: `Compare • ${urls[0]} vs ${urls[1]}`,
-          created_at: new Date().toISOString(),
-          scan1: { listing_url: urls[0], listing_title: null },
-          scan2: { listing_url: urls[1], listing_title: null },
-          result: data.answer
-        };
-        
-        setChats(prev => [compareChat, ...prev]);
         
         await loadUserData(); // Refresh data
       } catch (e) {
@@ -873,15 +886,14 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      const res = await fetch(`${API_BASE}/compare`, {
+      const res = await fetch(`${API_BASE}/chat/new-compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          scan_a_url: scan1.listing_url, 
-          scan_b_url: scan2.listing_url, 
+          listing_urls: [scan1.listing_url, scan2.listing_url], 
           question: question || null 
         }),
       });
@@ -893,9 +905,35 @@ const ChatInterface = () => {
       
        const data = await res.json();
        
-       // Set a temporary chat ID for the comparison
-       const tempChatId = `compare-${Date.now()}`;
-       setCurrentChatId(tempChatId);
+       // Save the compare result to the database
+       try {
+         const saveRes = await fetch(`${API_BASE}/save-compare-result`, {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+             Authorization: `Bearer ${token}`,
+           },
+           body: JSON.stringify({
+             scan_a_url: scan1.listing_url,
+             scan_b_url: scan2.listing_url,
+             answer: data.answer,
+             question: question || null
+           }),
+         });
+         
+         if (saveRes.ok) {
+           const saveData = await saveRes.json();
+           setCurrentChatId(saveData.chat_id);
+         } else {
+           console.error("Failed to save compare to database:", await saveRes.text());
+           // Still continue with the comparison even if save fails
+           setCurrentChatId(`compare-${Date.now()}`);
+         }
+       } catch (saveError) {
+         console.error("Error saving compare to database:", saveError);
+         // Still continue with the comparison even if save fails
+         setCurrentChatId(`compare-${Date.now()}`);
+       }
        
        // Add assistant response
        const assistantMessage = {
@@ -913,26 +951,21 @@ const ChatInterface = () => {
        };
        setMessages(prev => [...prev, followUpMessage]);
        
-       // Add compare chat to the chats list for Recent Compares
-       const compareChat = {
-         id: tempChatId,
-         type: 'compare',
-         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
-         created_at: new Date().toISOString(),
-         scan1: scan1,
-         scan2: scan2,
-         result: data.answer
-       };
-       
-       setChats(prev => [compareChat, ...prev]);
-       
-       // Refresh user data to update scan count
+       // Refresh user data and chats from database
        const refreshToken = localStorage.getItem("by_token");
-       const r1 = await fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } });
+       const [r1, r2] = await Promise.all([
+         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
+       ]);
        
        if (r1.ok) {
          const userData = await r1.json();
          setMe(userData);
+       }
+       
+       if (r2.ok) {
+         const chatsData = await r2.json();
+         setChats(chatsData);
        }
     } catch (e) {
       setError(e.message || String(e));
