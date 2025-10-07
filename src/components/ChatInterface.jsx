@@ -782,8 +782,9 @@ const ChatInterface = () => {
         
         const data = await res.json();
         
-        // Set the current chat ID from the database response
-        setCurrentChatId(data.chat_id);
+        // Create a temporary chat ID for the comparison
+        const tempChatId = `compare-${Date.now()}`;
+        setCurrentChatId(tempChatId);
         
         // Add assistant response
         const assistantMessage = {
@@ -796,6 +797,19 @@ const ChatInterface = () => {
           }
         };
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Add compare chat to the chats list for Recent Compares
+        const compareChat = {
+          id: tempChatId,
+          type: 'compare',
+          title: `Compare • ${urls[0]} vs ${urls[1]}`,
+          created_at: new Date().toISOString(),
+          scan1: { listing_url: urls[0], listing_title: null },
+          scan2: { listing_url: urls[1], listing_title: null },
+          result: data.answer
+        };
+        
+        setChats(prev => [compareChat, ...prev]);
         
         await loadUserData(); // Refresh data
       } catch (e) {
@@ -879,8 +893,9 @@ const ChatInterface = () => {
       
        const data = await res.json();
        
-       // Set the current chat ID from the database response
-       setCurrentChatId(data.chat_id);
+       // Create a temporary chat ID for the comparison
+       const tempChatId = `compare-${Date.now()}`;
+       setCurrentChatId(tempChatId);
        
        // Add assistant response
        const assistantMessage = {
@@ -898,21 +913,26 @@ const ChatInterface = () => {
        };
        setMessages(prev => [...prev, followUpMessage]);
        
-       // Refresh user data and chats from database
+       // Add compare chat to the chats list for Recent Compares
+       const compareChat = {
+         id: tempChatId,
+         type: 'compare',
+         title: `Compare • ${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
+         created_at: new Date().toISOString(),
+         scan1: scan1,
+         scan2: scan2,
+         result: data.answer
+       };
+       
+       setChats(prev => [compareChat, ...prev]);
+       
+       // Refresh user data to update scan count
        const refreshToken = localStorage.getItem("by_token");
-       const [r1, r2] = await Promise.all([
-         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
-         fetch(`${API_BASE}/chats`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
-       ]);
+       const r1 = await fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } });
        
        if (r1.ok) {
          const userData = await r1.json();
          setMe(userData);
-       }
-       
-       if (r2.ok) {
-         const chatsData = await r2.json();
-         setChats(chatsData);
        }
     } catch (e) {
       setError(e.message || String(e));
