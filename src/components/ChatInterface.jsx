@@ -320,42 +320,87 @@ const ChatInterface = () => {
         
         // Process compare chats to fetch actual titles
         const processedChats = await Promise.all(chatsData.map(async (chat) => {
-          if (chat.type === 'compare' && chat.scan_ids && chat.scan_ids.length >= 2) {
+          if (chat.type === 'compare') {
             try {
-              console.log("DEBUG: Processing compare chat:", chat.id, "with scan_ids:", chat.scan_ids);
+              console.log("DEBUG: Processing compare chat:", chat.id, "with title:", chat.title);
               
-              // Fetch scan data for both scans to get actual titles
-              const [scan1Res, scan2Res] = await Promise.all([
-                fetch(`${API_BASE}/scan/${chat.scan_ids[0]}`, {
-                  headers: { Authorization: `Bearer ${token}` }
-                }),
-                fetch(`${API_BASE}/scan/${chat.scan_ids[1]}`, {
-                  headers: { Authorization: `Bearer ${token}` }
-                })
-              ]);
-              
-              if (scan1Res.ok && scan2Res.ok) {
-                const scan1Data = await scan1Res.json();
-                const scan2Data = await scan2Res.json();
+              // First try to get titles from scan_ids if available
+              if (chat.scan_ids && chat.scan_ids.length >= 2) {
+                console.log("DEBUG: Trying to fetch from scan_ids:", chat.scan_ids);
                 
-                console.log("DEBUG: Scan1 data:", scan1Data);
-                console.log("DEBUG: Scan2 data:", scan2Data);
+                const [scan1Res, scan2Res] = await Promise.all([
+                  fetch(`${API_BASE}/scan/${chat.scan_ids[0]}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  }),
+                  fetch(`${API_BASE}/scan/${chat.scan_ids[1]}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  })
+                ]);
                 
-                // Update the title with actual listing titles
-                const title1 = scan1Data.listing_title || `Listing ${scan1Data.listing_url.split('/').pop().substring(0, 8)}...`;
-                const title2 = scan2Data.listing_title || `Listing ${scan2Data.listing_url.split('/').pop().substring(0, 8)}...`;
-                
-                console.log("DEBUG: Updated compare title:", `${title1} vs ${title2}`);
-                
-                return {
-                  ...chat,
-                  title: `${title1} vs ${title2}`
-                };
-              } else {
-                console.log("DEBUG: Failed to fetch scan data for compare chat:", scan1Res.status, scan2Res.status);
+                if (scan1Res.ok && scan2Res.ok) {
+                  const scan1Data = await scan1Res.json();
+                  const scan2Data = await scan2Res.json();
+                  
+                  console.log("DEBUG: Scan1 data:", scan1Data);
+                  console.log("DEBUG: Scan2 data:", scan2Data);
+                  
+                  // Update the title with actual listing titles
+                  const title1 = scan1Data.listing_title || `Listing ${scan1Data.listing_url.split('/').pop().substring(0, 8)}...`;
+                  const title2 = scan2Data.listing_title || `Listing ${scan2Data.listing_url.split('/').pop().substring(0, 8)}...`;
+                  
+                  console.log("DEBUG: Updated compare title from scan_ids:", `${title1} vs ${title2}`);
+                  
+                  return {
+                    ...chat,
+                    title: `${title1} vs ${title2}`
+                  };
+                } else {
+                  console.log("DEBUG: Failed to fetch scan data for compare chat:", scan1Res.status, scan2Res.status);
+                }
               }
+              
+              // Fallback: Try to extract titles from the comparison content
+              console.log("DEBUG: Trying to extract titles from comparison content");
+              
+              // Fetch the chat messages to get the comparison content
+              const chatRes = await fetch(`${API_BASE}/chat/${chat.id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              
+              if (chatRes.ok) {
+                const chatData = await chatRes.json();
+                console.log("DEBUG: Chat data:", chatData);
+                
+                // Look for assistant messages with comparison content
+                const assistantMessages = chatData.messages.filter(msg => msg.role === 'assistant');
+                console.log("DEBUG: Assistant messages:", assistantMessages);
+                
+                for (const msg of assistantMessages) {
+                  if (msg.content && msg.content.includes('Listing A:') && msg.content.includes('Listing B:')) {
+                    console.log("DEBUG: Found comparison content:", msg.content);
+                    
+                    // Extract titles using pattern matching
+                    const listingAMatch = msg.content.match(/Listing A:\s*\n([^\n]+)/);
+                    const listingBMatch = msg.content.match(/Listing B:\s*\n([^\n]+)/);
+                    
+                    if (listingAMatch && listingBMatch) {
+                      const title1 = listingAMatch[1].trim();
+                      const title2 = listingBMatch[1].trim();
+                      
+                      console.log("DEBUG: Extracted titles from content:", title1, title2);
+                      
+                      return {
+                        ...chat,
+                        title: `${title1} vs ${title2}`
+                      };
+                    }
+                  }
+                }
+              }
+              
+              console.log("DEBUG: Could not extract titles, keeping original title:", chat.title);
             } catch (e) {
-              console.error('Failed to fetch scan data for compare chat:', e);
+              console.error('Failed to process compare chat:', e);
             }
           }
           return chat;
