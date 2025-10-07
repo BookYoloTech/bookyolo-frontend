@@ -224,8 +224,8 @@ export default function PlanStatus() {
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
           <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={() => navigate('/')}
+          <button
+            onClick={() => navigate('/')}
               className="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
           >
             Back to Home
@@ -242,7 +242,7 @@ export default function PlanStatus() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <button
+          <button 
             onClick={() => navigate('/scan')}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer"
           >
@@ -250,12 +250,12 @@ export default function PlanStatus() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <button 
-            onClick={handleLogout}
+            <button 
+              onClick={handleLogout}
             className="text-sm text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
-          >
-            Logout
-          </button>
+            >
+              Logout
+            </button>
         </div>
       </header>
 
@@ -263,25 +263,25 @@ export default function PlanStatus() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Account Header */}
-          <div className="text-center mb-8">
+            <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl font-bold text-white">
                 {user?.user?.full_name ? user.user.full_name.charAt(0).toUpperCase() : 'U'}
               </span>
-            </div>
+              </div>
             {user?.user?.full_name && (
               <p className="text-lg font-bold text-gray-800 mt-2">{user.user.full_name}</p>
             )}
             {user?.user?.email && (
               <p className="text-sm text-gray-600 mt-1">{user.user.email}</p>
             )}
-          </div>
+            </div>
 
           {/* Current Plan & Scan Balance */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Plan & Usage</h2>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center">
                 <span className="text-gray-600">Plan</span>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   isPremium 
@@ -289,28 +289,28 @@ export default function PlanStatus() {
                     : 'bg-gray-100 text-gray-800'
                 }`}>
                   {isPremium ? 'BookYolo Premium' : 'BookYolo Free'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
                 <span className="text-gray-600">Remaining Scans</span>
                 <span className={`font-semibold ${(user?.remaining || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {user?.remaining || 0}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
                 <span className="text-gray-600">Total Scans Used</span>
                 <span className="font-semibold text-gray-900">{user?.used || 0}</span>
-              </div>
-              {isPremium && user?.subscription_expires && (
-                <div className="flex justify-between items-center">
+                  </div>
+                  {isPremium && user?.subscription_expires && (
+                    <div className="flex justify-between items-center">
                   <span className="text-gray-600">Expires</span>
-                  <span className="font-semibold text-gray-900">
-                    {new Date(user.subscription_expires).toLocaleDateString()}
-                  </span>
+                      <span className="font-semibold text-gray-900">
+                        {new Date(user.subscription_expires).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
           {/* Action Buttons */}
           <div className="space-y-4">
@@ -340,7 +340,7 @@ export default function PlanStatus() {
                     </div>
                     <div className="text-sm font-normal opacity-90">
                       300 extra scans per year for $20/year
-                    </div>
+                </div>
                   </>
                 )}
               </button>
@@ -400,7 +400,7 @@ export default function PlanStatus() {
               </svg>
               Delete Account
             </button>
-          </div>
+              </div>
 
           {/* Legal Links */}
           <div className="mt-8 pt-6 border-t border-gray-200">
@@ -429,22 +429,22 @@ export default function PlanStatus() {
               >
                 Cookie Policy
               </a>
-            </div>
+                  </div>
             
             {/* Disclaimer */}
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500 leading-relaxed max-w-2xl mx-auto">
                 BookYolo is an Independent AI Engine that analyzes public vacation rental, hotel and hospitality listing information. We are not affiliated with, endorsed by or sponsored by any online travel agency. All trademarks remain the property of their respective owners. BookYolo does not guarantee booking outcomes. Always double-check before booking.
               </p>
-            </div>
-          </div>
-        </div>
-      </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
 
       {/* Edit Profile Modal */}
       {showEditProfile && (
-        <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile</h3>
             
             {/* Success Message */}
@@ -524,13 +524,13 @@ export default function PlanStatus() {
                 >
                   Cancel
                 </button>
-                <button
+                  <button
                   type="submit"
                   disabled={editProfileLoading}
                   className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
+                  >
                   {editProfileLoading ? 'Saving...' : 'Save Changes'}
-                </button>
+                  </button>
               </div>
             </form>
           </div>
@@ -539,8 +539,8 @@ export default function PlanStatus() {
 
       {/* Delete Account Modal */}
       {showDeleteAccount && (
-        <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-gradient-to-br from-red-50 via-white to-orange-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
+        <div className="fixed inset-0 bg-gradient-to-br from-red-100 via-orange-50 to-yellow-100 bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Account</h3>
             <p className="text-gray-600 mb-6">
               This will permanently delete your account and all associated data. This action cannot be undone.
@@ -567,7 +567,7 @@ export default function PlanStatus() {
             </div>
             
             <div className="flex gap-3">
-              <button
+                <button
                 onClick={() => {
                   setShowDeleteAccount(false);
                   setDeleteAccountError('');
@@ -576,23 +576,23 @@ export default function PlanStatus() {
                 className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
               >
                 Cancel
-              </button>
-              <button
+                </button>
+                <button
                 onClick={handleDeleteAccount}
                 disabled={deleteAccountLoading || deleteConfirmText !== 'DELETE'}
                 className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
+                >
                 {deleteAccountLoading ? 'Deleting...' : 'Delete Account'}
-              </button>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
       )}
 
       {/* Contact Support Modal */}
       {showContactModal && (
-        <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-gradient-to-br from-green-50 via-white to-blue-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
+        <div className="fixed inset-0 bg-gradient-to-br from-green-100 via-blue-50 to-cyan-100 bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -647,8 +647,8 @@ export default function PlanStatus() {
 
       {/* Referral Modal */}
       {showReferralModal && (
-        <div className="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-gradient-to-br from-purple-50 via-white to-pink-50 rounded-xl p-6 w-full max-w-md shadow-xl border border-gray-100">
+        <div className="fixed inset-0 bg-gradient-to-br from-purple-100 via-pink-50 to-rose-100 bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -722,8 +722,8 @@ export default function PlanStatus() {
                     </svg>
                     Email
                   </a>
-                </div>
-              </div>
+        </div>
+      </div>
             </div>
 
             <button
