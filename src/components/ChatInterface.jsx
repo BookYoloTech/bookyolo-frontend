@@ -906,6 +906,7 @@ const ChatInterface = () => {
        
        // Save the compare result to the database
        try {
+         console.log("DEBUG: Saving compare to database with URLs:", scan1.listing_url, scan2.listing_url);
          const saveRes = await fetch(`${API_BASE}/save-compare`, {
            method: "POST",
            headers: {
@@ -920,11 +921,14 @@ const ChatInterface = () => {
            }),
          });
          
+         console.log("DEBUG: Save compare response status:", saveRes.status);
          if (saveRes.ok) {
            const saveData = await saveRes.json();
+           console.log("DEBUG: Save compare response data:", saveData);
            setCurrentChatId(saveData.chat_id);
          } else {
-           console.error("Failed to save compare to database:", await saveRes.text());
+           const errorText = await saveRes.text();
+           console.error("Failed to save compare to database:", errorText);
            setCurrentChatId(`compare-${Date.now()}`);
          }
        } catch (saveError) {
