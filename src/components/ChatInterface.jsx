@@ -517,38 +517,39 @@ const ChatInterface = () => {
                   title2 = `Listing ${roomId2.substring(0, 8)}...`;
                   console.log("DEBUG: Using fallback titles:", title1, title2);
                   
-                  // Fetch actual titles asynchronously
+                  // Fetch actual titles asynchronously using the correct endpoint
                   const token = localStorage.getItem("by_token");
-                  Promise.all([
-                    fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[0])}`, {
-                      headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[1])}`, {
-                      headers: { Authorization: `Bearer ${token}` }
-                    })
-                  ]).then(async ([scan1Res, scan2Res]) => {
-                    console.log("DEBUG: Scan1 response status:", scan1Res.status);
-                    console.log("DEBUG: Scan2 response status:", scan2Res.status);
+                  
+                  // First, get all scans for the user
+                  fetch(`${API_BASE}/scans`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  }).then(async (scansRes) => {
+                    if (!scansRes.ok) {
+                      console.log("DEBUG: Failed to fetch scans:", scansRes.status);
+                      return;
+                    }
+                    
+                    const allScans = await scansRes.json();
+                    console.log("DEBUG: All scans:", allScans);
+                    
+                    // Find scans that match our URLs
+                    const scan1 = allScans.find(scan => scan.listing_url === urls[0]);
+                    const scan2 = allScans.find(scan => scan.listing_url === urls[1]);
+                    
+                    console.log("DEBUG: Found scan1:", scan1);
+                    console.log("DEBUG: Found scan2:", scan2);
                     
                     let newTitle1 = title1;
                     let newTitle2 = title2;
                     
-                    if (scan1Res.ok) {
-                      const scan1Data = await scan1Res.json();
-                      console.log("DEBUG: Scan1 data:", scan1Data);
-                      if (scan1Data.length > 0 && scan1Data[0].listing_title) {
-                        newTitle1 = scan1Data[0].listing_title;
-                        console.log("DEBUG: Updated title1 from database:", newTitle1);
-                      }
+                    if (scan1 && scan1.listing_title) {
+                      newTitle1 = scan1.listing_title;
+                      console.log("DEBUG: Updated title1 from database:", newTitle1);
                     }
                     
-                    if (scan2Res.ok) {
-                      const scan2Data = await scan2Res.json();
-                      console.log("DEBUG: Scan2 data:", scan2Data);
-                      if (scan2Data.length > 0 && scan2Data[0].listing_title) {
-                        newTitle2 = scan2Data[0].listing_title;
-                        console.log("DEBUG: Updated title2 from database:", newTitle2);
-                      }
+                    if (scan2 && scan2.listing_title) {
+                      newTitle2 = scan2.listing_title;
+                      console.log("DEBUG: Updated title2 from database:", newTitle2);
                     }
                     
                     // Update the message with the new titles
@@ -568,7 +569,7 @@ const ChatInterface = () => {
                       })
                     );
                   }).catch(e => {
-                    console.error('Failed to fetch scan titles:', e);
+                    console.error('Failed to fetch scans:', e);
                   });
                 }
                 
