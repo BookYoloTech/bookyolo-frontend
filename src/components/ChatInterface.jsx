@@ -256,47 +256,7 @@ const ChatInterface = () => {
     loadUserData();
   }, [navigate]);
 
-  // Additional check for compare chats on mount (Edge compatibility)
-  useEffect(() => {
-    const checkCompareChats = () => {
-      try {
-        // Test localStorage functionality
-        console.log("DEBUG: Testing localStorage functionality...");
-        const testKey = 'bookyolo_test';
-        const testValue = 'test_value_' + Date.now();
-        localStorage.setItem(testKey, testValue);
-        const retrievedValue = localStorage.getItem(testKey);
-        console.log("DEBUG: localStorage test - stored:", testValue, "retrieved:", retrievedValue);
-        localStorage.removeItem(testKey);
-        
-        const compareChatsData = localStorage.getItem('compare_chats');
-        console.log("DEBUG: Additional check - compare chats data:", compareChatsData);
-        if (compareChatsData) {
-          const compareChats = JSON.parse(compareChatsData);
-          console.log("DEBUG: Additional check - compare chats found:", compareChats);
-          if (compareChats.length > 0) {
-            setChats(prev => {
-              const existingCompareIds = prev.filter(chat => chat.type === 'compare').map(chat => chat.id);
-              const newCompareChats = compareChats.filter(chat => !existingCompareIds.includes(chat.id));
-              if (newCompareChats.length > 0) {
-                console.log("DEBUG: Adding missing compare chats:", newCompareChats);
-                return [...newCompareChats, ...prev];
-              }
-              return prev;
-            });
-          }
-        } else {
-          console.log("DEBUG: No compare chats data found in localStorage");
-        }
-      } catch (error) {
-        console.error("DEBUG: Error in additional compare chats check:", error);
-      }
-    };
-
-    // Run check after a short delay to ensure component is fully mounted
-    const timeoutId = setTimeout(checkCompareChats, 1000);
-    return () => clearTimeout(timeoutId);
-  }, []);
+  // No longer needed - compares are now stored in database
 
   // Smooth progress for scan
   useEffect(() => {
@@ -335,22 +295,8 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        // Load compare chats from localStorage with Edge compatibility
-        let savedCompareChats = [];
-        try {
-          const compareChatsData = localStorage.getItem('compare_chats');
-          console.log("DEBUG: Raw compare chats data from localStorage:", compareChatsData);
-          savedCompareChats = compareChatsData ? JSON.parse(compareChatsData) : [];
-          console.log("DEBUG: Parsed compare chats from localStorage:", savedCompareChats);
-        } catch (error) {
-          console.error("DEBUG: Error parsing compare chats from localStorage:", error);
-          // Clear corrupted data
-          localStorage.removeItem('compare_chats');
-          savedCompareChats = [];
-        }
-        
-        // Combine saved compare chats with database chats
-        setChats([...savedCompareChats, ...chatsData]);
+        // Use database chats directly (includes both scans and compares)
+        setChats(chatsData);
         
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
@@ -783,15 +729,14 @@ const ChatInterface = () => {
 
       try {
         const token = localStorage.getItem("by_token");
-        const res = await fetch(`${API_BASE}/compare`, {
+        const res = await fetch(`${API_BASE}/chat/new-compare`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ 
-            scan_a_url: urls[0], 
-            scan_b_url: urls[1], 
+            listing_urls: urls, 
             question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null 
           }),
         });
@@ -802,6 +747,9 @@ const ChatInterface = () => {
         }
         
         const data = await res.json();
+        
+        // Set the current chat ID from the database response
+        setCurrentChatId(data.chat_id);
         
         // Add assistant response
         const assistantMessage = {
@@ -877,15 +825,14 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      const res = await fetch(`${API_BASE}/compare`, {
+      const res = await fetch(`${API_BASE}/chat/new-compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          scan_a_url: scan1.listing_url, 
-          scan_b_url: scan2.listing_url, 
+          listing_urls: [scan1.listing_url, scan2.listing_url], 
           question: question || null 
         }),
       });
@@ -897,20 +844,8 @@ const ChatInterface = () => {
       
        const data = await res.json();
        
-       // Create a compare chat entry for Recent Compares sidebar
-       const compareChat = {
-         id: `compare-${Date.now()}`, // Generate unique ID
-         type: 'compare',
-         title: `${scan1.listing_title || scan1.location} vs ${scan2.listing_title || scan2.location}`,
-         created_at: new Date().toISOString(),
-         scan1: scan1,
-         scan2: scan2,
-         result: data.answer
-       };
-       console.log("DEBUG: Created compare chat:", compareChat);
-       
-       // Set the current chat ID to the compare chat so follow-up questions work
-       setCurrentChatId(compareChat.id);
+       // Set the current chat ID from the database response
+       setCurrentChatId(data.chat_id);
        
        // Add assistant response
        const assistantMessage = {
@@ -928,35 +863,7 @@ const ChatInterface = () => {
        };
        setMessages(prev => [...prev, followUpMessage]);
        
-       // Add to chats state - same as Recent Scans
-       setChats(prev => {
-         console.log("DEBUG: Previous chats before adding compare:", prev);
-         const newChats = [compareChat, ...prev];
-         console.log("DEBUG: New chats after adding compare:", newChats);
-         
-        // Save compare chats to localStorage for persistence with Edge compatibility
-        const compareChats = newChats.filter(chat => 
-          chat.type === 'compare' && chat.id.startsWith('compare-')
-        );
-        try {
-          localStorage.setItem('compare_chats', JSON.stringify(compareChats));
-          console.log("DEBUG: Saved compare chats to localStorage:", compareChats);
-        } catch (error) {
-          console.error("DEBUG: Error saving compare chats to localStorage:", error);
-          // Edge might have storage quota issues, try to clear old data
-          try {
-            localStorage.removeItem('compare_chats');
-            localStorage.setItem('compare_chats', JSON.stringify(compareChats));
-            console.log("DEBUG: Retried saving compare chats after clearing old data");
-          } catch (retryError) {
-            console.error("DEBUG: Failed to save compare chats even after retry:", retryError);
-          }
-        }
-         
-         return newChats;
-       });
-       
-       // Refresh user data to update scan count (but preserve the compare chat we just added)
+       // Refresh user data and chats from database
        const refreshToken = localStorage.getItem("by_token");
        const [r1, r2] = await Promise.all([
          fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${refreshToken}` } }),
@@ -970,9 +877,7 @@ const ChatInterface = () => {
        
        if (r2.ok) {
          const chatsData = await r2.json();
-         // Load compare chats from localStorage and combine with database chats
-         const savedCompareChats = JSON.parse(localStorage.getItem('compare_chats') || '[]');
-         setChats([...savedCompareChats, ...chatsData]);
+         setChats(chatsData);
        }
     } catch (e) {
       setError(e.message || String(e));
