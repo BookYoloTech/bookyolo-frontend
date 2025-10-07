@@ -492,14 +492,58 @@ const ChatInterface = () => {
               const urlRegex = /https?:\/\/[^\s]+/g;
               const urls = msg.content.match(urlRegex) || [];
               if (urls.length >= 2) {
+                // Try to get titles from the content, fallback to fetching from database
+                let title1 = msg.content.split('Listing A:')[1]?.split('\n')[1]?.trim() || 'Title not available';
+                let title2 = msg.content.split('Listing B:')[1]?.split('\n')[1]?.trim() || 'Title not available';
+                
+                // If titles are still generic, try to fetch from database
+                if (title1 === 'Title not available' || title1.startsWith('Listing ')) {
+                  // Try to fetch actual titles from the database
+                  try {
+                    const token = localStorage.getItem("by_token");
+                    const [scan1Res, scan2Res] = await Promise.all([
+                      fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[0])}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                      }),
+                      fetch(`${API_BASE}/scans?url=${encodeURIComponent(urls[1])}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                      })
+                    ]);
+                    
+                    if (scan1Res.ok) {
+                      const scan1Data = await scan1Res.json();
+                      if (scan1Data.length > 0 && scan1Data[0].listing_title) {
+                        title1 = scan1Data[0].listing_title;
+                      }
+                    }
+                    
+                    if (scan2Res.ok) {
+                      const scan2Data = await scan2Res.json();
+                      if (scan2Data.length > 0 && scan2Data[0].listing_title) {
+                        title2 = scan2Data[0].listing_title;
+                      }
+                    }
+                  } catch (e) {
+                    console.error('Failed to fetch scan titles:', e);
+                  }
+                  
+                  // Fallback if still no titles
+                  if (title1 === 'Title not available' || title1.startsWith('Listing ')) {
+                    const roomId1 = urls[0].split('/').pop();
+                    const roomId2 = urls[1].split('/').pop();
+                    title1 = `Listing ${roomId1.substring(0, 8)}...`;
+                    title2 = `Listing ${roomId2.substring(0, 8)}...`;
+                  }
+                }
+                
                 message.comparedScans = {
                   scan1: { 
                     listing_url: urls[0],
-                    listing_title: msg.content.split('Listing A:')[1]?.split('\n')[1]?.trim() || 'Title not available'
+                    listing_title: title1
                   },
                   scan2: { 
                     listing_url: urls[1],
-                    listing_title: msg.content.split('Listing B:')[1]?.split('\n')[1]?.trim() || 'Title not available'
+                    listing_title: title2
                   }
                 };
                 
@@ -514,6 +558,23 @@ const ChatInterface = () => {
           
           return message;
         });
+        
+        // For compare chats, ensure we have the follow-up message
+        if (data.chat.type === 'compare') {
+          const hasFollowUpMessage = processedMessages.some(msg => 
+            msg.role === 'assistant' && 
+            msg.content.includes('Do you have any questions about this comparison')
+          );
+          
+          if (!hasFollowUpMessage) {
+            // Add the follow-up message
+            processedMessages.push({
+              role: 'assistant',
+              content: 'Do you have any questions about this comparison? Feel free to ask anything...',
+              timestamp: new Date().toISOString()
+            });
+          }
+        }
         
         setMessages(processedMessages);
         
