@@ -520,8 +520,8 @@ const ChatInterface = () => {
                   // Fetch actual titles asynchronously using the correct endpoint
                   const token = localStorage.getItem("by_token");
                   
-                  // First, get all scans for the user
-                  fetch(`${API_BASE}/scans`, {
+                  // First, get all scans for the user to find scan IDs
+                  fetch(`${API_BASE}/my-scans`, {
                     headers: { Authorization: `Bearer ${token}` }
                   }).then(async (scansRes) => {
                     if (!scansRes.ok) {
@@ -539,35 +539,55 @@ const ChatInterface = () => {
                     console.log("DEBUG: Found scan1:", scan1);
                     console.log("DEBUG: Found scan2:", scan2);
                     
-                    let newTitle1 = title1;
-                    let newTitle2 = title2;
-                    
-                    if (scan1 && scan1.listing_title) {
-                      newTitle1 = scan1.listing_title;
-                      console.log("DEBUG: Updated title1 from database:", newTitle1);
-                    }
-                    
-                    if (scan2 && scan2.listing_title) {
-                      newTitle2 = scan2.listing_title;
-                      console.log("DEBUG: Updated title2 from database:", newTitle2);
-                    }
-                    
-                    // Update the message with the new titles
-                    setMessages(prevMessages => 
-                      prevMessages.map(msg => {
-                        if (msg === message) {
-                          return {
-                            ...msg,
-                            comparedScans: {
-                              ...msg.comparedScans,
-                              scan1: { ...msg.comparedScans.scan1, listing_title: newTitle1 },
-                              scan2: { ...msg.comparedScans.scan2, listing_title: newTitle2 }
-                            }
-                          };
+                    if (scan1 && scan2) {
+                      // Fetch full scan data for both scans
+                      const [scan1Res, scan2Res] = await Promise.all([
+                        fetch(`${API_BASE}/scan/${scan1.id}`, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        }),
+                        fetch(`${API_BASE}/scan/${scan2.id}`, {
+                          headers: { Authorization: `Bearer ${token}` }
+                        })
+                      ]);
+                      
+                      let newTitle1 = title1;
+                      let newTitle2 = title2;
+                      
+                      if (scan1Res.ok) {
+                        const scan1Data = await scan1Res.json();
+                        console.log("DEBUG: Scan1 full data:", scan1Data);
+                        if (scan1Data.listing_title) {
+                          newTitle1 = scan1Data.listing_title;
+                          console.log("DEBUG: Updated title1 from database:", newTitle1);
                         }
-                        return msg;
-                      })
-                    );
+                      }
+                      
+                      if (scan2Res.ok) {
+                        const scan2Data = await scan2Res.json();
+                        console.log("DEBUG: Scan2 full data:", scan2Data);
+                        if (scan2Data.listing_title) {
+                          newTitle2 = scan2Data.listing_title;
+                          console.log("DEBUG: Updated title2 from database:", newTitle2);
+                        }
+                      }
+                      
+                      // Update the message with the new titles
+                      setMessages(prevMessages => 
+                        prevMessages.map(msg => {
+                          if (msg === message) {
+                            return {
+                              ...msg,
+                              comparedScans: {
+                                ...msg.comparedScans,
+                                scan1: { ...msg.comparedScans.scan1, listing_title: newTitle1 },
+                                scan2: { ...msg.comparedScans.scan2, listing_title: newTitle2 }
+                              }
+                            };
+                          }
+                          return msg;
+                        })
+                      );
+                    }
                   }).catch(e => {
                     console.error('Failed to fetch scans:', e);
                   });
