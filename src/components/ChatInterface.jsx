@@ -729,14 +729,15 @@ const ChatInterface = () => {
 
       try {
         const token = localStorage.getItem("by_token");
-        const res = await fetch(`${API_BASE}/chat/new-compare`, {
+        const res = await fetch(`${API_BASE}/compare`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ 
-            listing_urls: urls, 
+            scan_a_url: urls[0], 
+            scan_b_url: urls[1], 
             question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null 
           }),
         });
@@ -748,8 +749,35 @@ const ChatInterface = () => {
         
         const data = await res.json();
         
-        // Set the current chat ID from the database response
-        setCurrentChatId(data.chat_id);
+        // Save the compare result to the database
+        try {
+          const saveRes = await fetch(`${API_BASE}/save-compare`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              scan_a_url: urls[0],
+              scan_b_url: urls[1],
+              answer: data.answer,
+              question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null
+            }),
+          });
+          
+          if (saveRes.ok) {
+            const saveData = await saveRes.json();
+            setCurrentChatId(saveData.chat_id);
+          } else {
+            console.error("Failed to save compare to database:", await saveRes.text());
+            // Still continue with the comparison even if save fails
+            setCurrentChatId(`compare-${Date.now()}`);
+          }
+        } catch (saveError) {
+          console.error("Error saving compare to database:", saveError);
+          // Still continue with the comparison even if save fails
+          setCurrentChatId(`compare-${Date.now()}`);
+        }
         
         // Add assistant response
         const assistantMessage = {
@@ -825,14 +853,15 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      const res = await fetch(`${API_BASE}/chat/new-compare`, {
+      const res = await fetch(`${API_BASE}/compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          listing_urls: [scan1.listing_url, scan2.listing_url], 
+          scan_a_url: scan1.listing_url, 
+          scan_b_url: scan2.listing_url, 
           question: question || null 
         }),
       });
@@ -844,8 +873,35 @@ const ChatInterface = () => {
       
        const data = await res.json();
        
-       // Set the current chat ID from the database response
-       setCurrentChatId(data.chat_id);
+       // Save the compare result to the database
+       try {
+         const saveRes = await fetch(`${API_BASE}/save-compare`, {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+             Authorization: `Bearer ${token}`,
+           },
+           body: JSON.stringify({
+             scan_a_url: scan1.listing_url,
+             scan_b_url: scan2.listing_url,
+             answer: data.answer,
+             question: question || null
+           }),
+         });
+         
+         if (saveRes.ok) {
+           const saveData = await saveRes.json();
+           setCurrentChatId(saveData.chat_id);
+         } else {
+           console.error("Failed to save compare to database:", await saveRes.text());
+           // Still continue with the comparison even if save fails
+           setCurrentChatId(`compare-${Date.now()}`);
+         }
+       } catch (saveError) {
+         console.error("Error saving compare to database:", saveError);
+         // Still continue with the comparison even if save fails
+         setCurrentChatId(`compare-${Date.now()}`);
+       }
        
        // Add assistant response
        const assistantMessage = {
