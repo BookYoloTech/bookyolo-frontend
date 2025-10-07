@@ -399,6 +399,33 @@ const ChatInterface = () => {
           }
         }
         
+        // If it's a compare chat, fetch the scan data for both scans
+        let compareScanData = null;
+        if (data.chat.type === 'compare' && data.chat.scan_ids && data.chat.scan_ids.length >= 2) {
+          try {
+            console.log("DEBUG: loadChat - fetching compare scan data for scan_ids:", data.chat.scan_ids);
+            const [scan1Res, scan2Res] = await Promise.all([
+              fetch(`${API_BASE}/scan/${data.chat.scan_ids[0]}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              }),
+              fetch(`${API_BASE}/scan/${data.chat.scan_ids[1]}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              })
+            ]);
+            
+            if (scan1Res.ok && scan2Res.ok) {
+              const scan1Data = await scan1Res.json();
+              const scan2Data = await scan2Res.json();
+              compareScanData = { scan1: scan1Data, scan2: scan2Data };
+              console.log("DEBUG: loadChat - Compare scan data received:", compareScanData);
+            } else {
+              console.error("DEBUG: loadChat - Failed to load compare scan data");
+            }
+          } catch (e) {
+            console.error("Failed to load compare scan data:", e);
+          }
+        }
+        
         // Process messages and add scan data to the first assistant message if it's a scan chat
         const processedMessages = data.messages.map((msg, index) => {
           const message = {
@@ -424,6 +451,12 @@ const ChatInterface = () => {
           // If this is the first assistant message in a scan chat, attach scan data
           if (msg.role === 'assistant' && index === 0 && scanData && data.chat.type === 'scan') {
             message.scanData = scanData;
+          }
+          
+          // If this is an assistant message in a compare chat, attach compare scan data
+          if (msg.role === 'assistant' && compareScanData && data.chat.type === 'compare') {
+            message.isComparison = true;
+            message.comparedScans = compareScanData;
           }
           
           return message;
