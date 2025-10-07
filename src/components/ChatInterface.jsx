@@ -907,6 +907,7 @@ const ChatInterface = () => {
        const data = await res.json();
        
        // Save the compare result to the database
+       console.log("DEBUG: Attempting to save compare to database...");
        try {
          const saveRes = await fetch(`${API_BASE}/save-compare-result`, {
            method: "POST",
@@ -922,16 +923,19 @@ const ChatInterface = () => {
            }),
          });
          
+         console.log("DEBUG: Save compare response status:", saveRes.status);
          if (saveRes.ok) {
            const saveData = await saveRes.json();
+           console.log("DEBUG: Compare saved successfully, chat_id:", saveData.chat_id);
            setCurrentChatId(saveData.chat_id);
          } else {
-           console.error("Failed to save compare to database:", await saveRes.text());
+           const errorText = await saveRes.text();
+           console.error("DEBUG: Failed to save compare to database:", errorText);
            // Still continue with the comparison even if save fails
            setCurrentChatId(`compare-${Date.now()}`);
          }
        } catch (saveError) {
-         console.error("Error saving compare to database:", saveError);
+         console.error("DEBUG: Error saving compare to database:", saveError);
          // Still continue with the comparison even if save fails
          setCurrentChatId(`compare-${Date.now()}`);
        }
@@ -966,6 +970,8 @@ const ChatInterface = () => {
        
        if (r2.ok) {
          const chatsData = await r2.json();
+         console.log("DEBUG: Refreshed chats after compare:", chatsData);
+         console.log("DEBUG: Compare chats in refreshed data:", chatsData.filter(chat => chat.type === 'compare'));
          setChats(chatsData);
        }
     } catch (e) {
