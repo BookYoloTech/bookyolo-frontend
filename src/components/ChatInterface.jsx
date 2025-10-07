@@ -765,15 +765,14 @@ const ChatInterface = () => {
 
       try {
         const token = localStorage.getItem("by_token");
-        const res = await fetch(`${API_BASE}/compare`, {
+        const res = await fetch(`${API_BASE}/chat/new-compare`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ 
-            scan_a_url: urls[0], 
-            scan_b_url: urls[1], 
+            listing_urls: urls, 
             question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null 
           }),
         });
@@ -785,35 +784,9 @@ const ChatInterface = () => {
         
         const data = await res.json();
         
-        // Save the compare result to the database
-        try {
-          const saveRes = await fetch(`${API_BASE}/save-compare`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              scan_a_url: urls[0],
-              scan_b_url: urls[1],
-              answer: data.answer,
-              question: text.replace(/https?:\/\/[^\s]+/g, '').trim() || null
-            }),
-          });
-          
-          if (saveRes.ok) {
-            const saveData = await saveRes.json();
-            setCurrentChatId(saveData.chat_id);
-          } else {
-            console.error("Failed to save compare to database:", await saveRes.text());
-            // Still continue with the comparison even if save fails
-            setCurrentChatId(`compare-${Date.now()}`);
-          }
-        } catch (saveError) {
-          console.error("Error saving compare to database:", saveError);
-          // Still continue with the comparison even if save fails
-          setCurrentChatId(`compare-${Date.now()}`);
-        }
+        // Set the current chat ID from the database response
+        console.log("DEBUG: Compare created successfully, chat_id:", data.chat_id);
+        setCurrentChatId(data.chat_id);
         
         // Add assistant response
         const assistantMessage = {
@@ -889,15 +862,14 @@ const ChatInterface = () => {
     
     try {
       const token = localStorage.getItem("by_token");
-      const res = await fetch(`${API_BASE}/compare`, {
+      const res = await fetch(`${API_BASE}/chat/new-compare`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          scan_a_url: scan1.listing_url, 
-          scan_b_url: scan2.listing_url, 
+          listing_urls: [scan1.listing_url, scan2.listing_url], 
           question: question || null 
         }),
       });
@@ -909,39 +881,9 @@ const ChatInterface = () => {
       
        const data = await res.json();
        
-       // Save the compare result to the database
-       console.log("DEBUG: Attempting to save compare to database...");
-       try {
-         const saveRes = await fetch(`${API_BASE}/save-compare`, {
-           method: "POST",
-           headers: {
-             "Content-Type": "application/json",
-             Authorization: `Bearer ${token}`,
-           },
-           body: JSON.stringify({
-             scan_a_url: scan1.listing_url,
-             scan_b_url: scan2.listing_url,
-             answer: data.answer,
-             question: question || null
-           }),
-         });
-         
-         console.log("DEBUG: Save compare response status:", saveRes.status);
-         if (saveRes.ok) {
-           const saveData = await saveRes.json();
-           console.log("DEBUG: Compare saved successfully, chat_id:", saveData.chat_id);
-           setCurrentChatId(saveData.chat_id);
-         } else {
-           const errorText = await saveRes.text();
-           console.error("DEBUG: Failed to save compare to database:", errorText);
-           // Still continue with the comparison even if save fails
-           setCurrentChatId(`compare-${Date.now()}`);
-         }
-       } catch (saveError) {
-         console.error("DEBUG: Error saving compare to database:", saveError);
-         // Still continue with the comparison even if save fails
-         setCurrentChatId(`compare-${Date.now()}`);
-       }
+       // Set the current chat ID from the database response
+       console.log("DEBUG: Compare created successfully, chat_id:", data.chat_id);
+       setCurrentChatId(data.chat_id);
        
        // Add assistant response
        const assistantMessage = {
