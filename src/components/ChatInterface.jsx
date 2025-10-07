@@ -318,49 +318,11 @@ const ChatInterface = () => {
         console.log("DEBUG: First chat structure:", chatsData[0]);
         console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
-        // Process compare chats to fetch actual titles
+        // Process compare chats to fetch actual titles - SIMPLE APPROACH
         const processedChats = await Promise.all(chatsData.map(async (chat) => {
           if (chat.type === 'compare') {
             try {
-              console.log("DEBUG: Processing compare chat:", chat.id, "with title:", chat.title);
-              
-              // First try to get titles from scan_ids if available
-              if (chat.scan_ids && chat.scan_ids.length >= 2) {
-                console.log("DEBUG: Trying to fetch from scan_ids:", chat.scan_ids);
-                
-                const [scan1Res, scan2Res] = await Promise.all([
-                  fetch(`${API_BASE}/scan/${chat.scan_ids[0]}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                  }),
-                  fetch(`${API_BASE}/scan/${chat.scan_ids[1]}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                  })
-                ]);
-                
-                if (scan1Res.ok && scan2Res.ok) {
-                  const scan1Data = await scan1Res.json();
-                  const scan2Data = await scan2Res.json();
-                  
-                  console.log("DEBUG: Scan1 data:", scan1Data);
-                  console.log("DEBUG: Scan2 data:", scan2Data);
-                  
-                  // Update the title with actual listing titles
-                  const title1 = scan1Data.listing_title || `Listing ${scan1Data.listing_url.split('/').pop().substring(0, 8)}...`;
-                  const title2 = scan2Data.listing_title || `Listing ${scan2Data.listing_url.split('/').pop().substring(0, 8)}...`;
-                  
-                  console.log("DEBUG: Updated compare title from scan_ids:", `${title1} vs ${title2}`);
-                  
-                  return {
-                    ...chat,
-                    title: `${title1} vs ${title2}`
-                  };
-                } else {
-                  console.log("DEBUG: Failed to fetch scan data for compare chat:", scan1Res.status, scan2Res.status);
-                }
-              }
-              
-              // Fallback: Try to extract titles from the comparison content
-              console.log("DEBUG: Trying to extract titles from comparison content");
+              console.log("DEBUG: Processing compare chat:", chat.id, "current title:", chat.title);
               
               // Fetch the chat messages to get the comparison content
               const chatRes = await fetch(`${API_BASE}/chat/${chat.id}`, {
@@ -369,36 +331,56 @@ const ChatInterface = () => {
               
               if (chatRes.ok) {
                 const chatData = await chatRes.json();
-                console.log("DEBUG: Chat data:", chatData);
+                console.log("DEBUG: Chat messages:", chatData.messages);
                 
-                // Look for assistant messages with comparison content
-                const assistantMessages = chatData.messages.filter(msg => msg.role === 'assistant');
-                console.log("DEBUG: Assistant messages:", assistantMessages);
+                // Look for the first assistant message with comparison content
+                const assistantMessage = chatData.messages.find(msg => 
+                  msg.role === 'assistant' && 
+                  msg.content && 
+                  msg.content.includes('Listing A:') && 
+                  msg.content.includes('Listing B:')
+                );
                 
-                for (const msg of assistantMessages) {
-                  if (msg.content && msg.content.includes('Listing A:') && msg.content.includes('Listing B:')) {
-                    console.log("DEBUG: Found comparison content:", msg.content);
-                    
-                    // Extract titles using pattern matching
-                    const listingAMatch = msg.content.match(/Listing A:\s*\n([^\n]+)/);
-                    const listingBMatch = msg.content.match(/Listing B:\s*\n([^\n]+)/);
-                    
-                    if (listingAMatch && listingBMatch) {
-                      const title1 = listingAMatch[1].trim();
-                      const title2 = listingBMatch[1].trim();
-                      
-                      console.log("DEBUG: Extracted titles from content:", title1, title2);
-                      
-                      return {
-                        ...chat,
-                        title: `${title1} vs ${title2}`
-                      };
+                if (assistantMessage) {
+                  console.log("DEBUG: Found comparison message:", assistantMessage.content);
+                  
+                  // Extract titles - look for the lines after "Listing A:" and "Listing B:"
+                  const lines = assistantMessage.content.split('\n');
+                  let title1 = null;
+                  let title2 = null;
+                  
+                  for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes('Listing A:')) {
+                      // Get the next non-empty line
+                      for (let j = i + 1; j < lines.length; j++) {
+                        if (lines[j].trim() && !lines[j].includes('http')) {
+                          title1 = lines[j].trim();
+                          break;
+                        }
+                      }
                     }
+                    if (lines[i].includes('Listing B:')) {
+                      // Get the next non-empty line
+                      for (let j = i + 1; j < lines.length; j++) {
+                        if (lines[j].trim() && !lines[j].includes('http')) {
+                          title2 = lines[j].trim();
+                          break;
+                        }
+                      }
+                    }
+                  }
+                  
+                  if (title1 && title2) {
+                    console.log("DEBUG: Extracted titles:", title1, "vs", title2);
+                    return {
+                      ...chat,
+                      title: `${title1} vs ${title2}`
+                    };
                   }
                 }
               }
               
-              console.log("DEBUG: Could not extract titles, keeping original title:", chat.title);
+              console.log("DEBUG: Could not extract titles, keeping original:", chat.title);
             } catch (e) {
               console.error('Failed to process compare chat:', e);
             }
