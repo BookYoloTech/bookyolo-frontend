@@ -17,3 +17,39 @@
 .bg-accent { background-color: var(--color-accent); }
 .border-accent { border-color: var(--color-accent); }
 
+/* Mobile Safari fixes */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific styles */
+  .mobile-input-area {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  
+  /* Fix for Safari's address bar interference */
+  .input-container {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid #e9e8ea;
+    z-index: 1000;
+  }
+  
+  /* Ensure input stays above browser UI */
+  textarea:focus {
+    position: relative;
+    z-index: 1001;
+  }
+}
+

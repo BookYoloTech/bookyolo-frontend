@@ -1792,7 +1792,13 @@ const ChatInterface = () => {
           )}
 
             {/* Input Form */}
-            <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area">
+            <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area" style={{ 
+              paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+              position: 'sticky',
+              bottom: 0,
+              backgroundColor: 'white',
+              zIndex: 10
+            }}>
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-4">
                 <textarea
@@ -1807,6 +1813,12 @@ const ChatInterface = () => {
                   autoCapitalize="off"
                   spellCheck="false"
                   rows={1}
+                  style={{
+                    fontSize: '16px', // Prevents zoom on iOS
+                    transform: 'translateZ(0)', // Hardware acceleration
+                    WebkitAppearance: 'none',
+                    borderRadius: '12px'
+                  }}
                   onInput={(e) => {
                     // Auto-resize textarea based on content
                     e.target.style.height = 'auto';
@@ -1818,11 +1830,27 @@ const ChatInterface = () => {
                       handleSubmit(e);
                     }
                   }}
+                  onFocus={() => {
+                    // Scroll to input when focused on mobile
+                    setTimeout(() => {
+                      if (inputRef.current) {
+                        inputRef.current.scrollIntoView({ 
+                          behavior: 'smooth', 
+                          block: 'center' 
+                        });
+                      }
+                    }, 300);
+                  }}
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
                   className="rounded-xl bg-button text-white px-4 sm:px-6 py-2 sm:py-3 font-semibold hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                  style={{
+                    minHeight: '44px', // iOS touch target size
+                    WebkitAppearance: 'none',
+                    borderRadius: '12px'
+                  }}
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-1 sm:space-x-2">
