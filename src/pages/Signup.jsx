@@ -51,7 +51,8 @@ export default function Signup() {
       // Track referral if referral code exists
       if (referralCode && json.user_id) {
         try {
-          await fetch(`${API_BASE}/referral/track-signup`, {
+          console.log('Tracking referral:', { referralCode, user_email: form.email, user_id: json.user_id });
+          const referralResponse = await fetch(`${API_BASE}/referral/track-signup`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -60,11 +61,19 @@ export default function Signup() {
               user_id: json.user_id
             }),
           });
-          console.log('Referral tracked successfully');
+          
+          if (referralResponse.ok) {
+            const referralResult = await referralResponse.json();
+            console.log('Referral tracked successfully:', referralResult);
+          } else {
+            console.error('Referral tracking failed:', await referralResponse.text());
+          }
         } catch (referralErr) {
           console.error('Failed to track referral:', referralErr);
           // Don't fail the signup if referral tracking fails
         }
+      } else {
+        console.log('No referral tracking - referralCode:', referralCode, 'user_id:', json.user_id);
       }
       
       // Account created successfully
