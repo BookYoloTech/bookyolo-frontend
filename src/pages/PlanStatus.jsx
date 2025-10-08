@@ -466,7 +466,7 @@ export default function PlanStatus() {
               </svg>
               Delete Account
             </button>
-                  </div>
+              </div>
 
           {/* Legal Links */}
           <div className="mt-8 pt-6 border-t border-gray-200">
