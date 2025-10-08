@@ -928,24 +928,38 @@ const ChatInterface = () => {
         
         const data = await res.json();
         
-        // Save the follow-up question to the database
+        // Save the follow-up question and answer to the database
         try {
-          const saveRes = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
+          // First, save the user question
+          const userRes = await fetch(`${API_BASE}/chat/${currentChatId}/message`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ 
-              question: question 
+              role: "user",
+              content: question 
             }),
           });
           
-          if (saveRes.ok) {
-            // The question and answer are now saved to the database
-            console.log("Follow-up question saved to database");
+          // Then, save the assistant answer
+          const assistantRes = await fetch(`${API_BASE}/chat/${currentChatId}/message`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ 
+              role: "assistant",
+              content: data.answer 
+            }),
+          });
+          
+          if (userRes.ok && assistantRes.ok) {
+            console.log("Follow-up question and answer saved to database");
           } else {
-            console.error("Failed to save follow-up question to database:", await saveRes.text());
+            console.error("Failed to save follow-up question to database");
           }
         } catch (saveError) {
           console.error("Error saving follow-up question to database:", saveError);
