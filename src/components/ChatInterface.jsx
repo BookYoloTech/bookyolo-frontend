@@ -880,54 +880,18 @@ const ChatInterface = () => {
     try {
       const token = localStorage.getItem("by_token");
       
-      // Check if this is a local compare chat
+      // Check if this is a compare chat
       const currentChat = chats.find(chat => chat.id === currentChatId);
-      console.log("DEBUG: handleAsk - currentChatId:", currentChatId);
-      console.log("DEBUG: handleAsk - currentChat:", currentChat);
-      console.log("DEBUG: handleAsk - messages:", messages);
       
       if (currentChat && currentChat.type === 'compare') {
-        console.log("DEBUG: handleAsk - This is a compare chat");
-        // For compare chat questions, call the compare endpoint
-        
-        // Get the scan URLs from the current messages
-        let scanAUrl = null;
-        let scanBUrl = null;
-        
-        // Look for the comparedScans data in the current messages
-        const compareMessage = messages.find(msg => msg.isComparison && msg.comparedScans);
-        console.log("DEBUG: handleAsk - compareMessage:", compareMessage);
-        
-        if (compareMessage && compareMessage.comparedScans) {
-          scanAUrl = compareMessage.comparedScans.scan1?.listing_url;
-          scanBUrl = compareMessage.comparedScans.scan2?.listing_url;
-          console.log("DEBUG: handleAsk - URLs from messages:", { scanAUrl, scanBUrl });
-        }
-        
-        // If we don't have the URLs from messages, try to get them from the chat data
-        if (!scanAUrl || !scanBUrl) {
-          if (currentChat.scan1 && currentChat.scan2) {
-            scanAUrl = currentChat.scan1.listing_url;
-            scanBUrl = currentChat.scan2.listing_url;
-            console.log("DEBUG: handleAsk - URLs from chat data:", { scanAUrl, scanBUrl });
-          }
-        }
-        
-        if (!scanAUrl || !scanBUrl) {
-          console.error("DEBUG: handleAsk - Could not find scan URLs");
-          throw new Error("Could not find the scan URLs for this comparison");
-        }
-        
-        // Call the compare endpoint
-        const res = await fetch(`${API_BASE}/compare`, {
+        // For compare chat questions, use the chat ask endpoint which saves to database
+        const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ 
-            scan_a_url: scanAUrl, 
-            scan_b_url: scanBUrl, 
             question: question 
           }),
         });
