@@ -811,20 +811,6 @@ export default function PlanStatus() {
                 </div>
               </div>
 
-              {/* Referral Rocket Widget */}
-              <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
-                <div 
-                  className="hype_widget" 
-                  campaign-id="0hc6DgTQ" 
-                  email={user?.user?.email} 
-                  first-name={user?.user?.full_name}
-                  user-id={user?.user?.id}
-                  style={{ minHeight: '200px' }}
-                ></div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Widget may take a moment to load. If it doesn't appear, refresh the page.
-                </p>
-              </div>
               
               {/* Social Sharing */}
               <div className="space-y-3">
