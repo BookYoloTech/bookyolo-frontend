@@ -130,41 +130,6 @@ export default function PlanStatus() {
     }
   };
 
-  const fixPremiumScans = async () => {
-    if (!user?.user?.id) return;
-    
-    try {
-      const token = localStorage.getItem("by_token");
-      console.log('Fixing premium scans for user:', user.user.id);
-      
-      const response = await fetch(`${API_BASE}/referral/fix-scans/${user.user.id}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Scan fix result:', result);
-        
-        if (result.success) {
-          // Refresh user data to show updated scan count
-          await loadUserData();
-          alert(`✅ ${result.message}`);
-        } else {
-          alert(`❌ ${result.message}`);
-        }
-      } else {
-        const errorText = await response.text();
-        console.error('Failed to fix scans:', response.status, errorText);
-        alert('Failed to fix scans');
-      }
-    } catch (err) {
-      console.error('Error fixing scans:', err);
-      alert('Error fixing scans');
-    }
-  };
 
   const handleReferralModalOpen = () => {
     setShowReferralModal(true);
@@ -486,16 +451,8 @@ export default function PlanStatus() {
                   </div>
                   
                   {referralStats.has_premium ? (
-                    <div className="space-y-2">
-                      <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium text-center">
-                        🎉 You have Premium!
-                      </div>
-                      <button
-                        onClick={fixPremiumScans}
-                        className="w-full bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition-colors"
-                      >
-                        Fix Scan Balance (+300)
-                      </button>
+                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium text-center">
+                      🎉 You have Premium!
                     </div>
                   ) : (
                     <p className="text-xs text-gray-500 text-center">
