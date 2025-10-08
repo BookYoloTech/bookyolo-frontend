@@ -81,6 +81,8 @@ export default function PlanStatus() {
     setReferralLoading(true);
     try {
       const token = localStorage.getItem("by_token");
+      console.log('Loading referral stats for user:', user.user.id);
+      
       const response = await fetch(`${API_BASE}/referral/stats/${user.user.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -89,9 +91,11 @@ export default function PlanStatus() {
 
       if (response.ok) {
         const stats = await response.json();
+        console.log('Referral stats loaded:', stats);
         setReferralStats(stats);
       } else {
-        console.error('Failed to load referral stats');
+        const errorText = await response.text();
+        console.error('Failed to load referral stats:', response.status, errorText);
       }
     } catch (err) {
       console.error('Error loading referral stats:', err);
