@@ -25,6 +25,10 @@ export default function PlanStatus() {
   const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);
   const [deleteAccountError, setDeleteAccountError] = useState('');
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  
+  // Referral states
+  const [referralStats, setReferralStats] = useState(null);
+  const [referralLoading, setReferralLoading] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -69,6 +73,36 @@ export default function PlanStatus() {
     navigator.clipboard.writeText(sharingMessage).then(() => {
       alert('Sharing message and referral link copied to clipboard!');
     });
+  };
+
+  const loadReferralStats = async () => {
+    if (!user?.user?.id) return;
+    
+    setReferralLoading(true);
+    try {
+      const token = localStorage.getItem("by_token");
+      const response = await fetch(`${API_BASE}/referral/stats/${user.user.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const stats = await response.json();
+        setReferralStats(stats);
+      } else {
+        console.error('Failed to load referral stats');
+      }
+    } catch (err) {
+      console.error('Error loading referral stats:', err);
+    } finally {
+      setReferralLoading(false);
+    }
+  };
+
+  const handleReferralModalOpen = () => {
+    setShowReferralModal(true);
+    loadReferralStats();
   };
 
   const copyEmailToClipboard = () => {
@@ -359,7 +393,7 @@ export default function PlanStatus() {
 
             {/* Referral Link */}
             <button
-              onClick={() => setShowReferralModal(true)}
+              onClick={handleReferralModalOpen}
               className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors font-semibold flex items-center justify-center gap-2 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -648,7 +682,7 @@ export default function PlanStatus() {
       {/* Referral Modal */}
       {showReferralModal && (
         <div className="fixed inset-0 bg-gradient-to-br from-white via-gray-50 to-gray-100 bg-opacity-90 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -658,6 +692,53 @@ export default function PlanStatus() {
               <h3 className="text-xl font-bold text-gray-900 mb-2">Share BookYolo</h3>
               <p className="text-gray-600">Share with 3 friends and get BookYolo Premium for free!</p>
             </div>
+
+            {/* Referral Stats */}
+            {referralLoading ? (
+              <div className="text-center py-4">
+                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+                <p className="text-gray-600 mt-2">Loading stats...</p>
+              </div>
+            ) : referralStats ? (
+              <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-4 mb-3">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{referralStats.referral_count}</div>
+                      <div className="text-sm text-gray-600">Referrals</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">{referralStats.referrals_needed}</div>
+                      <div className="text-sm text-gray-600">Needed</div>
+                    </div>
+                  </div>
+                  
+                  {referralStats.has_premium ? (
+                    <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                      🎉 You have BookYolo Premium!
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">
+                      {referralStats.referrals_needed > 0 
+                        ? `${referralStats.referrals_needed} more referral${referralStats.referrals_needed > 1 ? 's' : ''} needed for Premium`
+                        : 'You qualify for Premium!'
+                      }
+                    </div>
+                  )}
+                  
+                  {/* Progress Bar */}
+                  <div className="mt-3">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${Math.min(100, (referralStats.referral_count / 3) * 100)}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Progress to Premium</p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
             
             <div className="space-y-4">
               {/* Referral Link */}
@@ -674,6 +755,18 @@ export default function PlanStatus() {
                     Copy
                   </button>
                 </div>
+              </div>
+
+              {/* Referral Rocket Widget */}
+              <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                <p className="text-sm font-medium text-gray-700 mb-3">Powered by Referral Rocket</p>
+                <div 
+                  className="hype_widget" 
+                  campaign-id="0hc6DgTQ" 
+                  email={user?.user?.email} 
+                  first-name={user?.user?.full_name}
+                  style={{ minHeight: '200px' }}
+                ></div>
               </div>
               
               {/* Social Sharing */}

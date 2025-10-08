@@ -1,16 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNotification } from "../contexts/NotificationContext";
+import { useSearchParams } from "react-router-dom";
 import logo from "../assets/Bookyolo-logo.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
 export default function Signup() {
   const { showSuccess, showError } = useNotification();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
     firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false, agreeToPrivacy: false
   });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [referralCode, setReferralCode] = useState(null);
+
+  useEffect(() => {
+    // Check for referral code in URL parameters
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+      console.log('Referral code detected:', ref);
+    }
+  }, [searchParams]);
 
   const onChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,6 +47,25 @@ export default function Signup() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.detail || "Signup failed");
+      
+      // Track referral if referral code exists
+      if (referralCode && json.user_id) {
+        try {
+          await fetch(`${API_BASE}/referral/track-signup`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              referral_code: referralCode,
+              user_email: form.email,
+              user_id: json.user_id
+            }),
+          });
+          console.log('Referral tracked successfully');
+        } catch (referralErr) {
+          console.error('Failed to track referral:', referralErr);
+          // Don't fail the signup if referral tracking fails
+        }
+      }
       
       // Account created successfully
       showSuccess("Account created successfully! Please check your email to verify your account.");
@@ -68,6 +99,17 @@ export default function Signup() {
           </div>
 
           {err && <div className="mb-3 text-sm text-red-600">{err}</div>}
+          
+          {referralCode && (
+            <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+                <span className="text-sm text-blue-800 font-medium">You were referred by a friend! 🎉</span>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={submit} className="space-y-4">
             <div>
