@@ -880,19 +880,28 @@ const ChatInterface = () => {
     try {
       const token = localStorage.getItem("by_token");
       
-      // Check if this is a compare chat
+      // Check if this is a local compare chat
       const currentChat = chats.find(chat => chat.id === currentChatId);
+      console.log("DEBUG: handleAsk - currentChatId:", currentChatId);
+      console.log("DEBUG: handleAsk - currentChat:", currentChat);
+      console.log("DEBUG: handleAsk - messages:", messages);
       
       if (currentChat && currentChat.type === 'compare') {
-        // For compare chat questions, get the scan URLs and call compare endpoint
+        console.log("DEBUG: handleAsk - This is a compare chat");
+        // For compare chat questions, call the compare endpoint
+        
+        // Get the scan URLs from the current messages
         let scanAUrl = null;
         let scanBUrl = null;
         
         // Look for the comparedScans data in the current messages
         const compareMessage = messages.find(msg => msg.isComparison && msg.comparedScans);
+        console.log("DEBUG: handleAsk - compareMessage:", compareMessage);
+        
         if (compareMessage && compareMessage.comparedScans) {
           scanAUrl = compareMessage.comparedScans.scan1?.listing_url;
           scanBUrl = compareMessage.comparedScans.scan2?.listing_url;
+          console.log("DEBUG: handleAsk - URLs from messages:", { scanAUrl, scanBUrl });
         }
         
         // If we don't have the URLs from messages, try to get them from the chat data
@@ -900,10 +909,12 @@ const ChatInterface = () => {
           if (currentChat.scan1 && currentChat.scan2) {
             scanAUrl = currentChat.scan1.listing_url;
             scanBUrl = currentChat.scan2.listing_url;
+            console.log("DEBUG: handleAsk - URLs from chat data:", { scanAUrl, scanBUrl });
           }
         }
         
         if (!scanAUrl || !scanBUrl) {
+          console.error("DEBUG: handleAsk - Could not find scan URLs");
           throw new Error("Could not find the scan URLs for this comparison");
         }
         
@@ -927,29 +938,6 @@ const ChatInterface = () => {
         }
         
         const data = await res.json();
-        
-        // Save the follow-up question to the database
-        try {
-          const saveRes = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ 
-              question: question 
-            }),
-          });
-          
-          if (saveRes.ok) {
-            // The question and answer are now saved to the database
-            console.log("Follow-up question saved to database");
-          } else {
-            console.error("Failed to save follow-up question to database:", await saveRes.text());
-          }
-        } catch (saveError) {
-          console.error("Error saving follow-up question to database:", saveError);
-        }
         
         // Add assistant response
         const assistantMessage = {
