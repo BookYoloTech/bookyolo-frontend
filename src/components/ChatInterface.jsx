@@ -837,6 +837,8 @@ const ChatInterface = () => {
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("not seem to have enough information and reviews")) {
         errorContent = e.message; // Keep the exact message from backend
+      } else if (e.message.includes("does not have enough information to analyze this listing")) {
+        errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("no more scans left") || e.message.includes("few scans left")) {
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("already scanned this listing")) {
@@ -882,41 +884,8 @@ const ChatInterface = () => {
       
       // Check if this is a local compare chat
       const currentChat = chats.find(chat => chat.id === currentChatId);
-      console.log("DEBUG: handleAsk - currentChatId:", currentChatId);
-      console.log("DEBUG: handleAsk - currentChat:", currentChat);
-      console.log("DEBUG: handleAsk - messages:", messages);
-      
-      if (currentChat && currentChat.type === 'compare') {
-        console.log("DEBUG: handleAsk - This is a compare chat");
+      if (currentChat && currentChat.type === 'compare' && currentChat.id.startsWith('compare-')) {
         // For compare chat questions, call the compare endpoint
-        
-        // Get the scan URLs from the current messages
-        let scanAUrl = null;
-        let scanBUrl = null;
-        
-        // Look for the comparedScans data in the current messages
-        const compareMessage = messages.find(msg => msg.isComparison && msg.comparedScans);
-        console.log("DEBUG: handleAsk - compareMessage:", compareMessage);
-        
-        if (compareMessage && compareMessage.comparedScans) {
-          scanAUrl = compareMessage.comparedScans.scan1?.listing_url;
-          scanBUrl = compareMessage.comparedScans.scan2?.listing_url;
-          console.log("DEBUG: handleAsk - URLs from messages:", { scanAUrl, scanBUrl });
-        }
-        
-        // If we don't have the URLs from messages, try to get them from the chat data
-        if (!scanAUrl || !scanBUrl) {
-          if (currentChat.scan1 && currentChat.scan2) {
-            scanAUrl = currentChat.scan1.listing_url;
-            scanBUrl = currentChat.scan2.listing_url;
-            console.log("DEBUG: handleAsk - URLs from chat data:", { scanAUrl, scanBUrl });
-          }
-        }
-        
-        if (!scanAUrl || !scanBUrl) {
-          console.error("DEBUG: handleAsk - Could not find scan URLs");
-          throw new Error("Could not find the scan URLs for this comparison");
-        }
         
         // Call the compare endpoint
         const res = await fetch(`${API_BASE}/compare`, {
@@ -926,8 +895,8 @@ const ChatInterface = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ 
-            scan_a_url: scanAUrl, 
-            scan_b_url: scanBUrl, 
+            scan_a_url: currentChat.scan1.listing_url, 
+            scan_b_url: currentChat.scan2.listing_url, 
             question: question 
           }),
         });
