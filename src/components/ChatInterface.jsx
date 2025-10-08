@@ -1484,7 +1484,7 @@ const ChatInterface = () => {
                     setSidebarOpen(false); // Close sidebar on mobile
                     startNewChat();
                   }}
-                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 transition-opacity cursor-pointer ${
+                  className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 hover:scale-105 transition-all duration-200 cursor-pointer ${
                     activeButton === 'scan' 
                       ? 'bg-button text-white' 
                       : 'bg-accent text-primary'
@@ -1538,7 +1538,7 @@ const ChatInterface = () => {
             <div className="flex items-center space-x-3">
               <button
                 onClick={startNewChat}
-                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 transition-opacity text-sm cursor-pointer ${
+                className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 text-sm cursor-pointer ${
                   activeButton === 'scan' 
                     ? 'bg-button text-white shadow-sm' 
                     : 'bg-accent text-primary'
