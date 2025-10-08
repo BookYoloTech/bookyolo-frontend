@@ -1243,15 +1243,6 @@ const ChatInterface = () => {
           {!isUser && !isError && !isWarning && !isQuestion && message.scanData ? (
             // Detailed scan result display
             <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
-              {/* BookYolo Branding Header */}
-              <div className="flex items-center justify-center mb-4 sm:mb-6 pb-3 border-b border-gray-100">
-                <img 
-                  src={scanpageLogo} 
-                  alt="BookYolo" 
-                  className="h-8 sm:h-10 w-auto"
-                />
-              </div>
-              
               {/* Information */}
               <div className="mb-4 sm:mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
@@ -1329,18 +1320,6 @@ const ChatInterface = () => {
                       )}
                     </div>
                   ))}
-                </div>
-              </div>
-              
-              {/* BookYolo Footer Branding */}
-              <div className="flex items-center justify-center pt-4 mt-4 border-t border-gray-100">
-                <div className="flex items-center space-x-2 text-xs text-gray-500">
-                  <span>Powered by</span>
-                  <img 
-                    src={scanpageLogo} 
-                    alt="BookYolo" 
-                    className="h-4 w-auto"
-                  />
                 </div>
               </div>
             </div>
