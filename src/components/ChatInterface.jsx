@@ -1436,11 +1436,7 @@ const ChatInterface = () => {
               </div>
             </div>
           ) : (
-            <div className={`text-base whitespace-pre-wrap leading-relaxed ${
-              message.content && message.content.includes('Do you have any questions about this comparison') 
-                ? 'px-0' 
-                : 'px-2 sm:px-4'
-            }`}>{makeUrlsClickable(message.content)}</div>
+            <div className="text-base whitespace-pre-wrap px-2 sm:px-4 leading-relaxed">{makeUrlsClickable(message.content)}</div>
           )}
         </div>
       </div>
