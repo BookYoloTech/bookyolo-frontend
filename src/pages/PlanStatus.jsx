@@ -226,16 +226,15 @@ export default function PlanStatus() {
         
         // Update both the user data and scan balance correctly
         // The /me endpoint returns { user: {...}, remaining: 271, used: 79 }
+        // But the UI expects user.remaining directly, not user.user.remaining
         const updatedUser = {
-          user: {
-            ...data.user,  // Keep the updated profile data
-            remaining: userData.remaining,  // Update scan balance from /me
-            used: userData.used  // Update used scans from /me
-          }
+          ...data.user,  // Keep the updated profile data
+          remaining: userData.remaining,  // Update scan balance from /me
+          used: userData.used  // Update used scans from /me
         };
         
         console.log("DEBUG: Setting user state with:", updatedUser);
-        setUser(updatedUser);
+        setUser({ user: updatedUser });
         
         console.log("DEBUG: Profile update - final user state:", { 
           user: {
