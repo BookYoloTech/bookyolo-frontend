@@ -221,7 +221,14 @@ export default function PlanStatus() {
       
       if (meResponse.ok) {
         const userData = await meResponse.json();
-        setUser({ user: userData });
+        // Update both the user data and scan balance correctly
+        setUser({ 
+          user: {
+            ...data.user,  // Keep the updated profile data
+            remaining: userData.remaining,  // Update scan balance
+            used: userData.used  // Update used scans
+          }
+        });
       } else {
         // Fallback: Update the user state with the correct structure
         setUser({
@@ -481,7 +488,7 @@ export default function PlanStatus() {
               </svg>
               Delete Account
             </button>
-                  </div>
+              </div>
 
           {/* Legal Links */}
           <div className="mt-8 pt-6 border-t border-gray-200">
