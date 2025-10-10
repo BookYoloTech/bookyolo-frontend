@@ -1385,7 +1385,7 @@ const ChatInterface = () => {
               </div>
               
               {/* Comparative Analysis */}
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-accent">
                 <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Comparative Analysis</h3>
                 <div className="text-primary leading-relaxed whitespace-pre-wrap">{makeUrlsClickable(message.content)}</div>
               </div>
