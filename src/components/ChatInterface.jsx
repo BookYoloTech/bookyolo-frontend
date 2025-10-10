@@ -311,6 +311,12 @@ const ChatInterface = () => {
         } else {
           console.log("DEBUG: Scan balance OK. Remaining:", userData.remaining);
         }
+      } else if (r1.status === 401 || r1.status === 404) {
+        // User account doesn't exist or token is invalid - redirect to login
+        localStorage.removeItem("by_token");
+        localStorage.removeItem("by_user");
+        navigate("/login");
+        return;
       }
       if (r2.ok) {
         const chatsData = await r2.json();

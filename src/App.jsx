@@ -41,13 +41,25 @@ export default function App() {
         headers: { Authorization: `Bearer ${t}` }
       });
       if (!res.ok) {
+        // If we get a 401 or 404, the user account doesn't exist or token is invalid
+        if (res.status === 401 || res.status === 404) {
+          localStorage.removeItem("by_token");
+          localStorage.removeItem("by_user");
+          setToken("");
+          setMe(null);
+          return;
+        }
         const errorText = await res.text();
         throw new Error(errorText);
       }
       const json = await res.json();
       setMe(json);
     } catch (e) {
-      // optional: clear token on 401
+      // Clear token on any error to force re-authentication
+      localStorage.removeItem("by_token");
+      localStorage.removeItem("by_user");
+      setToken("");
+      setMe(null);
     } finally {
       setMeLoading(false);
     }
@@ -64,7 +76,19 @@ export default function App() {
 
   const handleUsageChanged = () => setMeReloadKey(k => k + 1);
 
-  const requireAuth = (el) => (localStorage.getItem("by_token") ? el : <Navigate to="/login" replace />);
+  const requireAuth = (el) => {
+    const token = localStorage.getItem("by_token");
+    if (!token) {
+      return <Navigate to="/login" replace />;
+    }
+    
+    // If we have a token but no user data, or user data failed to load, redirect to login
+    if (!me && !meLoading) {
+      return <Navigate to="/login" replace />;
+    }
+    
+    return el;
+  };
 
   return (
     <NotificationProvider>
