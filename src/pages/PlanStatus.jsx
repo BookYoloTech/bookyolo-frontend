@@ -213,10 +213,22 @@ export default function PlanStatus() {
       }
 
       const data = await response.json();
-      // Update the user state with the correct structure
-      setUser({
-        user: data.user
+      
+      // Refresh user data to get updated scan balance
+      const meResponse = await fetch(`${API_BASE}/me`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
+      
+      if (meResponse.ok) {
+        const userData = await meResponse.json();
+        setUser({ user: userData });
+      } else {
+        // Fallback: Update the user state with the correct structure
+        setUser({
+          user: data.user
+        });
+      }
+      
       setEditProfileSuccess("Profile updated successfully!");
       setShowEditProfile(false);
       
