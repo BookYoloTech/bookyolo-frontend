@@ -776,6 +776,9 @@ const ChatInterface = () => {
       }
 
       console.log("🔍 FRONTEND: Starting scan for URL:", url);
+      console.log("🔍 FRONTEND: API endpoint:", `${API_BASE}/chat/new-scan`);
+      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: url }));
+      
       const res = await fetch(`${API_BASE}/chat/new-scan`, {
         method: "POST",
         headers: {
@@ -786,11 +789,13 @@ const ChatInterface = () => {
       });
       
       console.log("🔍 FRONTEND: Response status:", res.status);
+      console.log("🔍 FRONTEND: Response headers:", Object.fromEntries(res.headers.entries()));
       
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Unknown error occurred" }));
         console.error("🚨 FRONTEND: Scan failed:", res.status, errorData);
         console.log("🚨 FRONTEND: Full error response:", JSON.stringify(errorData, null, 2));
+        console.log("🚨 FRONTEND: Error detail message:", errorData.detail);
         
         // Handle specific error cases with custom messages
         if (res.status === 400) {
