@@ -1350,11 +1350,12 @@ const ChatInterface = () => {
           ) : message.isComparison && message.comparedScans ? (
             // Comparison result with listing details - matching scan UI styling
             <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
-              {/* Listing A Details */}
+              {/* Listing A Information */}
               <div className="mb-4 sm:mb-6">
-                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Listing A:</h3>
-                <div className="text-primary font-medium text-sm sm:text-base mb-2" style={{ fontWeight: '600' }}>
-                  {message.comparedScans.scan1.listing_title || 'Title not available'}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+                  <div className="text-primary font-medium text-sm sm:text-base" style={{ fontWeight: '600' }}>
+                    Listing A: {message.comparedScans.scan1.listing_title || 'Title not available'}
+                  </div>
                 </div>
                 <a 
                   href={message.comparedScans.scan1.listing_url} 
@@ -1366,11 +1367,12 @@ const ChatInterface = () => {
                 </a>
               </div>
               
-              {/* Listing B Details */}
+              {/* Listing B Information */}
               <div className="mb-4 sm:mb-6">
-                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Listing B:</h3>
-                <div className="text-primary font-medium text-sm sm:text-base mb-2" style={{ fontWeight: '600' }}>
-                  {message.comparedScans.scan2.listing_title || 'Title not available'}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 gap-2">
+                  <div className="text-primary font-medium text-sm sm:text-base" style={{ fontWeight: '600' }}>
+                    Listing B: {message.comparedScans.scan2.listing_title || 'Title not available'}
+                  </div>
                 </div>
                 <a 
                   href={message.comparedScans.scan2.listing_url} 
@@ -1384,7 +1386,7 @@ const ChatInterface = () => {
               
               {/* Comparative Analysis */}
               <div className="pt-4 border-t border-gray-200">
-                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Comparative Analysis:</h3>
+                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Comparative Analysis</h3>
                 <div className="text-primary leading-relaxed whitespace-pre-wrap">{makeUrlsClickable(message.content)}</div>
               </div>
             </div>
