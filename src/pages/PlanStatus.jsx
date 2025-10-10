@@ -47,7 +47,15 @@ export default function PlanStatus() {
 
         if (response.ok) {
           const userData = await response.json();
-          setUser(userData);
+          // Structure the data to match what the UI expects
+          const structuredUser = {
+            user: {
+              ...userData.user,
+              remaining: userData.remaining,
+              used: userData.used
+            }
+          };
+          setUser(structuredUser);
         } else {
           setError('Failed to load user data');
         }
