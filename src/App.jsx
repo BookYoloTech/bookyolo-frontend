@@ -22,6 +22,7 @@ import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 
 const ScanPage = lazy(() => import("./pages/ScanPage"));
+const ComparePage = lazy(() => import("./pages/ComparePage"));
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
 
@@ -143,6 +144,21 @@ export default function App() {
               </div>
             }>
               {requireAuth(<ScanPage />)}
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/compare" 
+          element={
+            <Suspense fallback={
+              <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-button mx-auto"></div>
+                  <p className="mt-4 text-primary">Loading Compare...</p>
+                </div>
+              </div>
+            }>
+              {requireAuth(<ComparePage />)}
             </Suspense>
           } 
         />

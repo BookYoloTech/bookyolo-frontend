@@ -984,38 +984,9 @@ const ChatInterface = () => {
       return;
     }
 
-    // If it's a compare request but no specific URLs, show available scans for comparison
+    // If it's a compare request, navigate to the compare page
     if (isCompareRequest) {
-      setError("");
-      setActiveButton('compare'); // Set compare as active
-      
-      // Wait for scan data to be loaded if it's still loading
-      if (isLoadingData) {
-        setError("Loading scan data...");
-        return;
-      }
-      
-      // Show comparison UI directly without adding messages to chat
-      setShowComparisonUI(true);
-      setAvailableScansForComparison(scanChats.slice(0, 10).map(chat => {
-        // Try to get scan data from current messages first, then from scanData state
-        const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
-        
-        // If we don't have scan data, load it
-        if (!scan && chat.type === 'scan') {
-          loadScanDataForChat(chat.id);
-        }
-        
-        console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
-        
-        return {
-          id: chat.id,
-          listing_url: chat.title.replace("Scan • ", ""),
-          listing_title: scan?.listing_title,
-          location: scan?.location,
-          created_at: chat.created_at
-        };
-      }));
+      navigate('/compare');
       return;
     }
 
@@ -1336,16 +1307,6 @@ const ChatInterface = () => {
                   ))}
                 </div>
               </div>
-            </div>
-          ) : message.showComparisonUI ? (
-            // Comparison UI
-            <div className="bg-white rounded-3xl border border-accent p-6">
-              <div className="text-sm text-primary mb-4">{message.content}</div>
-              {console.log("DEBUG: Rendering comparison UI with scans:", message.availableScans)}
-              <ComparisonSelector 
-                availableScans={message.availableScans || []}
-                onCompare={handleComparisonSelect}
-              />
             </div>
           ) : message.isComparison && message.comparedScans ? (
             // Comparison result with listing details - matching scan UI styling
@@ -1725,19 +1686,7 @@ const ChatInterface = () => {
         <div className="flex-1 flex flex-col w-full">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area">
-            {showComparisonUI ? (
-              <div className="max-w-4xl mx-auto w-full">
-                <div className="bg-white rounded-3xl border border-accent p-6">
-                  <div className="mb-4">
-                    <div className="text-sm text-primary">I can help you compare your scanned listings. Here are your available scans:</div>
-                  </div>
-                  <ComparisonSelector 
-                    availableScans={availableScansForComparison}
-                    onCompare={handleComparisonSelect}
-                  />
-                </div>
-              </div>
-            ) : messages.length === 0 && !isLoading ? (
+            {messages.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
                 <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
