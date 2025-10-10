@@ -226,7 +226,6 @@ export default function PlanStatus() {
         
         // Update both the user data and scan balance correctly
         // The /me endpoint returns { user: {...}, remaining: 271, used: 79 }
-        // But the UI expects user.remaining directly, not user.user.remaining
         const updatedUser = {
           ...data.user,  // Keep the updated profile data
           remaining: userData.remaining,  // Update scan balance from /me
@@ -336,7 +335,7 @@ export default function PlanStatus() {
     );
   }
 
-  const isPremium = user?.plan === 'premium';
+  const isPremium = user?.user?.plan === 'premium';
 
   return (
     <div className="min-h-screen bg-white">
@@ -394,19 +393,19 @@ export default function PlanStatus() {
                   </div>
                   <div className="flex justify-between items-center">
                 <span className="text-gray-600">Remaining Scans</span>
-                <span className={`font-semibold ${(user?.remaining || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {user?.remaining || 0}
+                <span className={`font-semibold ${(user?.user?.remaining || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {user?.user?.remaining || 0}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                 <span className="text-gray-600">Total Scans Used</span>
-                <span className="font-semibold text-gray-900">{user?.used || 0}</span>
+                <span className="font-semibold text-gray-900">{user?.user?.used || 0}</span>
                   </div>
-                  {isPremium && user?.subscription_expires && (
+                  {isPremium && user?.user?.subscription_expires && (
                     <div className="flex justify-between items-center">
                   <span className="text-gray-600">Expires</span>
                       <span className="font-semibold text-gray-900">
-                        {new Date(user.subscription_expires).toLocaleDateString()}
+                        {new Date(user.user.subscription_expires).toLocaleDateString()}
                       </span>
                     </div>
                   )}
