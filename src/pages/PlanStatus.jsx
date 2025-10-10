@@ -213,7 +213,10 @@ export default function PlanStatus() {
       }
 
       const data = await response.json();
-      setUser(data.user);
+      // Update the user state with the correct structure
+      setUser({
+        user: data.user
+      });
       setEditProfileSuccess("Profile updated successfully!");
       setShowEditProfile(false);
       
