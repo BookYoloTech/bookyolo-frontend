@@ -225,13 +225,17 @@ export default function PlanStatus() {
         console.log("DEBUG: Profile update - userData from /me:", userData);
         
         // Update both the user data and scan balance correctly
-        setUser({ 
+        // The /me endpoint returns { user: {...}, remaining: 271, used: 79 }
+        const updatedUser = {
           user: {
             ...data.user,  // Keep the updated profile data
-            remaining: userData.remaining,  // Update scan balance
-            used: userData.used  // Update used scans
+            remaining: userData.remaining,  // Update scan balance from /me
+            used: userData.used  // Update used scans from /me
           }
-        });
+        };
+        
+        console.log("DEBUG: Setting user state with:", updatedUser);
+        setUser(updatedUser);
         
         console.log("DEBUG: Profile update - final user state:", { 
           user: {
