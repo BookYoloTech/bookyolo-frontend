@@ -776,13 +776,10 @@ export default function PlanStatus() {
             ) : referralStats ? (
               <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="text-center">
-                  <div className="flex items-center justify-center gap-4 mb-3">
+                  <div className="flex items-center justify-center mb-3">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-gray-900">{referralStats.referral_count}</div>
                       <div className="text-sm text-gray-600">Referrals</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-gray-900">{referralStats.referrals_needed}</div>
                     </div>
                   </div>
                   
