@@ -31,11 +31,13 @@ export default function App() {
   const [me, setMe] = useState(null);
   const [meReloadKey, setMeReloadKey] = useState(0); // bump to re-fetch /me
   const [meLoading, setMeLoading] = useState(false);
+  const [authFailed, setAuthFailed] = useState(false); // Track if authentication has failed
 
   const reloadMe = useCallback(async () => {
     const t = localStorage.getItem("by_token");
-    if (!t) { setMe(null); return; }
+    if (!t) { setMe(null); setAuthFailed(false); return; }
     setMeLoading(true);
+    setAuthFailed(false);
     try {
       const res = await fetch(`${API_BASE}/me`, {
         headers: { Authorization: `Bearer ${t}` }
@@ -47,6 +49,7 @@ export default function App() {
           localStorage.removeItem("by_user");
           setToken("");
           setMe(null);
+          setAuthFailed(true);
           return;
         }
         const errorText = await res.text();
@@ -54,12 +57,14 @@ export default function App() {
       }
       const json = await res.json();
       setMe(json);
+      setAuthFailed(false);
     } catch (e) {
       // Clear token on any error to force re-authentication
       localStorage.removeItem("by_token");
       localStorage.removeItem("by_user");
       setToken("");
       setMe(null);
+      setAuthFailed(true);
     } finally {
       setMeLoading(false);
     }
@@ -72,6 +77,7 @@ export default function App() {
     localStorage.removeItem("by_user");
     setToken("");
     setMe(null);
+    setAuthFailed(false);
   };
 
   const handleUsageChanged = () => setMeReloadKey(k => k + 1);
@@ -82,8 +88,8 @@ export default function App() {
       return <Navigate to="/login" replace />;
     }
     
-    // If we have a token but no user data, or user data failed to load, redirect to login
-    if (!me && !meLoading) {
+    // Only redirect to login if authentication has actually failed
+    if (authFailed) {
       return <Navigate to="/login" replace />;
     }
     
