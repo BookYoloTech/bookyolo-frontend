@@ -172,10 +172,20 @@ const ChatInterface = () => {
 
   // Helper function to get scan data from current messages
   const getScanDataFromCurrentMessages = useCallback((chatId) => {
+    console.log("DEBUG: getScanDataFromCurrentMessages called for chatId:", chatId);
+    console.log("DEBUG: currentChatId:", currentChatId);
+    console.log("DEBUG: messages length:", messages.length);
+    console.log("DEBUG: messages:", messages);
     
     // If this is the current chat, look in the current messages
     if (currentChatId === chatId) {
       const scanMessage = messages.find(msg => msg.role === 'assistant' && msg.scanData);
+      console.log("DEBUG: Found scanMessage:", scanMessage);
+      if (scanMessage) {
+        console.log("DEBUG: scanMessage.scanData:", scanMessage.scanData);
+        console.log("DEBUG: listing_title:", scanMessage.scanData.listing_title);
+        console.log("DEBUG: location:", scanMessage.scanData.location);
+      }
       return scanMessage ? scanMessage.scanData : null;
     }
     return null;
@@ -194,6 +204,7 @@ const ChatInterface = () => {
       
       if (chatRes.ok) {
         const chatData = await chatRes.json();
+        console.log("DEBUG: loadScanDataForChat - chat data:", chatData);
         
         if (chatData.chat.type === 'scan' && chatData.chat.scan_id) {
           // Now fetch the scan data
@@ -203,9 +214,9 @@ const ChatInterface = () => {
           
           if (scanRes.ok) {
             const scanData = await scanRes.json();
-            // console.log("DEBUG: loadScanDataForChat - scan data loaded:", scanData);
-            // console.log("DEBUG: loadScanDataForChat - listing_title:", scanData.listing_title);
-            // console.log("DEBUG: loadScanDataForChat - location:", scanData.location);
+            console.log("DEBUG: loadScanDataForChat - scan data loaded:", scanData);
+            console.log("DEBUG: loadScanDataForChat - listing_title:", scanData.listing_title);
+            console.log("DEBUG: loadScanDataForChat - location:", scanData.location);
             
             // Update the scanData state
             setScanData(prev => ({
@@ -296,9 +307,9 @@ const ChatInterface = () => {
         
         // Check for low scan balance (will be handled in UI component)
         if (userData.remaining <= 5 && userData.remaining > 0) {
-          // console.log("DEBUG: Low scan balance detected:", userData.remaining);
+          console.log("DEBUG: Low scan balance detected:", userData.remaining);
         } else {
-          // console.log("DEBUG: Scan balance OK. Remaining:", userData.remaining);
+          console.log("DEBUG: Scan balance OK. Remaining:", userData.remaining);
         }
       } else if (r1.status === 401 || r1.status === 404) {
         // User account doesn't exist or token is invalid - redirect to login
@@ -309,15 +320,15 @@ const ChatInterface = () => {
       }
       if (r2.ok) {
         const chatsData = await r2.json();
-        // console.log("DEBUG: All chats loaded:", chatsData);
-        // console.log("DEBUG: First chat structure:", chatsData[0]);
-        // console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
+        console.log("DEBUG: All chats loaded:", chatsData);
+        console.log("DEBUG: First chat structure:", chatsData[0]);
+        console.log("DEBUG: Chat fields:", chatsData[0] ? Object.keys(chatsData[0]) : "No chats");
         
         // Process compare chats to fetch actual titles - SIMPLE APPROACH
         const processedChats = await Promise.all(chatsData.map(async (chat) => {
           if (chat.type === 'compare') {
             try {
-              // console.log("DEBUG: Processing compare chat:", chat.id, "current title:", chat.title);
+              console.log("DEBUG: Processing compare chat:", chat.id, "current title:", chat.title);
               
               // Fetch the chat messages to get the comparison content
               const chatRes = await fetch(`${API_BASE}/chat/${chat.id}`, {
@@ -326,7 +337,7 @@ const ChatInterface = () => {
               
               if (chatRes.ok) {
                 const chatData = await chatRes.json();
-                // console.log("DEBUG: Chat messages:", chatData.messages);
+                console.log("DEBUG: Chat messages:", chatData.messages);
                 
                 // Look for the first assistant message with comparison content
                 const assistantMessage = chatData.messages.find(msg => 
@@ -337,7 +348,7 @@ const ChatInterface = () => {
                 );
                 
                 if (assistantMessage) {
-                  // console.log("DEBUG: Found comparison message:", assistantMessage.content);
+                  console.log("DEBUG: Found comparison message:", assistantMessage.content);
                   
                   // SIMPLE APPROACH: Just look for the actual titles in the content
                   const content = assistantMessage.content;
@@ -350,7 +361,7 @@ const ChatInterface = () => {
                     const match = content.match(/Bright and spacious house[^]*?(?=\n|https|$)/);
                     if (match) {
                       title1 = match[0].trim();
-                      // console.log("DEBUG: Found title1:", title1);
+                      console.log("DEBUG: Found title1:", title1);
                     }
                   }
                   
@@ -358,7 +369,7 @@ const ChatInterface = () => {
                     const match = content.match(/Modern Airbnb[^]*?(?=\n|https|$)/);
                     if (match) {
                       title2 = match[0].trim();
-                      // console.log("DEBUG: Found title2:", title2);
+                      console.log("DEBUG: Found title2:", title2);
                     }
                   }
                   
@@ -367,23 +378,23 @@ const ChatInterface = () => {
                     if (match) {
                       if (!title2) title2 = match[0].trim();
                       else if (!title1) title1 = match[0].trim();
-                      // console.log("DEBUG: Found Luxurious title:", match[0].trim());
+                      console.log("DEBUG: Found Luxurious title:", match[0].trim());
                     }
                   }
                   
                   if (title1 && title2) {
-                    // console.log("DEBUG: Final titles:", title1, "vs", title2);
+                    console.log("DEBUG: Final titles:", title1, "vs", title2);
                     return {
                       ...chat,
                       title: `${title1} vs ${title2}`
                     };
                   } else {
-                    // console.log("DEBUG: Could not find both titles, keeping original");
+                    console.log("DEBUG: Could not find both titles, keeping original");
                   }
                 }
               }
               
-              // console.log("DEBUG: Could not extract titles, keeping original:", chat.title);
+              console.log("DEBUG: Could not extract titles, keeping original:", chat.title);
             } catch (e) {
               console.error('Failed to process compare chat:', e);
             }
@@ -397,7 +408,7 @@ const ChatInterface = () => {
         
         // The /chats endpoint doesn't return scan_id, so we can't load scan data here
         // We'll load it when needed in the sidebar or when a chat is opened
-        // console.log("DEBUG: Skipping scan data loading in loadUserData - scan_id not available in /chats endpoint");
+        console.log("DEBUG: Skipping scan data loading in loadUserData - scan_id not available in /chats endpoint");
       }
     } catch (e) {
       console.error("Failed to load user data:", e);
@@ -475,17 +486,17 @@ const ChatInterface = () => {
         let scanData = null;
         if (data.chat.type === 'scan' && data.chat.scan_id) {
           try {
-            // console.log("DEBUG: loadChat - fetching scan data for scan_id:", data.chat.scan_id);
+            console.log("DEBUG: loadChat - fetching scan data for scan_id:", data.chat.scan_id);
             const scanRes = await fetch(`${API_BASE}/scan/${data.chat.scan_id}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
-            // console.log("DEBUG: loadChat - scan response status:", scanRes.status);
+            console.log("DEBUG: loadChat - scan response status:", scanRes.status);
             if (scanRes.ok) {
               scanData = await scanRes.json();
-              // console.log("DEBUG: loadChat - Scan data received:", scanData);
-              // console.log("DEBUG: loadChat - listing_title:", scanData.listing_title);
-              // console.log("DEBUG: loadChat - location:", scanData.location);
-              // console.log("DEBUG: loadChat - All keys:", Object.keys(scanData));
+              console.log("DEBUG: loadChat - Scan data received:", scanData);
+              console.log("DEBUG: loadChat - listing_title:", scanData.listing_title);
+              console.log("DEBUG: loadChat - location:", scanData.location);
+              console.log("DEBUG: loadChat - All keys:", Object.keys(scanData));
               setCurrentScan(scanData);
             } else {
               console.error("DEBUG: loadChat - Failed to load scan data, status:", scanRes.status);
@@ -499,7 +510,7 @@ const ChatInterface = () => {
         let compareScanData = null;
         if (data.chat.type === 'compare' && data.chat.scan_ids && data.chat.scan_ids.length >= 2) {
           try {
-            // console.log("DEBUG: loadChat - fetching compare scan data for scan_ids:", data.chat.scan_ids);
+            console.log("DEBUG: loadChat - fetching compare scan data for scan_ids:", data.chat.scan_ids);
             const [scan1Res, scan2Res] = await Promise.all([
               fetch(`${API_BASE}/scan/${data.chat.scan_ids[0]}`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -513,7 +524,7 @@ const ChatInterface = () => {
               const scan1Data = await scan1Res.json();
               const scan2Data = await scan2Res.json();
               compareScanData = { scan1: scan1Data, scan2: scan2Data };
-              // console.log("DEBUG: loadChat - Compare scan data received:", compareScanData);
+              console.log("DEBUG: loadChat - Compare scan data received:", compareScanData);
             } else {
               console.error("DEBUG: loadChat - Failed to load compare scan data");
             }
@@ -558,15 +569,15 @@ const ChatInterface = () => {
           // If this is an assistant message in a compare chat but we don't have scan data,
           // check if the content contains the formatted comparison structure
           if (msg.role === 'assistant' && data.chat.type === 'compare' && !compareScanData) {
-            // console.log("DEBUG: Processing compare message without scan data");
-            // console.log("DEBUG: Message content:", msg.content);
-            // console.log("DEBUG: Has Listing A:", msg.content.includes('Listing A:'));
-            // console.log("DEBUG: Has Listing B:", msg.content.includes('Listing B:'));
-            // console.log("DEBUG: Has Comparative Analysis:", msg.content.includes('Comparative Analysis:'));
+            console.log("DEBUG: Processing compare message without scan data");
+            console.log("DEBUG: Message content:", msg.content);
+            console.log("DEBUG: Has Listing A:", msg.content.includes('Listing A:'));
+            console.log("DEBUG: Has Listing B:", msg.content.includes('Listing B:'));
+            console.log("DEBUG: Has Comparative Analysis:", msg.content.includes('Comparative Analysis:'));
             
             // Check if content has the expected format: "Listing A:\n...\nListing B:\n...\nComparative Analysis:\n..."
             if (msg.content.includes('Listing A:') && msg.content.includes('Listing B:') && msg.content.includes('Comparative Analysis:')) {
-              // console.log("DEBUG: Found formatted comparison content, processing...");
+              console.log("DEBUG: Found formatted comparison content, processing...");
               message.isComparison = true;
               // Extract URLs from the content to create a basic comparedScans object
               const urlRegex = /https?:\/\/[^\s]+/g;
@@ -576,19 +587,19 @@ const ChatInterface = () => {
                 let title1 = msg.content.split('Listing A:')[1]?.split('\n')[1]?.trim() || 'Title not available';
                 let title2 = msg.content.split('Listing B:')[1]?.split('\n')[1]?.trim() || 'Title not available';
                 
-                // console.log("DEBUG: Extracted title1 from content:", title1);
-                // console.log("DEBUG: Extracted title2 from content:", title2);
+                console.log("DEBUG: Extracted title1 from content:", title1);
+                console.log("DEBUG: Extracted title2 from content:", title2);
                 
                 // If titles are still generic, try to fetch from database
                 if (title1 === 'Title not available' || title1.startsWith('Listing ') || title1 === 'None') {
-                  // console.log("DEBUG: Titles are generic, will fetch from database...");
+                  console.log("DEBUG: Titles are generic, will fetch from database...");
                   // We'll fetch titles asynchronously and update the message later
                   // For now, use fallback titles
                   const roomId1 = urls[0].split('/').pop();
                   const roomId2 = urls[1].split('/').pop();
                   title1 = `Listing ${roomId1.substring(0, 8)}...`;
                   title2 = `Listing ${roomId2.substring(0, 8)}...`;
-                  // console.log("DEBUG: Using fallback titles:", title1, title2);
+                  console.log("DEBUG: Using fallback titles:", title1, title2);
                   
                   // Fetch actual titles asynchronously using the correct endpoint
                   const token = localStorage.getItem("by_token");
@@ -598,19 +609,19 @@ const ChatInterface = () => {
                     headers: { Authorization: `Bearer ${token}` }
                   }).then(async (scansRes) => {
                     if (!scansRes.ok) {
-                      // console.log("DEBUG: Failed to fetch scans:", scansRes.status);
+                      console.log("DEBUG: Failed to fetch scans:", scansRes.status);
                       return;
                     }
                     
                     const allScans = await scansRes.json();
-                    // console.log("DEBUG: All scans:", allScans);
+                    console.log("DEBUG: All scans:", allScans);
                     
                     // Find scans that match our URLs
                     const scan1 = allScans.find(scan => scan.listing_url === urls[0]);
                     const scan2 = allScans.find(scan => scan.listing_url === urls[1]);
                     
-                    // console.log("DEBUG: Found scan1:", scan1);
-                    // console.log("DEBUG: Found scan2:", scan2);
+                    console.log("DEBUG: Found scan1:", scan1);
+                    console.log("DEBUG: Found scan2:", scan2);
                     
                     if (scan1 && scan2) {
                       // Fetch full scan data for both scans
@@ -628,19 +639,19 @@ const ChatInterface = () => {
                       
                       if (scan1Res.ok) {
                         const scan1Data = await scan1Res.json();
-                        // console.log("DEBUG: Scan1 full data:", scan1Data);
+                        console.log("DEBUG: Scan1 full data:", scan1Data);
                         if (scan1Data.listing_title) {
                           newTitle1 = scan1Data.listing_title;
-                          // console.log("DEBUG: Updated title1 from database:", newTitle1);
+                          console.log("DEBUG: Updated title1 from database:", newTitle1);
                         }
                       }
                       
                       if (scan2Res.ok) {
                         const scan2Data = await scan2Res.json();
-                        // console.log("DEBUG: Scan2 full data:", scan2Data);
+                        console.log("DEBUG: Scan2 full data:", scan2Data);
                         if (scan2Data.listing_title) {
                           newTitle2 = scan2Data.listing_title;
-                          // console.log("DEBUG: Updated title2 from database:", newTitle2);
+                          console.log("DEBUG: Updated title2 from database:", newTitle2);
                         }
                       }
                       
@@ -691,16 +702,16 @@ const ChatInterface = () => {
         
         // For compare chats, ensure we have the follow-up message
         if (data.chat.type === 'compare') {
-          // console.log("DEBUG: Checking for follow-up message in compare chat");
+          console.log("DEBUG: Checking for follow-up message in compare chat");
           const hasFollowUpMessage = processedMessages.some(msg => 
             msg.role === 'assistant' && 
             msg.content.includes('Do you have any questions about this comparison')
           );
           
-          // console.log("DEBUG: Has follow-up message:", hasFollowUpMessage);
+          console.log("DEBUG: Has follow-up message:", hasFollowUpMessage);
           
           if (!hasFollowUpMessage) {
-            // console.log("DEBUG: Adding follow-up message");
+            console.log("DEBUG: Adding follow-up message");
             // Add the follow-up message
             processedMessages.push({
               role: 'assistant',
@@ -764,7 +775,9 @@ const ChatInterface = () => {
         throw new Error("No authentication token found. Please log in again.");
       }
 
-      console.log("🔍 SCAN: Starting scan for URL:", url);
+      console.log("🔍 FRONTEND: Starting scan for URL:", url);
+      console.log("🔍 FRONTEND: API endpoint:", `${API_BASE}/chat/new-scan`);
+      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: url }));
       
       const res = await fetch(`${API_BASE}/chat/new-scan`, {
         method: "POST",
@@ -775,12 +788,14 @@ const ChatInterface = () => {
         body: JSON.stringify({ listing_url: url }),
       });
       
-      console.log("🔍 SCAN: Response status:", res.status);
+      console.log("🔍 FRONTEND: Response status:", res.status);
+      console.log("🔍 FRONTEND: Response headers:", Object.fromEntries(res.headers.entries()));
       
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: "Unknown error occurred" }));
-        console.error("🚨 SCAN ERROR:", res.status, errorData.detail);
-        console.log("🚨 SCAN ERROR DETAILS:", JSON.stringify(errorData, null, 2));
+        console.error("🚨 FRONTEND: Scan failed:", res.status, errorData);
+        console.log("🚨 FRONTEND: Full error response:", JSON.stringify(errorData, null, 2));
+        console.log("🚨 FRONTEND: Error detail message:", errorData.detail);
         
         // Handle specific error cases with custom messages
         if (res.status === 400) {
@@ -991,7 +1006,7 @@ const ChatInterface = () => {
           loadScanDataForChat(chat.id);
         }
         
-        // console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
+        console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan);
         
         return {
           id: chat.id,
@@ -1326,7 +1341,7 @@ const ChatInterface = () => {
             // Comparison UI
             <div className="bg-white rounded-3xl border border-accent p-6">
               <div className="text-sm text-primary mb-4">{message.content}</div>
-              {// console.log("DEBUG: Rendering comparison UI with scans:", message.availableScans)}
+              {console.log("DEBUG: Rendering comparison UI with scans:", message.availableScans)}
               <ComparisonSelector 
                 availableScans={message.availableScans || []}
                 onCompare={handleComparisonSelect}
