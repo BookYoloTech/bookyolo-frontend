@@ -1348,48 +1348,44 @@ const ChatInterface = () => {
               />
             </div>
           ) : message.isComparison && message.comparedScans ? (
-            // Comparison result with listing details
-            <div className="space-y-4">
+            // Comparison result with listing details - matching scan UI styling
+            <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
               {/* Listing A Details */}
-              <div className="mb-4">
-                <h3 className="font-semibold text-gray-800 mb-2">Listing A:</h3>
-                <div className="text-gray-700 mb-1">
-                  <strong className="font-bold" style={{ fontWeight: 'bold' }}>{message.comparedScans.scan1.listing_title || 'Title not available'}</strong>
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Listing A:</h3>
+                <div className="text-primary font-medium text-sm sm:text-base mb-2" style={{ fontWeight: '600' }}>
+                  {message.comparedScans.scan1.listing_title || 'Title not available'}
                 </div>
-                <div className="text-sm text-blue-600 break-all">
-                  <a 
-                    href={message.comparedScans.scan1.listing_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    {message.comparedScans.scan1.listing_url}
-                  </a>
-                </div>
+                <a 
+                  href={message.comparedScans.scan1.listing_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary underline break-all text-xs sm:text-sm hover:text-button transition-colors"
+                >
+                  {message.comparedScans.scan1.listing_url}
+                </a>
               </div>
               
               {/* Listing B Details */}
-              <div className="mb-4">
-                <h3 className="font-semibold text-gray-800 mb-2">Listing B:</h3>
-                <div className="text-gray-700 mb-1">
-                  <strong className="font-bold" style={{ fontWeight: 'bold' }}>{message.comparedScans.scan2.listing_title || 'Title not available'}</strong>
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Listing B:</h3>
+                <div className="text-primary font-medium text-sm sm:text-base mb-2" style={{ fontWeight: '600' }}>
+                  {message.comparedScans.scan2.listing_title || 'Title not available'}
                 </div>
-                <div className="text-sm text-blue-600 break-all">
-                  <a 
-                    href={message.comparedScans.scan2.listing_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    {message.comparedScans.scan2.listing_url}
-                  </a>
-                </div>
+                <a 
+                  href={message.comparedScans.scan2.listing_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary underline break-all text-xs sm:text-sm hover:text-button transition-colors"
+                >
+                  {message.comparedScans.scan2.listing_url}
+                </a>
               </div>
               
               {/* Comparative Analysis */}
               <div className="pt-4 border-t border-gray-200">
-                <h3 className="font-semibold text-gray-800 mb-3">Comparative Analysis:</h3>
-                <div className="text-base whitespace-pre-wrap leading-relaxed">{makeUrlsClickable(message.content)}</div>
+                <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Comparative Analysis:</h3>
+                <div className="text-primary leading-relaxed whitespace-pre-wrap">{makeUrlsClickable(message.content)}</div>
               </div>
             </div>
           ) : (
