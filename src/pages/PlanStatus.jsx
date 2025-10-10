@@ -221,12 +221,23 @@ export default function PlanStatus() {
       
       if (meResponse.ok) {
         const userData = await meResponse.json();
+        console.log("DEBUG: Profile update - data.user:", data.user);
+        console.log("DEBUG: Profile update - userData from /me:", userData);
+        
         // Update both the user data and scan balance correctly
         setUser({ 
           user: {
             ...data.user,  // Keep the updated profile data
             remaining: userData.remaining,  // Update scan balance
             used: userData.used  // Update used scans
+          }
+        });
+        
+        console.log("DEBUG: Profile update - final user state:", { 
+          user: {
+            ...data.user,
+            remaining: userData.remaining,
+            used: userData.used
           }
         });
       } else {
