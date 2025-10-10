@@ -102,18 +102,63 @@ export default function ComparePage() {
 
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/my-scans`, {
+      
+      // First get all chats to find scan chats
+      const chatsResponse = await fetch(`${API_BASE}/chats`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setAvailableScans(data.scans || []);
-      } else {
-        setError('Failed to load scans');
+      if (!chatsResponse.ok) {
+        setError('Failed to load chats');
+        return;
       }
+
+      const chatsData = await chatsResponse.json();
+      const scanChats = chatsData.chats.filter(chat => chat.type === 'scan');
+
+      if (scanChats.length < 2) {
+        setError('Please scan at least 2 listings first before you can compare them.');
+        setLoading(false);
+        return;
+      }
+
+      // Load scan data for each chat
+      const scansWithData = await Promise.all(
+        scanChats.slice(0, 10).map(async (chat) => {
+          try {
+            const scanResponse = await fetch(`${API_BASE}/scan/${chat.id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (scanResponse.ok) {
+              const scanData = await scanResponse.json();
+              return {
+                id: chat.id,
+                listing_url: chat.title.replace("Scan • ", ""),
+                listing_title: scanData.listing_title,
+                location: scanData.location,
+                created_at: chat.created_at
+              };
+            }
+          } catch (err) {
+            console.error(`Failed to load scan data for chat ${chat.id}:`, err);
+          }
+          
+          return {
+            id: chat.id,
+            listing_url: chat.title.replace("Scan • ", ""),
+            listing_title: null,
+            location: null,
+            created_at: chat.created_at
+          };
+        })
+      );
+
+      setAvailableScans(scansWithData);
     } catch (err) {
       setError('Network error');
     } finally {
@@ -247,9 +292,9 @@ export default function ComparePage() {
           </div>
         )}
 
-        {availableScans.length === 0 ? (
+        {error ? (
           <div className="text-center py-12">
-            <div className="text-gray-500 mb-4">No scans available for comparison</div>
+            <div className="text-red-500 mb-4">{error}</div>
             <button
               onClick={() => navigate('/scan')}
               className="bg-button text-button px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all"
@@ -261,7 +306,9 @@ export default function ComparePage() {
           <div className="space-y-8">
             {/* Comparison Selector */}
             <div className="bg-white rounded-2xl border border-accent p-6">
-              <h2 className="text-xl font-semibold text-primary mb-4">Select Listings to Compare</h2>
+              <div className="mb-4">
+                <div className="text-sm text-primary">I can help you compare your scanned listings. Here are your available scans:</div>
+              </div>
               <ComparisonSelector 
                 availableScans={availableScans}
                 onCompare={handleCompare}
