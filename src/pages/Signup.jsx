@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNotification } from "../contexts/NotificationContext";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import logo from "../assets/Bookyolo-logo.jpg";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.vercel.app";
@@ -8,6 +8,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "https://bookyolo-backend.verc
 export default function Signup() {
   const { showSuccess, showError } = useNotification();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false, agreeToPrivacy: false
   });
@@ -76,13 +77,8 @@ export default function Signup() {
         console.log('No referral tracking - referralCode:', referralCode, 'user_id:', json.user_id);
       }
       
-      // Account created successfully
-      showSuccess("Account created successfully! Please check your email to verify your account.");
-      
-      // Clear form
-      setForm({
-        firstName: "", email: "", password: "", confirmPassword: "", agreeToTerms: false, agreeToPrivacy: false
-      });
+      // Account created successfully - redirect to email verification page
+      navigate('/email-verification');
     } catch (e) {
       setErr(e.message || String(e));
     } finally {
