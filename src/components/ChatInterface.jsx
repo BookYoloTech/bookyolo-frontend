@@ -1552,8 +1552,8 @@ const ChatInterface = () => {
         `}
       </style>
       <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout">
-      {/* Header */}
-      <div className="bg-white sticky top-0 z-[70]">
+      {/* Header - Fixed at top */}
+      <div className="bg-white fixed top-0 left-0 right-0 z-[70]">
         {/* Hamburger Menu - Inside Header */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -1668,7 +1668,7 @@ const ChatInterface = () => {
       </div>
 
 
-      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)]">
+      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)] pt-[70px]">
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
