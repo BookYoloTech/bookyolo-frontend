@@ -744,7 +744,11 @@ const ChatInterface = () => {
     
     // Check if user has sufficient balance for scanning (requires 1 full scan)
     if (me?.remaining < 1.0) {
-      setError("You don't have enough scans remaining. Please upgrade your plan to continue scanning.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "You don't have enough scans remaining. Please upgrade your plan to continue scanning.",
+        isError: true
+      }]);
       setIsLoading(false);
       return;
     }
@@ -753,14 +757,22 @@ const ChatInterface = () => {
     
     // Validate URL
     if (!url || !url.trim()) {
-      setError("Please provide a valid URL to scan.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Please provide a valid URL to scan.",
+        isError: true
+      }]);
       setIsLoading(false);
       return;
     }
 
     // Check if this chat already has a scan
     if (currentChatId && messages.some(msg => msg.scanData)) {
-      setError("This chat is dedicated to the property you just scanned. Click on New Scan to scan a new property.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "This chat is dedicated to the property you just scanned. Click on New Scan to scan a new property.",
+        isError: true
+      }]);
       setIsLoading(false);
       return;
     }
@@ -879,13 +891,21 @@ const ChatInterface = () => {
 
   const handleAsk = async (question) => {
     if (!currentChatId) {
-      setError("Please scan a listing first before asking questions.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Please scan a listing first before asking questions.",
+        isError: true
+      }]);
       return;
     }
 
     // Check if user has sufficient balance for questions (requires 0.5 scans)
     if (me?.remaining < 0.5) {
-      setError("You don't have enough scans remaining. Please upgrade your plan to continue asking questions.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "You don't have enough scans remaining. Please upgrade your plan to continue asking questions.",
+        isError: true
+      }]);
       return;
     }
 
@@ -983,7 +1003,11 @@ const ChatInterface = () => {
     const scanChats = chats.filter(chat => chat.type === 'scan');
     
     if (isCompareRequest && scanChats.length < 2) {
-      setError("Please scan at least 2 listings first before you can compare them.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Please scan at least 2 listings first before you can compare them.",
+        isError: true
+      }]);
       return;
     }
 
@@ -994,7 +1018,11 @@ const ChatInterface = () => {
       
       // Wait for scan data to be loaded if it's still loading
       if (isLoadingData) {
-        setError("Loading scan data...");
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "Loading scan data...",
+          isError: true
+        }]);
         return;
       }
       
@@ -1107,7 +1135,11 @@ const ChatInterface = () => {
         setIsLoading(false);
       }
     } else {
-      setError("Please provide two Airbnb URLs to compare, or just say 'compare' to see your available scans.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Please provide two Airbnb URLs to compare, or just say 'compare' to see your available scans.",
+        isError: true
+      }]);
     }
   };
 
@@ -1125,7 +1157,11 @@ const ChatInterface = () => {
       await handleScan(trimmedInput);
     } else if (isUrl(trimmedInput)) {
       // Check if it's a URL but not Airbnb
-      setError("The URL you are trying to scan is from a platform that we do not cover yet. Bear with us as we are expanding quickly.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "The URL you are trying to scan is from a platform that we do not cover yet. Bear with us as we are expanding quickly.",
+        isError: true
+      }]);
     } else {
       await handleAsk(trimmedInput);
     }
@@ -1149,7 +1185,11 @@ const ChatInterface = () => {
     // Check if user has sufficient balance for comparison (requires 1 full scan for initial, 0.5 for questions)
     const requiredBalance = question ? 0.5 : 1.0;
     if (me?.remaining < requiredBalance) {
-      setError("You don't have enough scans remaining. Please upgrade your plan to continue comparing.");
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "You don't have enough scans remaining. Please upgrade your plan to continue comparing.",
+        isError: true
+      }]);
       setIsLoading(false);
       return;
     }
