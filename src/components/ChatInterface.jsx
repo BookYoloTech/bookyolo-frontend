@@ -721,6 +721,27 @@ const ChatInterface = () => {
           }
         }
         
+        // For scan chats, ensure we have the follow-up message
+        if (data.chat.type === 'scan') {
+          console.log("DEBUG: Checking for follow-up message in scan chat");
+          const hasFollowUpMessage = processedMessages.some(msg => 
+            msg.role === 'assistant' && 
+            msg.content.includes('Do you have any questions about this?')
+          );
+          
+          console.log("DEBUG: Has follow-up message:", hasFollowUpMessage);
+          
+          if (!hasFollowUpMessage) {
+            console.log("DEBUG: Adding follow-up message for scan");
+            // Add the follow-up message
+            processedMessages.push({
+              role: 'assistant',
+              content: 'Do you have any questions about this? Feel free to ask anything...',
+              timestamp: new Date().toISOString()
+            });
+          }
+        }
+        
         setMessages(processedMessages);
         
         // Scroll to top when loading a chat
