@@ -1862,9 +1862,7 @@ const ChatInterface = () => {
 
 
             {/* Input Form */}
-            <div className={`input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area ${
-              sidebarOpen ? 'lg:ml-80' : 'lg:ml-0'
-            }`} style={{ 
+            <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area" style={{ 
               paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
               position: 'sticky',
               bottom: 0,
