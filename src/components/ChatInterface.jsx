@@ -1379,7 +1379,7 @@ const ChatInterface = () => {
               <div className="mb-4 sm:mb-6">
                 <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Deep Inspection Analysis</h3>
                 <div className="text-primary mb-4">
-                  {message.scanData.inspection_summary || "This place passed 92 out of 100 inspection checks."}
+                  {message.scanData.inspection_summary || "Inspection analysis completed."}
                 </div>
                 <div className="space-y-4">
                   {(message.scanData.categories || []).map((c, i) => (
