@@ -1245,6 +1245,22 @@ const ChatInterface = () => {
          setCurrentChatId(`compare-${Date.now()}`);
        }
        
+       // Create a new chat for the comparison instead of adding to current messages
+       // This ensures comparison appears on a separate page like standalone compare
+       const newChatId = saveData?.chat_id || `compare-${Date.now()}`;
+       setCurrentChatId(newChatId);
+       
+       // Clear current messages and start fresh for the comparison
+       setMessages([]);
+       
+       // Add user message for the comparison
+       const userMessage = { 
+         role: "user", 
+         content: question ? `Compare these listings: ${question}` : "Compare these listings",
+         messageType: "compare"
+       };
+       setMessages(prev => [...prev, userMessage]);
+       
        // Add assistant response
        const assistantMessage = {
          role: "assistant",
