@@ -1217,6 +1217,7 @@ const ChatInterface = () => {
        const data = await res.json();
        
        // Save the compare result to the database
+       let newChatId = `compare-${Date.now()}`;
        try {
          const saveRes = await fetch(`${API_BASE}/save-compare`, {
            method: "POST",
@@ -1234,16 +1235,29 @@ const ChatInterface = () => {
          
          if (saveRes.ok) {
            const saveData = await saveRes.json();
-           setCurrentChatId(saveData.chat_id);
+           newChatId = saveData.chat_id;
          } else {
            const errorText = await saveRes.text();
            console.error("Failed to save compare to database:", errorText);
-           setCurrentChatId(`compare-${Date.now()}`);
          }
        } catch (saveError) {
          console.error("Error saving compare to database:", saveError);
-         setCurrentChatId(`compare-${Date.now()}`);
        }
+       
+       // Create a new chat for the comparison instead of adding to current messages
+       // This ensures comparison appears on a separate page like standalone compare
+       setCurrentChatId(newChatId);
+       
+       // Clear current messages and start fresh for the comparison
+       setMessages([]);
+       
+       // Add user message for the comparison
+       const userMessage = { 
+         role: "user", 
+         content: question ? `Compare these listings: ${question}` : "Compare these listings",
+         messageType: "compare"
+       };
+       setMessages(prev => [...prev, userMessage]);
        
        // Add assistant response
        const assistantMessage = {
