@@ -1795,7 +1795,7 @@ const ChatInterface = () => {
           sidebarOpen ? 'lg:ml-0 ml-80' : 'ml-0'
         }`}>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area">
+          <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20">
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl border border-accent p-6">
@@ -1864,8 +1864,10 @@ const ChatInterface = () => {
             {/* Input Form */}
             <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area" style={{ 
               paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
-              position: 'sticky',
+              position: 'fixed',
               bottom: 0,
+              left: 0,
+              right: 0,
               backgroundColor: 'white',
               zIndex: 9999
             }}>
