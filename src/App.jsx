@@ -34,6 +34,12 @@ export default function App() {
   const [meLoading, setMeLoading] = useState(false);
   const [authFailed, setAuthFailed] = useState(false); // Track if authentication has failed
 
+  // Debug Speed Insights
+  useEffect(() => {
+    console.log('SpeedInsights component mounted');
+    return () => console.log('SpeedInsights component unmounted');
+  }, []);
+
   const reloadMe = useCallback(async () => {
     const t = localStorage.getItem("by_token");
     if (!t) { setMe(null); setAuthFailed(false); return; }
