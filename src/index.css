@@ -23,14 +23,11 @@
   .mobile-input-area {
     position: fixed !important;
     bottom: 0 !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: calc(100% - 2rem) !important;
-    max-width: 4xl !important;
+    left: 0 !important;
+    right: 0 !important;
     background: white !important;
     z-index: 9999 !important;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
-    border-radius: 0.75rem !important;
   }
   
   /* Prevent zoom on input focus */
@@ -49,14 +46,11 @@
   .input-container {
     position: fixed !important;
     bottom: 0 !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: calc(100% - 2rem) !important;
-    max-width: 4xl !important;
+    left: 0 !important;
+    right: 0 !important;
     background: white !important;
     z-index: 9999 !important;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
-    border-radius: 0.75rem !important;
   }
   
   /* Ensure input stays above browser UI */
