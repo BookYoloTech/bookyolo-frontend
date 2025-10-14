@@ -425,8 +425,8 @@ const ChatInterface = () => {
       // Clear any error notifications when loading a chat
       setError("");
       
-      // Don't change activeButton when loading past chats - keep buttons in normal state
-      // activeButton should only be set when starting NEW scans/comparisons
+      // Reset active button state when loading past chats - they are no longer "active" operations
+      setActiveButton(null);
       
       // Check if this is a local compare chat (not in database)
       const localCompareChat = chats.find(chat => chat.id === chatId && chat.type === 'compare' && chat.id.startsWith('compare-'));
