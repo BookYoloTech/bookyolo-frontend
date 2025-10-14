@@ -19,12 +19,6 @@ export default function EmailVerification() {
             alt="BookYolo"
           />
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Check Your Email
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          We've sent you a verification link
-        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
