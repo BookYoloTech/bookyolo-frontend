@@ -21,11 +21,15 @@
 @supports (-webkit-touch-callout: none) {
   /* iOS Safari specific styles */
   .mobile-input-area {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom);
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    z-index: 9999 !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    border-top: 1px solid #e9e8ea !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
   }
   
   /* Prevent zoom on input focus */
@@ -35,15 +39,22 @@
   textarea,
   select {
     font-size: 16px !important;
+    transform: translateZ(0) !important;
+    -webkit-appearance: none !important;
+    border-radius: 0 !important;
   }
   
   /* Fix for Safari's address bar interference */
   .input-container {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    border-top: 1px solid #e9e8ea;
-    z-index: 1000;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    border-top: 1px solid #e9e8ea !important;
+    z-index: 9999 !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1) !important;
   }
   
   /* Ensure input stays above browser UI */

@@ -1832,7 +1832,9 @@ const ChatInterface = () => {
               position: 'sticky',
               bottom: 0,
               backgroundColor: 'white',
-              zIndex: 10
+              zIndex: 9999,
+              borderTop: '1px solid #e9e8ea',
+              boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)'
             }}>
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-4">
@@ -1852,6 +1854,8 @@ const ChatInterface = () => {
                     fontSize: '16px', // Prevents zoom on iOS
                     transform: 'translateZ(0)', // Hardware acceleration
                     WebkitAppearance: 'none',
+                    position: 'relative',
+                    zIndex: 10000,
                     borderRadius: '12px'
                   }}
                   onInput={(e) => {
