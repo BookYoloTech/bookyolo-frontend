@@ -30,6 +30,15 @@
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   }
   
+  /* Desktop: Use sticky positioning instead of fixed */
+  @media (min-width: 1024px) {
+    .mobile-input-area {
+      position: sticky !important;
+      left: auto !important;
+      right: auto !important;
+    }
+  }
+  
   /* Prevent zoom on input focus */
   input[type="text"],
   input[type="email"],
@@ -51,6 +60,15 @@
     background: white !important;
     z-index: 9999 !important;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Desktop: Use sticky positioning instead of fixed */
+  @media (min-width: 1024px) {
+    .input-container {
+      position: sticky !important;
+      left: auto !important;
+      right: auto !important;
+    }
   }
   
   /* Ensure input stays above browser UI */
