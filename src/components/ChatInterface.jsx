@@ -726,7 +726,7 @@ const ChatInterface = () => {
           console.log("DEBUG: Checking for follow-up message in scan chat");
           const hasFollowUpMessage = processedMessages.some(msg => 
             msg.role === 'assistant' && 
-            msg.content.includes('Do you have any questions about this?')
+            msg.content.includes('Do you have any questions about this scan?')
           );
           
           console.log("DEBUG: Has follow-up message:", hasFollowUpMessage);
@@ -736,7 +736,7 @@ const ChatInterface = () => {
             // Add the follow-up message
             processedMessages.push({
               role: 'assistant',
-              content: 'Do you have any questions about this? Feel free to ask anything...',
+              content: 'Do you have any questions about this scan? Feel free to ask anything...',
               timestamp: new Date().toISOString()
             });
           }
@@ -864,7 +864,7 @@ const ChatInterface = () => {
       // Add post-scan message
       const postScanMessage = {
         role: "assistant",
-        content: "Do you have any questions about this? Feel free to ask anything..."
+        content: "Do you have any questions about this scan? Feel free to ask anything..."
       };
       setMessages(prev => [...prev, postScanMessage]);
       
