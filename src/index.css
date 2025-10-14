@@ -29,6 +29,8 @@
     z-index: 9999 !important;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
     border-radius: 0.75rem !important;
+    border: none !important;
+    box-shadow: none !important;
   }
   
   /* Prevent zoom on input focus */
@@ -53,6 +55,8 @@
     z-index: 9999 !important;
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
     border-radius: 0.75rem !important;
+    border: none !important;
+    box-shadow: none !important;
   }
   
   /* Ensure input stays above browser UI */

@@ -1867,7 +1867,10 @@ const ChatInterface = () => {
               position: 'sticky',
               bottom: 0,
               backgroundColor: 'white',
-              zIndex: 9999
+              zIndex: 9999,
+              borderRadius: '0.75rem',
+              marginLeft: '0.5rem',
+              marginRight: '0.5rem'
             }}>
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-4">
