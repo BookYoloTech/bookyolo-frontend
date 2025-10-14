@@ -1722,7 +1722,9 @@ const ChatInterface = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col w-full">
+        <div className={`flex-1 flex flex-col w-full transition-all duration-300 ease-in-out ${
+          sidebarOpen ? 'lg:ml-0 ml-80' : 'ml-0'
+        }`}>
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area">
             {showComparisonUI ? (
