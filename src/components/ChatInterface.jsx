@@ -866,6 +866,9 @@ const ChatInterface = () => {
         content: errorContent,
         isError: true
       }]);
+      
+      // Clear the error state after adding to messages
+      setError(null);
     } finally {
       setIsLoading(false);
       setTimeout(() => setScanProgress(0), 800);
@@ -1589,15 +1592,6 @@ const ChatInterface = () => {
         </div>
       </div>
 
-      {/* Error Display - Mobile Prominent Position */}
-      {error && (
-        <div className="lg:hidden px-4 py-2 bg-red-50 border-b border-red-200">
-          <div className="flex items-center space-x-2">
-            <span className="text-red-500">⚠️</span>
-            <span className="text-sm text-red-700">{error}</span>
-          </div>
-        </div>
-      )}
 
       <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)]">
         {/* Mobile Overlay - Transparent */}
@@ -1791,19 +1785,6 @@ const ChatInterface = () => {
             </div>
           )}
 
-          {/* Error Display - Desktop Only */}
-          {error && (
-            <div className="hidden lg:block px-4 sm:px-6 pb-2">
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-red-500">⚠️</span>
-                    <span className="text-sm">{error}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
             {/* Input Form */}
             <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area" style={{ 
