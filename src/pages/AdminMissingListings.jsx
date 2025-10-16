@@ -169,8 +169,6 @@ export default function AdminMissingListings() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'in_progress': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -253,66 +251,19 @@ export default function AdminMissingListings() {
                         {listing.status.replace('_', ' ')}
                       </span>
                       <div className="flex space-x-2">
-                        {listing.status === 'pending' && (
-                          <>
-                            <button
-                              onClick={() => openAddForm(listing)}
-                              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                            >
-                              Add Listing
-                            </button>
-                            <button
-                              onClick={() => updateStatus(listing.id, 'in_progress')}
-                              disabled={updatingStatus === listing.id}
-                              className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
-                            >
-                              {updatingStatus === listing.id ? 'Updating...' : 'Start'}
-                            </button>
-                            <button
-                              onClick={() => updateStatus(listing.id, 'rejected')}
-                              disabled={updatingStatus === listing.id}
-                              className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 disabled:opacity-50"
-                            >
-                              Reject
-                            </button>
-                          </>
-                        )}
-                        {listing.status === 'in_progress' && (
-                          <>
-                            <button
-                              onClick={() => updateStatus(listing.id, 'completed')}
-                              disabled={updatingStatus === listing.id}
-                              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 disabled:opacity-50"
-                            >
-                              {updatingStatus === listing.id ? 'Updating...' : 'Complete'}
-                            </button>
-                            <button
-                              onClick={() => updateStatus(listing.id, 'pending')}
-                              disabled={updatingStatus === listing.id}
-                              className="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 disabled:opacity-50"
-                            >
-                              Back to Pending
-                            </button>
-                          </>
-                        )}
-                        {listing.status === 'completed' && (
-                          <button
-                            onClick={() => updateStatus(listing.id, 'in_progress')}
-                            disabled={updatingStatus === listing.id}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
-                          >
-                            Reopen
-                          </button>
-                        )}
-                        {listing.status === 'rejected' && (
-                          <button
-                            onClick={() => updateStatus(listing.id, 'pending')}
-                            disabled={updatingStatus === listing.id}
-                            className="bg-yellow-600 text-white px-3 py-1 rounded text-sm hover:bg-yellow-700 disabled:opacity-50"
-                          >
-                            Reconsider
-                          </button>
-                        )}
+                        <button
+                          onClick={() => openAddForm(listing)}
+                          className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                        >
+                          Add Listing
+                        </button>
+                        <button
+                          onClick={() => updateStatus(listing.id, 'rejected')}
+                          disabled={updatingStatus === listing.id}
+                          className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {updatingStatus === listing.id ? 'Updating...' : 'Reject'}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -323,24 +274,12 @@ export default function AdminMissingListings() {
         )}
 
         {/* Summary Stats */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-2xl font-bold text-yellow-600">
               {missingListings.filter(l => l.status === 'pending').length}
             </div>
             <div className="text-sm text-gray-500">Pending</div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-2xl font-bold text-blue-600">
-              {missingListings.filter(l => l.status === 'in_progress').length}
-            </div>
-            <div className="text-sm text-gray-500">In Progress</div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-2xl font-bold text-green-600">
-              {missingListings.filter(l => l.status === 'completed').length}
-            </div>
-            <div className="text-sm text-gray-500">Completed</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-2xl font-bold text-red-600">
