@@ -137,7 +137,6 @@ export default function App() {
         <Route path="/admin/scans" element={<AdminScans />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route path="/admin/referrals" element={<AdminAnalytics />} />
         <Route path="/admin/missing-listings" element={<AdminMissingListings />} />
         
         <Route 
