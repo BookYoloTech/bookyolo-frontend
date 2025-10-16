@@ -3,12 +3,22 @@ import logo from '../../assets/main-logo.jpg';
 
 export default function AdminHeader({ onLogout }) {
   const [adminUser, setAdminUser] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const user = localStorage.getItem("admin_user");
     if (user) {
       setAdminUser(JSON.parse(user));
     }
+  }, []);
+
+  useEffect(() => {
+    // Update time every second
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
   return (
@@ -34,7 +44,7 @@ export default function AdminHeader({ onLogout }) {
             <div className="hidden sm:flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-sm text-primary">System Online</span>
-              <span className="text-xs text-primary opacity-70">Last updated: 20:22:57</span>
+              <span className="text-xs text-primary opacity-70">Last updated: {currentTime.toLocaleTimeString()}</span>
             </div>
 
             {/* Admin User Info */}

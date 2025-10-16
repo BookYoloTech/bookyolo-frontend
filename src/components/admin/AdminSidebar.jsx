@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function AdminSidebar({ currentPage, onAddUser }) {
   const navigate = useNavigate();
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", path: "/admin/dashboard" },
@@ -16,6 +18,15 @@ export default function AdminSidebar({ currentPage, onAddUser }) {
   const handleNavigation = (path) => {
     navigate(path);
   };
+
+  useEffect(() => {
+    // Update time every second
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <aside className="w-64 bg-white border-r border-accent min-h-screen">
@@ -67,7 +78,7 @@ export default function AdminSidebar({ currentPage, onAddUser }) {
             <span className="text-sm font-medium text-primary">System Online</span>
           </div>
           <p className="text-xs text-primary opacity-70">
-            Last updated: 20:22:57
+            Last updated: {currentTime.toLocaleTimeString()}
           </p>
         </div>
       </div>
