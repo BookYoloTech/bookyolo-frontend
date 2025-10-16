@@ -9,6 +9,44 @@ export default function AdminMissingListings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedListing, setSelectedListing] = useState(null);
+  const [formData, setFormData] = useState({
+    listing_url: '',
+    property_id: '',
+    platform: 'airbnb',
+    listing_title: '',
+    listing_description: '',
+    listing_highlights: [],
+    amenities: [],
+    house_rules: '',
+    location: '',
+    lat: 0,
+    long: 0,
+    rating: 0,
+    number_of_reviews: 0,
+    most_recent_reviews: [],
+    older_reviews: [],
+    accuracy_rating: 0,
+    value_rating: 0,
+    cleanliness_rating: 0,
+    communication_rating: 0,
+    checkin_rating: 0,
+    location_rating: 0,
+    cleaning_fee: 0,
+    is_superhost: false,
+    is_guest_favorite: false,
+    host_rating: 0,
+    host_response_time: '',
+    host_response_rate: 0,
+    listing_type: '',
+    number_of_guests: 0,
+    number_of_bedrooms: 0,
+    number_of_bathrooms: 0,
+    sleeping_arrangement: [],
+    reviews: []
+  });
+  const [addingListing, setAddingListing] = useState(false);
 
   useEffect(() => {
     loadMissingListings();
@@ -61,6 +99,70 @@ export default function AdminMissingListings() {
       setError(err.message);
     } finally {
       setUpdatingStatus(null);
+    }
+  };
+
+  const openAddForm = (listing) => {
+    setSelectedListing(listing);
+    setFormData({
+      ...formData,
+      listing_url: listing.listing_url,
+      property_id: listing.listing_url.split('/').pop() || '',
+      platform: 'airbnb'
+    });
+    setShowAddForm(true);
+  };
+
+  const handleFormChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const addArrayItem = (field, value) => {
+    if (value.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        [field]: [...prev[field], value.trim()]
+      }));
+    }
+  };
+
+  const removeArrayItem = (field, index) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
+  };
+
+  const addListing = async () => {
+    try {
+      setAddingListing(true);
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch(`${API_BASE}/admin/add-listing`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to add listing');
+      }
+
+      // Close form and reload listings
+      setShowAddForm(false);
+      setSelectedListing(null);
+      await loadMissingListings();
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAddingListing(false);
     }
   };
 
@@ -154,6 +256,12 @@ export default function AdminMissingListings() {
                         {listing.status === 'pending' && (
                           <>
                             <button
+                              onClick={() => openAddForm(listing)}
+                              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                            >
+                              Add Listing
+                            </button>
+                            <button
                               onClick={() => updateStatus(listing.id, 'in_progress')}
                               disabled={updatingStatus === listing.id}
                               className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
@@ -242,6 +350,302 @@ export default function AdminMissingListings() {
           </div>
         </div>
       </div>
+
+      {/* Add Listing Modal */}
+      {showAddForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Add Listing to Database</h2>
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Listing URL</label>
+                    <input
+                      type="text"
+                      value={formData.listing_url}
+                      onChange={(e) => handleFormChange('listing_url', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      readOnly
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Property ID</label>
+                    <input
+                      type="text"
+                      value={formData.property_id}
+                      onChange={(e) => handleFormChange('property_id', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Listing Title</label>
+                    <input
+                      type="text"
+                      value={formData.listing_title}
+                      onChange={(e) => handleFormChange('listing_title', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Location</label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => handleFormChange('location', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Latitude</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.lat}
+                        onChange={(e) => handleFormChange('lat', parseFloat(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Longitude</label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={formData.long}
+                        onChange={(e) => handleFormChange('long', parseFloat(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ratings & Reviews */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Ratings & Reviews</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Overall Rating</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
+                        value={formData.rating}
+                        onChange={(e) => handleFormChange('rating', parseFloat(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Number of Reviews</label>
+                      <input
+                        type="number"
+                        value={formData.number_of_reviews}
+                        onChange={(e) => handleFormChange('number_of_reviews', parseInt(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Cleanliness Rating</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
+                        value={formData.cleanliness_rating}
+                        onChange={(e) => handleFormChange('cleanliness_rating', parseFloat(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Communication Rating</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
+                        value={formData.communication_rating}
+                        onChange={(e) => handleFormChange('communication_rating', parseFloat(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Check-in Rating</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
+                        value={formData.checkin_rating}
+                        onChange={(e) => handleFormChange('checkin_rating', parseFloat(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Location Rating</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
+                        value={formData.location_rating}
+                        onChange={(e) => handleFormChange('location_rating', parseFloat(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Property Details */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Property Details</h3>
+                  
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Guests</label>
+                      <input
+                        type="number"
+                        value={formData.number_of_guests}
+                        onChange={(e) => handleFormChange('number_of_guests', parseInt(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Bedrooms</label>
+                      <input
+                        type="number"
+                        value={formData.number_of_bedrooms}
+                        onChange={(e) => handleFormChange('number_of_bedrooms', parseInt(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Bathrooms</label>
+                      <input
+                        type="number"
+                        value={formData.number_of_bathrooms}
+                        onChange={(e) => handleFormChange('number_of_bathrooms', parseInt(e.target.value))}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Listing Type</label>
+                    <select
+                      value={formData.listing_type}
+                      onChange={(e) => handleFormChange('listing_type', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="">Select type</option>
+                      <option value="Entire place">Entire place</option>
+                      <option value="Private room">Private room</option>
+                      <option value="Shared room">Shared room</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Cleaning Fee</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.cleaning_fee}
+                      onChange={(e) => handleFormChange('cleaning_fee', parseFloat(e.target.value))}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+
+                  <div className="flex space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_superhost}
+                        onChange={(e) => handleFormChange('is_superhost', e.target.checked)}
+                        className="mr-2"
+                      />
+                      Superhost
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.is_guest_favorite}
+                        onChange={(e) => handleFormChange('is_guest_favorite', e.target.checked)}
+                        className="mr-2"
+                      />
+                      Guest Favorite
+                    </label>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Description</h3>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Listing Description</label>
+                    <textarea
+                      rows="4"
+                      value={formData.listing_description}
+                      onChange={(e) => handleFormChange('listing_description', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">House Rules</label>
+                    <textarea
+                      rows="3"
+                      value={formData.house_rules}
+                      onChange={(e) => handleFormChange('house_rules', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-4 mt-6 pt-6 border-t">
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addListing}
+                  disabled={addingListing}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                >
+                  {addingListing ? 'Adding...' : 'Add Listing'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
