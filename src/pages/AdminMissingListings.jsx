@@ -104,11 +104,41 @@ export default function AdminMissingListings() {
 
   const openAddForm = (listing) => {
     setSelectedListing(listing);
+    // Reset form data completely to ensure clean state
     setFormData({
-      ...formData,
       listing_url: listing.listing_url,
       property_id: listing.listing_url.split('/').pop() || '',
-      platform: 'airbnb'
+      platform: 'airbnb',
+      listing_title: '',
+      listing_description: '',
+      listing_highlights: [],
+      amenities: [],
+      house_rules: '',
+      location: '',
+      lat: 0,
+      long: 0,
+      rating: 0,
+      number_of_reviews: 0,
+      most_recent_reviews: [],
+      older_reviews: [],
+      accuracy_rating: 0,
+      value_rating: 0,
+      cleanliness_rating: 0,
+      communication_rating: 0,
+      checkin_rating: 0,
+      location_rating: 0,
+      cleaning_fee: 0,
+      is_superhost: false,
+      is_guest_favorite: false,
+      host_rating: 0,
+      host_response_time: '',
+      host_response_rate: 0,
+      listing_type: '',
+      number_of_guests: 0,
+      number_of_bedrooms: 0,
+      number_of_bathrooms: 0,
+      sleeping_arrangement: [],
+      reviews: []
     });
     setError(''); // Clear any previous errors
     setShowAddForm(true);
@@ -179,7 +209,13 @@ export default function AdminMissingListings() {
         number_of_bathrooms: parseInt(formData.number_of_bathrooms) || 0,
       };
       
-      console.log('🔍 DEBUG: Form data being sent:', cleanedFormData);
+      console.log('🔍 DEBUG: Original form data:', formData);
+      console.log('🔍 DEBUG: Cleaned form data being sent:', cleanedFormData);
+      console.log('🔍 DEBUG: Array fields check:', {
+        listing_highlights: { type: typeof cleanedFormData.listing_highlights, value: cleanedFormData.listing_highlights, isArray: Array.isArray(cleanedFormData.listing_highlights) },
+        amenities: { type: typeof cleanedFormData.amenities, value: cleanedFormData.amenities, isArray: Array.isArray(cleanedFormData.amenities) },
+        most_recent_reviews: { type: typeof cleanedFormData.most_recent_reviews, value: cleanedFormData.most_recent_reviews, isArray: Array.isArray(cleanedFormData.most_recent_reviews) }
+      });
       const token = localStorage.getItem('admin_token');
       const response = await fetch(`${API_BASE}/admin/add-listing`, {
         method: 'POST',
