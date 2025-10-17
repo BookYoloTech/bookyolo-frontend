@@ -151,7 +151,35 @@ export default function AdminMissingListings() {
         return;
       }
       
-      console.log('🔍 DEBUG: Form data being sent:', formData);
+      // Clean up form data to ensure arrays are properly formatted
+      const cleanedFormData = {
+        ...formData,
+        listing_highlights: Array.isArray(formData.listing_highlights) ? formData.listing_highlights : [],
+        amenities: Array.isArray(formData.amenities) ? formData.amenities : [],
+        most_recent_reviews: Array.isArray(formData.most_recent_reviews) ? formData.most_recent_reviews : [],
+        older_reviews: Array.isArray(formData.older_reviews) ? formData.older_reviews : [],
+        sleeping_arrangement: Array.isArray(formData.sleeping_arrangement) ? formData.sleeping_arrangement : [],
+        reviews: Array.isArray(formData.reviews) ? formData.reviews : [],
+        // Ensure numeric fields are properly formatted
+        lat: parseFloat(formData.lat) || 0,
+        long: parseFloat(formData.long) || 0,
+        rating: parseFloat(formData.rating) || 0,
+        number_of_reviews: parseInt(formData.number_of_reviews) || 0,
+        accuracy_rating: parseFloat(formData.accuracy_rating) || 0,
+        value_rating: parseFloat(formData.value_rating) || 0,
+        cleanliness_rating: parseFloat(formData.cleanliness_rating) || 0,
+        communication_rating: parseFloat(formData.communication_rating) || 0,
+        checkin_rating: parseFloat(formData.checkin_rating) || 0,
+        location_rating: parseFloat(formData.location_rating) || 0,
+        cleaning_fee: parseFloat(formData.cleaning_fee) || 0,
+        host_rating: parseFloat(formData.host_rating) || 0,
+        host_response_rate: parseFloat(formData.host_response_rate) || 0,
+        number_of_guests: parseInt(formData.number_of_guests) || 0,
+        number_of_bedrooms: parseInt(formData.number_of_bedrooms) || 0,
+        number_of_bathrooms: parseInt(formData.number_of_bathrooms) || 0,
+      };
+      
+      console.log('🔍 DEBUG: Form data being sent:', cleanedFormData);
       const token = localStorage.getItem('admin_token');
       const response = await fetch(`${API_BASE}/admin/add-listing`, {
         method: 'POST',
@@ -159,7 +187,7 @@ export default function AdminMissingListings() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(cleanedFormData)
       });
 
       if (!response.ok) {
