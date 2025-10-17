@@ -184,12 +184,12 @@ export default function AdminMissingListings() {
       // Clean up form data to ensure arrays are properly formatted
       const cleanedFormData = {
         ...formData,
-        listing_highlights: Array.isArray(formData.listing_highlights) ? formData.listing_highlights : [],
-        amenities: Array.isArray(formData.amenities) ? formData.amenities : [],
-        most_recent_reviews: Array.isArray(formData.most_recent_reviews) ? formData.most_recent_reviews : [],
-        older_reviews: Array.isArray(formData.older_reviews) ? formData.older_reviews : [],
-        sleeping_arrangement: Array.isArray(formData.sleeping_arrangement) ? formData.sleeping_arrangement : [],
-        reviews: Array.isArray(formData.reviews) ? formData.reviews : [],
+        listing_highlights: [],
+        amenities: [],
+        most_recent_reviews: [],
+        older_reviews: [],
+        sleeping_arrangement: [],
+        reviews: [],
         // Ensure numeric fields are properly formatted
         lat: parseFloat(formData.lat) || 0,
         long: parseFloat(formData.long) || 0,
