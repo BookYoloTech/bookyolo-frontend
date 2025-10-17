@@ -139,6 +139,7 @@ export default function AdminMissingListings() {
   const addListing = async () => {
     try {
       setAddingListing(true);
+      console.log('🔍 DEBUG: Form data being sent:', formData);
       const token = localStorage.getItem('admin_token');
       const response = await fetch(`${API_BASE}/admin/add-listing`, {
         method: 'POST',
@@ -150,8 +151,15 @@ export default function AdminMissingListings() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to add listing');
+        let errorMessage = 'Failed to add listing';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+        console.error('❌ DEBUG: Add listing error:', errorMessage);
+        throw new Error(errorMessage);
       }
 
       // Close form and reload listings
