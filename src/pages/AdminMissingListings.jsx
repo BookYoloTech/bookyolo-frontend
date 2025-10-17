@@ -110,6 +110,7 @@ export default function AdminMissingListings() {
       property_id: listing.listing_url.split('/').pop() || '',
       platform: 'airbnb'
     });
+    setError(''); // Clear any previous errors
     setShowAddForm(true);
   };
 
@@ -139,6 +140,17 @@ export default function AdminMissingListings() {
   const addListing = async () => {
     try {
       setAddingListing(true);
+      
+      // Validate required fields
+      const requiredFields = ['listing_url', 'property_id', 'listing_title', 'location'];
+      const missingFields = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === '');
+      
+      if (missingFields.length > 0) {
+        setError(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+        setAddingListing(false);
+        return;
+      }
+      
       console.log('🔍 DEBUG: Form data being sent:', formData);
       const token = localStorage.getItem('admin_token');
       const response = await fetch(`${API_BASE}/admin/add-listing`, {
@@ -313,49 +325,71 @@ export default function AdminMissingListings() {
                 </button>
               </div>
 
+              {/* Required Fields Notice */}
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-sm font-semibold text-blue-900 mb-2">Required Fields</h3>
+                <p className="text-sm text-blue-700">
+                  <strong>Minimum required:</strong> Listing URL, Property ID, Listing Title, Location, and at least one rating (Overall Rating or Number of Reviews).
+                </p>
+                <p className="text-sm text-blue-600 mt-1">
+                  All other fields are optional and can be filled in later. Empty arrays and zero values are automatically handled.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Basic Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Listing URL</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Listing URL <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={formData.listing_url}
                       onChange={(e) => handleFormChange('listing_url', e.target.value)}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50"
                       readOnly
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Property ID</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Property ID <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={formData.property_id}
                       onChange={(e) => handleFormChange('property_id', e.target.value)}
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      placeholder="Enter property ID"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Listing Title</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Listing Title <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={formData.listing_title}
                       onChange={(e) => handleFormChange('listing_title', e.target.value)}
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      placeholder="Enter listing title"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Location</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Location <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       value={formData.location}
                       onChange={(e) => handleFormChange('location', e.target.value)}
                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      placeholder="Enter location (e.g., New York, NY)"
                     />
                   </div>
 
