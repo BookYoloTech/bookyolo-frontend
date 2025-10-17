@@ -217,7 +217,7 @@ export default function AdminMissingListings() {
         most_recent_reviews: { type: typeof cleanedFormData.most_recent_reviews, value: cleanedFormData.most_recent_reviews, isArray: Array.isArray(cleanedFormData.most_recent_reviews) }
       });
       const token = localStorage.getItem('admin_token');
-      const response = await fetch(`${API_BASE}/admin/debug-add-listing`, {
+      const response = await fetch(`${API_BASE}/admin/add-listing`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -238,11 +238,6 @@ export default function AdminMissingListings() {
         throw new Error(errorMessage);
       }
 
-      // For debug endpoint, show the response data
-      const debugData = await response.json();
-      console.log('🔍 DEBUG: Backend received data:', debugData);
-      alert('Debug data logged to console. Check browser console for details.');
-      
       // Close form and reload listings
       setShowAddForm(false);
       setSelectedListing(null);
