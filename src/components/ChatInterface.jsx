@@ -256,55 +256,13 @@ const ChatInterface = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Reset chat area sizing after scan completion - AGGRESSIVE FIX
+  // Simple fix: Reset chat area after scan completion
   useEffect(() => {
     if (!isLoading && messages.length > 0) {
-      // Force a complete layout reset
+      // Simple timeout to ensure DOM is updated
       setTimeout(() => {
-        const chatArea = document.querySelector('.mobile-chat-area');
-        const mainContainer = document.querySelector('.mobile-fixed-layout');
-        const inputContainer = document.querySelector('.input-container');
-        
-        if (chatArea) {
-          // Remove any inline styles that might be interfering
-          chatArea.style.removeProperty('height');
-          chatArea.style.removeProperty('max-height');
-          chatArea.style.removeProperty('min-height');
-          chatArea.style.removeProperty('padding-bottom');
-          
-          // Force a complete reflow
-          chatArea.style.display = 'none';
-          chatArea.offsetHeight; // Force reflow
-          chatArea.style.display = '';
-          
-          // Reset to default mobile styling
-          chatArea.style.paddingBottom = '8rem';
-        }
-        
-        if (mainContainer) {
-          // Reset main container
-          mainContainer.style.height = '100vh';
-          mainContainer.style.minHeight = '100vh';
-          mainContainer.offsetHeight; // Force reflow
-        }
-        
-        if (inputContainer) {
-          // Ensure input container is properly positioned
-          inputContainer.style.position = 'fixed';
-          inputContainer.style.bottom = '0';
-          inputContainer.style.left = '0';
-          inputContainer.style.right = '0';
-          inputContainer.style.zIndex = '10';
-        }
-        
-        // Force multiple resize events to ensure all components update
-        window.dispatchEvent(new Event('resize'));
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
-        
-        // Force a complete re-render of the chat area
         setChatAreaKey(prev => prev + 1);
-      }, 150);
+      }, 100);
     }
   }, [isLoading, messages.length]);
 
@@ -1572,28 +1530,8 @@ const ChatInterface = () => {
               flex: 1 !important;
               overflow-y: auto !important;
               padding-bottom: 8rem !important;
-              transition: padding-bottom 0.3s ease-in-out !important;
-              height: auto !important;
-              max-height: none !important;
-              min-height: 0 !important;
-            }
-            
-            /* Reset padding when scan is complete */
-            .mobile-chat-area.scan-complete {
-              padding-bottom: 8rem !important;
-              height: auto !important;
-              max-height: none !important;
-              min-height: 0 !important;
-            }
-            
-            /* Force reset after scan completion */
-            .mobile-chat-area.force-reset {
-              padding-bottom: 8rem !important;
-              height: auto !important;
-              max-height: none !important;
-              min-height: 0 !important;
-              flex: 1 !important;
-              overflow-y: auto !important;
+              height: calc(100vh - 70px - 8rem) !important;
+              max-height: calc(100vh - 70px - 8rem) !important;
             }
             
             .mobile-input-area {
@@ -1622,7 +1560,7 @@ const ChatInterface = () => {
           }
         `}
       </style>
-      <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout">
+      <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout" style={{ height: '100vh', maxHeight: '100vh' }}>
       {/* Header - Fixed at top */}
       <div className="bg-white fixed top-0 left-0 right-0 z-[70]">
         {/* Hamburger Menu - Inside Header */}
@@ -1739,7 +1677,7 @@ const ChatInterface = () => {
       </div>
 
 
-      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)] pt-[70px]">
+      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)] pt-[70px]" style={{ height: 'calc(100vh - 70px)', maxHeight: 'calc(100vh - 70px)' }}>
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1864,11 +1802,12 @@ const ChatInterface = () => {
         {/* Main Chat Area */}
         <div className={`flex-1 flex flex-col w-full transition-all duration-300 ease-in-out ${
           sidebarOpen ? 'lg:ml-0 ml-80' : 'ml-0'
-        }`}>
+        }`} style={{ height: '100%', maxHeight: '100%', overflow: 'hidden' }}>
           {/* Messages */}
           <div 
             key={chatAreaKey}
-            className={`flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20 ${!isLoading && messages.length > 0 ? 'scan-complete force-reset' : ''}`}
+            className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20"
+            style={{ height: 'calc(100vh - 70px - 8rem)', maxHeight: 'calc(100vh - 70px - 8rem)' }}
           >
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
