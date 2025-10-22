@@ -1596,6 +1596,7 @@ const ChatInterface = () => {
                   onClick={() => {
                     setSidebarOpen(false); // Close sidebar on mobile
                     startNewChat();
+                    setActiveButton('scan'); // Set scan button as active
                   }}
                   className={`px-3 py-2 font-medium rounded-lg text-sm hover:opacity-90 hover:scale-105 transition-all duration-200 cursor-pointer ${
                     activeButton === 'scan' 
@@ -1604,7 +1605,7 @@ const ChatInterface = () => {
                   }`}
                   style={{ cursor: 'pointer' }}
                 >
-                  Scan
+                  New Scan
                 </button>
                 <button
                   onClick={(e) => {
@@ -1650,7 +1651,10 @@ const ChatInterface = () => {
             {/* Center: Action Buttons */}
             <div className="flex items-center space-x-3">
               <button
-                onClick={startNewChat}
+                onClick={() => {
+                  startNewChat();
+                  setActiveButton('scan'); // Set scan button as active
+                }}
                 className={`px-4 py-2 font-medium rounded-lg hover:opacity-90 hover:scale-105 transition-all duration-200 text-sm cursor-pointer ${
                   activeButton === 'scan' 
                     ? 'bg-button text-white shadow-sm' 
@@ -1658,7 +1662,7 @@ const ChatInterface = () => {
                 }`}
                 style={{ cursor: 'pointer' }}
               >
-                Scan
+                New Scan
               </button>
               
               <button
