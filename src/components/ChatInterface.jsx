@@ -1595,6 +1595,13 @@ const ChatInterface = () => {
             max-width: fit-content !important;
             width: auto !important;
           }
+          
+          /* Force rounded corners for all form elements on mobile */
+          select, input, textarea {
+            border-radius: 0.75rem !important;
+            -webkit-border-radius: 0.75rem !important;
+            -moz-border-radius: 0.75rem !important;
+          }
         `}
       </style>
       <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout" style={{ height: '100vh', maxHeight: '100vh' }}>
