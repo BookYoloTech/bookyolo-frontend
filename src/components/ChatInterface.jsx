@@ -1602,9 +1602,45 @@ const ChatInterface = () => {
             -webkit-border-radius: 0.75rem !important;
             -moz-border-radius: 0.75rem !important;
           }
+          
+          /* Fix for latest iOS Safari browser UI interference */
+          @supports (-webkit-touch-callout: none) {
+            /* iOS Safari specific fixes */
+            .mobile-input-area {
+              bottom: 0 !important;
+              padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+            }
+            
+            /* Use dynamic viewport height for latest iOS */
+            .mobile-fixed-layout {
+              height: 100dvh !important;
+              max-height: 100dvh !important;
+            }
+            
+            .mobile-chat-area {
+              height: calc(100dvh - 70px - 8rem) !important;
+              max-height: calc(100dvh - 70px - 8rem) !important;
+            }
+            
+            /* Ensure input area stays at bottom even with browser UI */
+            .input-container {
+              position: fixed !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              z-index: 60 !important;
+            }
+            
+            /* Additional fix for iOS Safari browser UI */
+            @media screen and (max-width: 639px) {
+              .input-container {
+                bottom: env(safe-area-inset-bottom, 0px) !important;
+              }
+            }
+          }
         `}
       </style>
-      <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout" style={{ height: '100vh', maxHeight: '100vh' }}>
+      <div className="h-screen bg-white overflow-hidden lg:min-h-screen lg:overflow-visible mobile-fixed-layout" style={{ height: '100vh', maxHeight: '100vh', height: '100dvh', maxHeight: '100dvh' }}>
       {/* Header - Fixed at top */}
       <div className="bg-white fixed top-0 left-0 right-0 z-[70]">
         {/* Hamburger Menu - Inside Header */}
@@ -1725,7 +1761,7 @@ const ChatInterface = () => {
       </div>
 
 
-      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)] pt-[70px]" style={{ height: 'calc(100vh - 70px)', maxHeight: 'calc(100vh - 70px)' }}>
+      <div className="flex h-[calc(100vh-70px)] lg:min-h-[calc(100vh-70px)] pt-[70px]" style={{ height: 'calc(100vh - 70px)', maxHeight: 'calc(100vh - 70px)', height: 'calc(100dvh - 70px)', maxHeight: 'calc(100dvh - 70px)' }}>
         {/* Mobile Overlay - Transparent */}
         {sidebarOpen && (
           <div 
@@ -1855,7 +1891,7 @@ const ChatInterface = () => {
           <div 
             key={chatAreaKey}
             className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20"
-            style={{ height: 'calc(100vh - 70px - 8rem)', maxHeight: 'calc(100vh - 70px - 8rem)' }}
+            style={{ height: 'calc(100vh - 70px - 8rem)', maxHeight: 'calc(100vh - 70px - 8rem)', height: 'calc(100dvh - 70px - 8rem)', maxHeight: 'calc(100dvh - 70px - 8rem)' }}
           >
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
