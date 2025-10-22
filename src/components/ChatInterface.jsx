@@ -255,6 +255,33 @@ const ChatInterface = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Reset chat area sizing after scan completion
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) {
+      // Force a layout recalculation to ensure proper sizing
+      setTimeout(() => {
+        const chatArea = document.querySelector('.mobile-chat-area');
+        const mainContainer = document.querySelector('.mobile-fixed-layout');
+        
+        if (chatArea) {
+          // Trigger a reflow to reset any layout issues
+          chatArea.style.transform = 'translateZ(0)';
+          chatArea.offsetHeight; // Force reflow
+          chatArea.style.transform = '';
+        }
+        
+        if (mainContainer) {
+          // Ensure the main container height is properly set
+          mainContainer.style.height = '100vh';
+          mainContainer.offsetHeight; // Force reflow
+        }
+        
+        // Dispatch a custom event to notify other components of layout change
+        window.dispatchEvent(new Event('resize'));
+      }, 100);
+    }
+  }, [isLoading, messages.length]);
+
   
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
@@ -1519,6 +1546,12 @@ const ChatInterface = () => {
               flex: 1 !important;
               overflow-y: auto !important;
               padding-bottom: 8rem !important;
+              transition: padding-bottom 0.3s ease-in-out !important;
+            }
+            
+            /* Reset padding when scan is complete */
+            .mobile-chat-area.scan-complete {
+              padding-bottom: 8rem !important;
             }
             
             .mobile-input-area {
@@ -1791,7 +1824,7 @@ const ChatInterface = () => {
           sidebarOpen ? 'lg:ml-0 ml-80' : 'ml-0'
         }`}>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20">
+          <div className={`flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20 ${!isLoading && messages.length > 0 ? 'scan-complete' : ''}`}>
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl border border-accent p-6">
