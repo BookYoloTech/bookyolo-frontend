@@ -92,34 +92,48 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-primary mb-2">Listing A</label>
-          <select 
-            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button cursor-pointer"
-            value={selectedScan1} 
-            onChange={(e) => setSelectedScan1(e.target.value)}
-          >
-            <option value="">Select listing A</option>
-            {availableScans.map((scan) => (
-              <option key={scan.id} value={scan.id}>
-                {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select 
+              className="w-full rounded-xl border-2 border-accent px-4 py-3 pr-10 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button cursor-pointer appearance-none bg-white"
+              value={selectedScan1} 
+              onChange={(e) => setSelectedScan1(e.target.value)}
+            >
+              <option value="" disabled>Select listing A</option>
+              {availableScans.map((scan) => (
+                <option key={scan.id} value={scan.id}>
+                  {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-primary mb-2">Listing B</label>
-          <select 
-            className="w-full rounded-xl border-2 border-accent px-4 py-3 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button cursor-pointer"
-            value={selectedScan2} 
-            onChange={(e) => setSelectedScan2(e.target.value)}
-          >
-            <option value="">Select listing B</option>
-            {availableScans.map((scan) => (
-              <option key={scan.id} value={scan.id}>
-                {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select 
+              className="w-full rounded-xl border-2 border-accent px-4 py-3 pr-10 text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button cursor-pointer appearance-none bg-white"
+              value={selectedScan2} 
+              onChange={(e) => setSelectedScan2(e.target.value)}
+            >
+              <option value="" disabled>Select listing B</option>
+              {availableScans.map((scan) => (
+                <option key={scan.id} value={scan.id}>
+                  {scan.listing_title || scan.location || scan.listing_url.replace("https://www.airbnb.com/rooms/", "Room ")}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
 
