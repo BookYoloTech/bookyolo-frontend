@@ -69,6 +69,8 @@ const ComparisonSelector = ({ availableScans, onCompare }) => {
   const [selectedScan2, setSelectedScan2] = useState("");
   const [question, setQuestion] = useState("");
   const [isComparing, setIsComparing] = useState(false);
+  
+  console.log("DEBUG: ComparisonSelector received scans:", availableScans.length, availableScans);
 
   const handleCompare = async () => {
     if (!selectedScan1 || !selectedScan2) {
@@ -1088,7 +1090,8 @@ const ChatInterface = () => {
       
       // Show comparison UI directly without adding messages to chat
       setShowComparisonUI(true);
-      setAvailableScansForComparison(scanChats.slice(0, 10).map(chat => {
+      console.log("DEBUG: Total scan chats available:", scanChats.length);
+      setAvailableScansForComparison(scanChats.map(chat => {
         // Try to get scan data from current messages first, then from scanData state
         const scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
         
