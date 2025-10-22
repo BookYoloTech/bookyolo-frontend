@@ -1102,6 +1102,9 @@ const ChatInterface = () => {
       setError("");
       setIsLoading(true);
       
+      // Clear previous messages to avoid showing old comparison results while processing
+      setMessages([]);
+      
       // Add user message
       const userMessage = { role: "user", content: text, messageType: "compare" };
       setMessages(prev => [...prev, userMessage]);
@@ -1227,6 +1230,9 @@ const ChatInterface = () => {
     setIsLoading(true);
     setShowComparisonUI(false); // Hide comparison UI
     setActiveButton('compare'); // Set compare button as active during comparison
+    
+    // Clear previous messages to avoid showing old comparison results while processing
+    setMessages([]);
     
     // Check if user has sufficient balance for comparison (requires 1 full scan for initial, 0.5 for questions)
     const requiredBalance = question ? 0.5 : 1.0;
