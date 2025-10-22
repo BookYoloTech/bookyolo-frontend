@@ -266,6 +266,18 @@ const ChatInterface = () => {
     }
   }, [isLoading, messages.length]);
 
+  // Ensure cursor is at the beginning when input value changes
+  useEffect(() => {
+    if (inputRef.current && input.length > 0) {
+      // Set cursor to beginning of text
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.setSelectionRange(0, 0);
+        }
+      }, 0);
+    }
+  }, [input]);
+
   
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
@@ -1914,7 +1926,10 @@ const ChatInterface = () => {
                     height: '44px',
                     minHeight: '44px',
                     maxHeight: '44px',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    textAlign: 'left',
+                    direction: 'ltr',
+                    unicodeBidi: 'normal'
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1922,7 +1937,12 @@ const ChatInterface = () => {
                       handleSubmit(e);
                     }
                   }}
-                  onFocus={() => {
+                  onFocus={(e) => {
+                    // Ensure cursor is at the beginning when focused
+                    setTimeout(() => {
+                      e.target.setSelectionRange(0, 0);
+                    }, 0);
+                    
                     // Scroll to input when focused on mobile
                     setTimeout(() => {
                       if (inputRef.current) {
