@@ -1529,9 +1529,9 @@ const ChatInterface = () => {
             .mobile-chat-area {
               flex: 1 !important;
               overflow-y: auto !important;
-              padding-bottom: 8rem !important;
-              height: calc(100vh - 70px - 8rem) !important;
-              max-height: calc(100vh - 70px - 8rem) !important;
+              padding-bottom: 80px !important;
+              height: calc(100vh - 70px - 80px) !important;
+              max-height: calc(100vh - 70px - 80px) !important;
             }
             
             .mobile-input-area {
@@ -1542,6 +1542,9 @@ const ChatInterface = () => {
               background: white !important;
               z-index: 10 !important;
               padding-bottom: 0.5rem !important;
+              height: 80px !important;
+              min-height: 80px !important;
+              max-height: 80px !important;
             }
           }
           
@@ -1807,7 +1810,7 @@ const ChatInterface = () => {
           <div 
             key={chatAreaKey}
             className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20"
-            style={{ height: 'calc(100vh - 70px - 8rem)', maxHeight: 'calc(100vh - 70px - 8rem)' }}
+            style={{ height: 'calc(100vh - 70px - 80px)', maxHeight: 'calc(100vh - 70px - 80px)' }}
           >
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
@@ -1882,7 +1885,10 @@ const ChatInterface = () => {
               left: 0,
               right: 0,
               backgroundColor: 'white',
-              zIndex: 10
+              zIndex: 10,
+              height: '80px',
+              minHeight: '80px',
+              maxHeight: '80px'
             }}>
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-4">
@@ -1891,7 +1897,7 @@ const ChatInterface = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Scan or Ask Anything…"
-                  className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all resize-none min-h-[44px] max-h-32 overflow-y-auto"
+                  className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all resize-none"
                   disabled={isLoading}
                   autoComplete="off"
                   autoCorrect="off"
@@ -1904,12 +1910,11 @@ const ChatInterface = () => {
                     WebkitAppearance: 'none',
                     position: 'relative',
                     zIndex: 10000,
-                    borderRadius: '12px'
-                  }}
-                  onInput={(e) => {
-                    // Auto-resize textarea based on content
-                    e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 128) + 'px';
+                    borderRadius: '12px',
+                    height: '44px',
+                    minHeight: '44px',
+                    maxHeight: '44px',
+                    overflow: 'hidden'
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
