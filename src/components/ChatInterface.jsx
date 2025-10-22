@@ -1543,9 +1543,9 @@ const ChatInterface = () => {
             .mobile-chat-area {
               flex: 1 !important;
               overflow-y: auto !important;
-              padding-bottom: 80px !important;
-              height: calc(100vh - 70px - 80px) !important;
-              max-height: calc(100vh - 70px - 80px) !important;
+              padding-bottom: 8rem !important;
+              height: calc(100vh - 70px - 8rem) !important;
+              max-height: calc(100vh - 70px - 8rem) !important;
             }
             
             .mobile-input-area {
@@ -1556,9 +1556,6 @@ const ChatInterface = () => {
               background: white !important;
               z-index: 10 !important;
               padding-bottom: 0.5rem !important;
-              height: 80px !important;
-              min-height: 80px !important;
-              max-height: 80px !important;
             }
           }
           
@@ -1824,7 +1821,7 @@ const ChatInterface = () => {
           <div 
             key={chatAreaKey}
             className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20"
-            style={{ height: 'calc(100vh - 70px - 80px)', maxHeight: 'calc(100vh - 70px - 80px)' }}
+            style={{ height: 'calc(100vh - 70px - 8rem)', maxHeight: 'calc(100vh - 70px - 8rem)' }}
           >
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
@@ -1893,16 +1890,16 @@ const ChatInterface = () => {
 
             {/* Input Form */}
             <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area" style={{ 
-              paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+              paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
               position: 'fixed',
               bottom: 0,
               left: 0,
               right: 0,
               backgroundColor: 'white',
               zIndex: 10,
-              height: '80px',
-              minHeight: '80px',
-              maxHeight: '80px'
+              height: 'auto',
+              minHeight: 'auto',
+              maxHeight: 'none'
             }}>
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-4">
