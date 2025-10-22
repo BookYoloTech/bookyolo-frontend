@@ -167,6 +167,7 @@ const ChatInterface = () => {
   const [recentScansCollapsed, setRecentScansCollapsed] = useState(false);
   const [recentComparesCollapsed, setRecentComparesCollapsed] = useState(false);
   const [activeButton, setActiveButton] = useState(null); // 'scan', 'compare', 'account', or null for normal state
+  const [chatAreaKey, setChatAreaKey] = useState(0); // Force re-render key
   const inputRef = useRef(null);
 
 
@@ -255,30 +256,55 @@ const ChatInterface = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Reset chat area sizing after scan completion
+  // Reset chat area sizing after scan completion - AGGRESSIVE FIX
   useEffect(() => {
     if (!isLoading && messages.length > 0) {
-      // Force a layout recalculation to ensure proper sizing
+      // Force a complete layout reset
       setTimeout(() => {
         const chatArea = document.querySelector('.mobile-chat-area');
         const mainContainer = document.querySelector('.mobile-fixed-layout');
+        const inputContainer = document.querySelector('.input-container');
         
         if (chatArea) {
-          // Trigger a reflow to reset any layout issues
-          chatArea.style.transform = 'translateZ(0)';
+          // Remove any inline styles that might be interfering
+          chatArea.style.removeProperty('height');
+          chatArea.style.removeProperty('max-height');
+          chatArea.style.removeProperty('min-height');
+          chatArea.style.removeProperty('padding-bottom');
+          
+          // Force a complete reflow
+          chatArea.style.display = 'none';
           chatArea.offsetHeight; // Force reflow
-          chatArea.style.transform = '';
+          chatArea.style.display = '';
+          
+          // Reset to default mobile styling
+          chatArea.style.paddingBottom = '8rem';
         }
         
         if (mainContainer) {
-          // Ensure the main container height is properly set
+          // Reset main container
           mainContainer.style.height = '100vh';
+          mainContainer.style.minHeight = '100vh';
           mainContainer.offsetHeight; // Force reflow
         }
         
-        // Dispatch a custom event to notify other components of layout change
+        if (inputContainer) {
+          // Ensure input container is properly positioned
+          inputContainer.style.position = 'fixed';
+          inputContainer.style.bottom = '0';
+          inputContainer.style.left = '0';
+          inputContainer.style.right = '0';
+          inputContainer.style.zIndex = '10';
+        }
+        
+        // Force multiple resize events to ensure all components update
         window.dispatchEvent(new Event('resize'));
-      }, 100);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+        
+        // Force a complete re-render of the chat area
+        setChatAreaKey(prev => prev + 1);
+      }, 150);
     }
   }, [isLoading, messages.length]);
 
@@ -1547,11 +1573,27 @@ const ChatInterface = () => {
               overflow-y: auto !important;
               padding-bottom: 8rem !important;
               transition: padding-bottom 0.3s ease-in-out !important;
+              height: auto !important;
+              max-height: none !important;
+              min-height: 0 !important;
             }
             
             /* Reset padding when scan is complete */
             .mobile-chat-area.scan-complete {
               padding-bottom: 8rem !important;
+              height: auto !important;
+              max-height: none !important;
+              min-height: 0 !important;
+            }
+            
+            /* Force reset after scan completion */
+            .mobile-chat-area.force-reset {
+              padding-bottom: 8rem !important;
+              height: auto !important;
+              max-height: none !important;
+              min-height: 0 !important;
+              flex: 1 !important;
+              overflow-y: auto !important;
             }
             
             .mobile-input-area {
@@ -1824,7 +1866,10 @@ const ChatInterface = () => {
           sidebarOpen ? 'lg:ml-0 ml-80' : 'ml-0'
         }`}>
           {/* Messages */}
-          <div className={`flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20 ${!isLoading && messages.length > 0 ? 'scan-complete' : ''}`}>
+          <div 
+            key={chatAreaKey}
+            className={`flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20 ${!isLoading && messages.length > 0 ? 'scan-complete force-reset' : ''}`}
+          >
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
                 <div className="bg-white rounded-3xl border border-accent p-6">
