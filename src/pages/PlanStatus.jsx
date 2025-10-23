@@ -712,14 +712,12 @@ export default function PlanStatus() {
               </div>
             </div>
             
-            <a
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=help@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => window.open('https://mail.google.com/mail/?view=cm&fs=1&to=help@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!', '_blank')}
               className="w-full bg-gray-900 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
             >
               Open Gmail
-            </a>
+            </button>
 
             <button
               onClick={() => setShowContactModal(false)}
