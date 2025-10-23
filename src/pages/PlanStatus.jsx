@@ -721,7 +721,7 @@ export default function PlanStatus() {
 
             <button
               onClick={() => setShowContactModal(false)}
-              className="w-full bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
+              className="w-full mt-3 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors cursor-pointer"
             >
               Close
             </button>
