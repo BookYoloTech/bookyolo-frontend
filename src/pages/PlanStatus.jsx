@@ -711,22 +711,14 @@ export default function PlanStatus() {
                 </div>
               </div>
               
-              <div className="flex gap-3">
-                <a
-                  href="https://mail.google.com/mail/?view=cm&fs=1&to=help@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 bg-gray-900 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
-                >
-                  Open Gmail
-                </a>
-                <a
-                  href="mailto:help@bookyolo.com?subject=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
-                  className="flex-1 bg-gray-200 text-gray-800 text-center py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
-                >
-                  Default Email
-                </a>
-              </div>
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=help@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-gray-900 text-white text-center py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+              >
+                Open Gmail
+              </a>
             </div>
 
             <button
