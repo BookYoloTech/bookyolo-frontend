@@ -188,10 +188,6 @@ export default function PlanStatus() {
     }
   };
 
-  const handleDowngrade = () => {
-    // Navigate to downgrade page (existing functionality)
-    window.open('https://bookyolo-frontend.vercel.app/pricing', '_blank');
-  };
 
   const handleUpdateProfile = async (formData) => {
     const token = localStorage.getItem("by_token");
@@ -451,17 +447,7 @@ export default function PlanStatus() {
                   </>
                 )}
               </button>
-            ) : (
-              <button
-                onClick={handleDowngrade}
-                className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-semibold flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
-                </svg>
-                Downgrade to BookYolo Free
-              </button>
-            )}
+            ) : null}
 
 
 
@@ -866,7 +852,9 @@ export default function PlanStatus() {
                     WhatsApp
                   </a>
                   <a
-                    href={`mailto:?subject=Check out BookYolo&body=Hey! Just found this: BookYolo. It's an AI travel tool that uncovers all the hidden details of rentals and hotels. You get the full story before booking — no more surprises when you arrive. ${window.location.origin}/signup?ref=${user?.user?.id}`}
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=&su=Check out BookYolo&body=Hey! Just found this: BookYolo. It's an AI travel tool that uncovers all the hidden details of rentals and hotels. You get the full story before booking — no more surprises when you arrive. ${window.location.origin}/signup?ref=${user?.user?.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
