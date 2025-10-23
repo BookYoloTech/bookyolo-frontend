@@ -715,7 +715,7 @@ export default function PlanStatus() {
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=help@bookyolo.com&su=BookYolo Support Request&body=Hi BookYolo Team,%0D%0A%0D%0AI need help with:%0D%0A%0D%0A[Please describe your question or issue here]%0D%0A%0D%0AThank you!"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-gray-900 text-white text-center py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+                className="w-full bg-gray-900 text-white text-center py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
               >
                 Open Gmail
               </a>
