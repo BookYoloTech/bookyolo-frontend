@@ -282,19 +282,7 @@ const ChatInterface = () => {
     }
   }, [isLoading, messages.length]);
 
-  // Ensure cursor is at the beginning when input value changes
-  useEffect(() => {
-    if (inputRef.current && input.length > 0) {
-      // Set cursor to beginning of text and scroll to beginning
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.setSelectionRange(0, 0);
-          inputRef.current.scrollLeft = 0;
-          inputRef.current.scrollTop = 0;
-        }
-      }, 0);
-    }
-  }, [input]);
+  // Remove problematic scroll manipulation that causes reverse typing
 
   
   const messagesEndRef = useRef(null);
@@ -1978,11 +1966,6 @@ const ChatInterface = () => {
                   value={input}
                   onChange={(e) => {
                     setInput(e.target.value);
-                    // Scroll to beginning when content changes
-                    setTimeout(() => {
-                      e.target.scrollLeft = 0;
-                      e.target.scrollTop = 0;
-                    }, 0);
                   }}
                   placeholder="Scan or Ask Anything…"
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all resize-none"
@@ -2014,14 +1997,6 @@ const ChatInterface = () => {
                     }
                   }}
                   onFocus={(e) => {
-                    // Ensure cursor is at the beginning when focused
-                    setTimeout(() => {
-                      e.target.setSelectionRange(0, 0);
-                      // Scroll textarea to the beginning
-                      e.target.scrollLeft = 0;
-                      e.target.scrollTop = 0;
-                    }, 0);
-                    
                     // Scroll to input when focused on mobile
                     setTimeout(() => {
                       if (inputRef.current) {
