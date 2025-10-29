@@ -290,12 +290,48 @@ const ChatInterface = () => {
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Prevent window scroll to top
+    window.scrollTo(0, window.scrollY);
+    
+    // Try multiple methods to ensure scrolling works
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    
+    // Also try scrolling the container directly
+    const container = document.querySelector('.flex-1.overflow-y-auto.p-2') || 
+                      document.querySelector('.mobile-chat-area');
+    if (container) {
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+        
+        // Double-check with a small delay to ensure it worked
+        setTimeout(() => {
+          if (container.scrollTop < container.scrollHeight - container.clientHeight - 50) {
+            container.scrollTop = container.scrollHeight;
+          }
+        }, 100);
+      });
+    }
   };
 
+  // Track if we're loading a new chat vs. updating messages in existing chat
+  const isLoadingNewChat = useRef(false);
+  
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    // Only scroll to bottom if we're actively in a chat (not loading a new chat)
+    if (currentChatId && messages.length > 0 && !isLoadingNewChat.current) {
+      // Immediately scroll to bottom when messages update (for follow-up questions)
+      setTimeout(() => {
+        scrollToBottom();
+        // Double-check after a bit longer delay to ensure it stuck
+        setTimeout(() => {
+          scrollToBottom();
+        }, 300);
+      }, 50);
+    }
+  }, [messages, currentChatId]);
 
   // Check authentication and load data
   useEffect(() => {
@@ -448,6 +484,9 @@ const ChatInterface = () => {
 
   const loadChat = async (chatId) => {
     try {
+      // Set flag to indicate we're loading a new chat (should scroll to top, not bottom)
+      isLoadingNewChat.current = true;
+      
       // Hide comparison UI when loading a chat
       setShowComparisonUI(false);
       
@@ -497,6 +536,8 @@ const ChatInterface = () => {
           if (messagesContainer) {
             messagesContainer.scrollTop = 0;
           }
+          // Reset flag after scrolling to top
+          isLoadingNewChat.current = false;
         }, 100);
         return;
       }
@@ -779,10 +820,14 @@ const ChatInterface = () => {
           if (messagesContainer) {
             messagesContainer.scrollTop = 0;
           }
+          // Reset flag after scrolling to top
+          isLoadingNewChat.current = false;
         }, 100);
       }
     } catch (e) {
       console.error("Failed to load chat:", e);
+      // Reset flag on error as well
+      isLoadingNewChat.current = false;
     }
   };
 
@@ -1002,8 +1047,15 @@ const ChatInterface = () => {
         };
         setMessages(prev => [...prev, assistantMessage]);
         
-        // Reload user data to get updated balance from backend
-        await loadUserData();
+        // Force scroll to bottom after message is added
+        setTimeout(() => {
+          scrollToBottom();
+        }, 200);
+        
+        // Reload user data to get updated balance from backend (delayed to not interfere with scroll)
+        setTimeout(() => {
+          loadUserData();
+        }, 500);
       } else {
         // Handle question in regular scan chat
         const res = await fetch(`${API_BASE}/chat/${currentChatId}/ask`, {
@@ -1029,8 +1081,15 @@ const ChatInterface = () => {
         };
         setMessages(prev => [...prev, assistantMessage]);
         
-        // Only refresh user data for regular scan chat questions
-        await loadUserData();
+        // Force scroll to bottom after message is added
+        setTimeout(() => {
+          scrollToBottom();
+        }, 200);
+        
+        // Only refresh user data for regular scan chat questions (delayed to not interfere with scroll)
+        setTimeout(() => {
+          loadUserData();
+        }, 500);
       }
     } catch (e) {
       setError(e.message || String(e));
@@ -1097,7 +1156,7 @@ const ChatInterface = () => {
           location: scan?.location,
           created_at: chat.created_at
         };
-      }));
+      })); 
       return;
     }
 
