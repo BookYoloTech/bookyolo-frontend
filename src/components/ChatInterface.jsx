@@ -1613,9 +1613,9 @@ const ChatInterface = () => {
             .mobile-chat-area {
               flex: 1 !important;
               overflow-y: auto !important;
-              padding-bottom: 8rem !important;
-              height: calc(100vh - 70px - 8rem) !important;
-              max-height: calc(100vh - 70px - 8rem) !important;
+              padding-bottom: 4rem !important;
+              height: calc(100vh - 70px - 4rem) !important;
+              max-height: calc(100vh - 70px - 4rem) !important;
             }
             
             .mobile-input-area {
@@ -1625,7 +1625,7 @@ const ChatInterface = () => {
               right: 0 !important;
               background: white !important;
               z-index: 10 !important;
-              padding-bottom: 0.5rem !important;
+              padding-bottom: 1.5rem !important;
             }
           }
           
@@ -1655,7 +1655,7 @@ const ChatInterface = () => {
             /* iOS Safari specific fixes */
             .mobile-input-area {
               bottom: 0 !important;
-              padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+              padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
             }
             
             /* Use dynamic viewport height for latest iOS */
@@ -1665,8 +1665,8 @@ const ChatInterface = () => {
             }
             
             .mobile-chat-area {
-              height: calc(100dvh - 70px - 8rem) !important;
-              max-height: calc(100dvh - 70px - 8rem) !important;
+              height: calc(100dvh - 70px - 4rem) !important;
+              max-height: calc(100dvh - 70px - 4rem) !important;
             }
             
             /* Ensure input area stays at bottom even with browser UI */
@@ -1942,7 +1942,7 @@ const ChatInterface = () => {
           <div 
             key={chatAreaKey}
             className="flex-1 overflow-y-auto p-2 sm:p-4 mobile-chat-area pb-20"
-            style={{ height: 'calc(100vh - 70px - 8rem)', maxHeight: 'calc(100vh - 70px - 8rem)', height: 'calc(100dvh - 70px - 8rem)', maxHeight: 'calc(100dvh - 70px - 8rem)' }}
+            style={{ height: 'calc(100vh - 70px - 4rem)', maxHeight: 'calc(100vh - 70px - 4rem)', height: 'calc(100dvh - 70px - 4rem)', maxHeight: 'calc(100dvh - 70px - 4rem)' }}
           >
             {showComparisonUI ? (
               <div className="max-w-4xl mx-auto w-full">
@@ -2011,7 +2011,7 @@ const ChatInterface = () => {
 
             {/* Input Form */}
             <div className="input-container p-2 sm:p-4 pb-4 sm:pb-4 mobile-input-area" style={{ 
-              paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+              paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))',
               position: 'fixed',
               bottom: 0,
               left: 0,
