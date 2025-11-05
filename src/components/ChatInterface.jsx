@@ -287,6 +287,20 @@ const ChatInterface = () => {
   
   const messagesEndRef = useRef(null);
   const tickRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // Auto-resize textarea based on content
+  const adjustTextareaHeight = useCallback(() => {
+    if (textareaRef.current) {
+      // Reset height to auto to get the correct scrollHeight
+      textareaRef.current.style.height = 'auto';
+      // Calculate new height based on content
+      const scrollHeight = textareaRef.current.scrollHeight;
+      // Set min height to 44px (original size) and max to 120px (about 5 lines)
+      const newHeight = Math.min(Math.max(scrollHeight, 44), 120);
+      textareaRef.current.style.height = `${newHeight}px`;
+    }
+  }, []);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -332,6 +346,16 @@ const ChatInterface = () => {
       }, 50);
     }
   }, [messages, currentChatId]);
+
+  // Reset textarea height when input is cleared
+  useEffect(() => {
+    if (!input.trim() && textareaRef.current) {
+      textareaRef.current.style.height = '44px';
+    } else if (input.trim()) {
+      // Adjust height when input has content
+      adjustTextareaHeight();
+    }
+  }, [input, adjustTextareaHeight]);
 
   // Check authentication and load data
   useEffect(() => {
@@ -2025,11 +2049,15 @@ const ChatInterface = () => {
               <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <div className="flex gap-2 sm:gap-4 px-2 sm:px-4">
                 <textarea
-                  ref={inputRef}
+                  ref={(node) => {
+                    inputRef.current = node;
+                    textareaRef.current = node;
+                  }}
                   value={input}
                   onChange={(e) => {
                     setInput(e.target.value);
                   }}
+                  onInput={adjustTextareaHeight}
                   placeholder="Scan or Ask Anything…"
                   className="flex-1 rounded-xl border-2 border-accent px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-primary focus:outline-none focus:ring-2 focus:ring-button/20 focus:border-button transition-all resize-none"
                   disabled={isLoading}
@@ -2045,13 +2073,13 @@ const ChatInterface = () => {
                     position: 'relative',
                     zIndex: 10000,
                     borderRadius: '12px',
-                    height: '44px',
                     minHeight: '44px',
-                    maxHeight: '44px',
+                    maxHeight: '120px',
                     overflow: 'auto',
                     textAlign: 'left',
                     direction: 'ltr',
-                    unicodeBidi: 'normal'
+                    unicodeBidi: 'normal',
+                    height: '44px'
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
