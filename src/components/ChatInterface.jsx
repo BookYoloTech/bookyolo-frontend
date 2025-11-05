@@ -1860,6 +1860,8 @@ const ChatInterface = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         loadChat(chat.id);
+                        // Close sidebar on mobile when selecting a scan
+                        setSidebarOpen(false);
                       }}
                       className={`w-full text-left p-3 rounded-lg transition-colors cursor-pointer ${
                         currentChatId === chat.id 
@@ -1909,6 +1911,8 @@ const ChatInterface = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       loadChat(chat.id);
+                      // Close sidebar on mobile when selecting a compare
+                      setSidebarOpen(false);
                     }}
                     className={`w-full text-left p-3 rounded-lg transition-colors cursor-pointer ${
                       currentChatId === chat.id 
