@@ -184,12 +184,12 @@ export default function AdminMissingListings() {
       // Clean up form data to ensure arrays are properly formatted
       const cleanedFormData = {
         ...formData,
-        listing_highlights: [],
-        amenities: [],
-        most_recent_reviews: [],
-        older_reviews: [],
-        sleeping_arrangement: [],
-        reviews: [],
+        listing_highlights: Array.isArray(formData.listing_highlights) ? formData.listing_highlights : [],
+        amenities: Array.isArray(formData.amenities) ? formData.amenities : [],
+        most_recent_reviews: Array.isArray(formData.most_recent_reviews) ? formData.most_recent_reviews : [],
+        older_reviews: Array.isArray(formData.older_reviews) ? formData.older_reviews : [],
+        sleeping_arrangement: Array.isArray(formData.sleeping_arrangement) ? formData.sleeping_arrangement : [],
+        reviews: Array.isArray(formData.reviews) ? formData.reviews : [],
         // Ensure numeric fields are properly formatted
         lat: parseFloat(formData.lat) || 0,
         long: parseFloat(formData.long) || 0,
@@ -560,6 +560,97 @@ export default function AdminMissingListings() {
                         onChange={(e) => handleFormChange('location_rating', parseFloat(e.target.value))}
                         className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                       />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Reviews</label>
+                    <div className="space-y-2">
+                      {formData.reviews && formData.reviews.length > 0 ? (
+                        formData.reviews.map((review, index) => (
+                          <div key={index} className="flex items-start gap-2 p-2 bg-gray-50 rounded border">
+                            <div className="flex-1">
+                              <textarea
+                                rows="2"
+                                value={typeof review === 'string' ? review : JSON.stringify(review)}
+                                onChange={(e) => {
+                                  const newReviews = [...formData.reviews];
+                                  try {
+                                    newReviews[index] = JSON.parse(e.target.value);
+                                  } catch {
+                                    newReviews[index] = e.target.value;
+                                  }
+                                  handleFormChange('reviews', newReviews);
+                                }}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                placeholder="Enter review text or JSON object"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeArrayItem('reviews', index)}
+                              className="text-red-600 hover:text-red-800 px-2"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">No reviews added. Click "Add Review" to add one.</p>
+                      )}
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter review text or JSON (e.g., {'text': 'Great place!', 'rating': 5})"
+                          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const value = e.target.value.trim();
+                              if (value) {
+                                try {
+                                  const parsed = JSON.parse(value);
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    reviews: [...(prev.reviews || []), parsed]
+                                  }));
+                                } catch {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    reviews: [...(prev.reviews || []), value]
+                                  }));
+                                }
+                                e.target.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            const input = e.target.previousElementSibling;
+                            const value = input.value.trim();
+                            if (value) {
+                              try {
+                                const parsed = JSON.parse(value);
+                                setFormData(prev => ({
+                                  ...prev,
+                                  reviews: [...(prev.reviews || []), parsed]
+                                }));
+                              } catch {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  reviews: [...(prev.reviews || []), value]
+                                }));
+                              }
+                              input.value = '';
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                        >
+                          Add Review
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

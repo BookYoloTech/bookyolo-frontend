@@ -22,6 +22,7 @@ import AdminScans from "./pages/AdminScans";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 import AdminMissingListings from "./pages/AdminMissingListings";
+import AdminManuallyAddedListings from "./pages/AdminManuallyAddedListings";
 
 const ScanPage = lazy(() => import("./pages/ScanPage"));
 
@@ -138,6 +139,7 @@ export default function App() {
         <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/missing-listings" element={<AdminMissingListings />} />
+        <Route path="/admin/manually-added-listings" element={<AdminManuallyAddedListings />} />
         
         <Route 
           path="/scan" 

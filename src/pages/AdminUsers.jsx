@@ -15,6 +15,9 @@ export default function AdminUsers() {
   const [totalPages, setTotalPages] = useState(1);
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({ fullName: "", email: "", password: "" });
+  const [showEditUser, setShowEditUser] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editUserData, setEditUserData] = useState({ fullName: "", email: "", password: "", plan: "free", email_verified: false });
 
   useEffect(() => {
     const adminToken = localStorage.getItem("admin_token");
@@ -120,7 +123,60 @@ export default function AdminUsers() {
       setNewUser({ fullName: "", email: "", password: "" });
       fetchUsers(); // Refresh the list
     } catch (e) {
-      // Error creating user
+      setError(e.message);
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setEditUserData({
+      fullName: user.full_name || "",
+      email: user.email || "",
+      password: "",
+      plan: user.plan || "free",
+      email_verified: user.email_verified || false
+    });
+    setShowEditUser(true);
+    setError("");
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("admin_token");
+      const updateData = {
+        full_name: editUserData.fullName,
+        email: editUserData.email,
+        plan: editUserData.plan,
+        email_verified: editUserData.email_verified
+      };
+      
+      // Only include password if it's provided
+      if (editUserData.password && editUserData.password.trim() !== "") {
+        updateData.password = editUserData.password;
+      }
+
+      const response = await fetch(`${API_BASE}/admin/users/${editingUser.id}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to update user");
+      }
+
+      // User updated successfully
+      setShowEditUser(false);
+      setEditingUser(null);
+      setEditUserData({ fullName: "", email: "", password: "", plan: "free", email_verified: false });
+      fetchUsers(); // Refresh the list
+    } catch (e) {
+      setError(e.message);
     }
   };
 
@@ -259,7 +315,12 @@ export default function AdminUsers() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">Edit</button>
+                          <button 
+                            onClick={() => handleEditUser(user)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            Edit
+                          </button>
                           {!user.is_admin && (
                             <button 
                               onClick={() => handleDeleteUser(user.id, user.email)}
@@ -360,6 +421,95 @@ export default function AdminUsers() {
                   className="flex-1 py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90"
                 >
                   Create User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditUser && editingUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold text-primary mb-4">Edit User</h3>
+            
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1.5">Full Name</label>
+                <input 
+                  className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
+                  type="text" 
+                  value={editUserData.fullName} 
+                  onChange={(e) => setEditUserData({...editUserData, fullName: e.target.value})}
+                  required 
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1.5">Email</label>
+                <input 
+                  className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
+                  type="email" 
+                  value={editUserData.email} 
+                  onChange={(e) => setEditUserData({...editUserData, email: e.target.value})}
+                  required 
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1.5">Password (leave blank to keep current)</label>
+                <input 
+                  className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
+                  type="password" 
+                  value={editUserData.password} 
+                  onChange={(e) => setEditUserData({...editUserData, password: e.target.value})}
+                  placeholder="Leave blank to keep current password"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1.5">Plan</label>
+                <select
+                  className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
+                  value={editUserData.plan}
+                  onChange={(e) => setEditUserData({...editUserData, plan: e.target.value})}
+                  required
+                >
+                  <option value="free">Free</option>
+                  <option value="premium">Premium</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={editUserData.email_verified}
+                    onChange={(e) => setEditUserData({...editUserData, email_verified: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-primary">Email Verified</span>
+                </label>
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setShowEditUser(false);
+                    setEditingUser(null);
+                    setEditUserData({ fullName: "", email: "", password: "", plan: "free", email_verified: false });
+                  }}
+                  className="flex-1 py-2.5 border border-accent text-primary rounded-lg font-medium hover:bg-accent"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 py-2.5 bg-button text-button rounded-lg font-semibold hover:opacity-90"
+                >
+                  Update User
                 </button>
               </div>
             </form>
