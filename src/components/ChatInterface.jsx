@@ -20,9 +20,15 @@ const labelStyle = (label) => {
   return map[label] || { bg: "bg-gray-500", text: "text-white" };
 };
 
-// Helper function to detect if input is an Airbnb URL
+// Helper function to detect if input is an Airbnb URL (handles all domain variations)
 const isAirbnbUrl = (text) => {
-  return text.includes('airbnb.com/rooms/') || text.includes('airbnb.') && text.includes('rooms');
+  if (!text || typeof text !== 'string') return false;
+  
+  // Comprehensive pattern for all Airbnb URL variations
+  // Supports: www.airbnb.com, airbnb.com, fr.airbnb.com, airbnb.fr, etc.
+  const airbnbPattern = /https?:\/\/(www\.)?([a-z]{2}\.)?airbnb\.(com|ca|co\.uk|com\.au|fr|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)\/rooms\//i;
+  
+  return airbnbPattern.test(text);
 };
 
 // Helper function to detect compare request
