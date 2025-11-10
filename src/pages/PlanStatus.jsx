@@ -52,10 +52,61 @@ export default function PlanStatus() {
             user: {
               ...userData.user,
               remaining: userData.remaining,
-              used: userData.used
+              used: userData.used,
+              subscription_status: userData.subscription_status,
+              subscription_expires: userData.subscription_expires
             }
           };
           setUser(structuredUser);
+          
+          // The /me endpoint already auto-grants premium if user has 3+ referrals
+          // If the plan changed from free to premium, the response already reflects it
+          // But if we want to be extra sure, we can check if plan is still free and user has referrals
+          // In that case, the /me endpoint should have already granted it, but let's verify
+          if (userData.plan !== 'premium' && userData.user?.id) {
+            // Double-check by calling referral stats (this also triggers auto-grant)
+            // This ensures premium is granted even if /me didn't catch it
+            try {
+              const statsResponse = await fetch(`${API_BASE}/referral/stats/${userData.user.id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              
+              if (statsResponse.ok) {
+                const stats = await statsResponse.json();
+                
+                // If premium was granted, refresh user data immediately
+                if (stats.has_premium && stats.plan === 'premium') {
+                  console.log('Premium granted via referral stats! Refreshing user data...');
+                  // Small delay to ensure backend has processed the update
+                  setTimeout(async () => {
+                    const refreshResponse = await fetch(`${API_BASE}/me`, {
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                      },
+                    });
+                    
+                    if (refreshResponse.ok) {
+                      const refreshedData = await refreshResponse.json();
+                      const refreshedUser = {
+                        user: {
+                          ...refreshedData.user,
+                          remaining: refreshedData.remaining,
+                          used: refreshedData.used,
+                          subscription_status: refreshedData.subscription_status,
+                          subscription_expires: refreshedData.subscription_expires
+                        }
+                      };
+                      setUser(refreshedUser);
+                    }
+                  }, 500); // 500ms delay to ensure backend has processed
+                }
+              }
+            } catch (err) {
+              console.error('Error checking referral stats:', err);
+            }
+          }
         } else {
           setError('Failed to load user data');
         }
@@ -98,8 +149,18 @@ export default function PlanStatus() {
 
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData);
-        console.log('User data refreshed:', userData);
+        // Structure the data to match what the UI expects
+        const structuredUser = {
+          user: {
+            ...userData.user,
+            remaining: userData.remaining,
+            used: userData.used,
+            subscription_status: userData.subscription_status,
+            subscription_expires: userData.subscription_expires
+          }
+        };
+        setUser(structuredUser);
+        console.log('User data refreshed:', structuredUser);
       } else {
         setError('Failed to load user data');
       }
@@ -126,6 +187,12 @@ export default function PlanStatus() {
         const stats = await response.json();
         console.log('Referral stats loaded:', stats);
         setReferralStats(stats);
+        
+        // If premium was just granted, refresh user data
+        if (stats.has_premium && stats.plan === 'premium') {
+          console.log('Premium granted! Refreshing user data...');
+          await loadUserData();
+        }
       } else {
         const errorText = await response.text();
         console.error('Failed to load referral stats:', response.status, errorText);
