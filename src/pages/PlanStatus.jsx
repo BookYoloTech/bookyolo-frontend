@@ -15,6 +15,9 @@ export default function PlanStatus() {
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
   const [upgradeError, setUpgradeError] = useState('');
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState('');
+  const [cancelSuccess, setCancelSuccess] = useState('');
   
   // Edit Profile states
   const [editProfileLoading, setEditProfileLoading] = useState(false);
@@ -213,6 +216,69 @@ export default function PlanStatus() {
   const copyEmailToClipboard = () => {
     navigator.clipboard.writeText('help@bookyolo.com');
     alert('Email address copied to clipboard!');
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!user) {
+      setCancelError("Please log in to cancel subscription");
+      return;
+    }
+
+    // Confirm cancellation
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel your subscription? " +
+      "Your premium access will continue until the end of your current billing period, " +
+      "but your subscription will not renew automatically."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const token = localStorage.getItem("by_token");
+    if (!token) {
+      setCancelError("Please log in to cancel subscription");
+      return;
+    }
+
+    setCancelLoading(true);
+    setCancelError('');
+    setCancelSuccess('');
+
+    try {
+      const response = await fetch(`${API_BASE}/stripe/cancel-subscription`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to cancel subscription");
+      }
+
+      const data = await response.json();
+      setCancelSuccess(data.message || "Subscription cancellation scheduled successfully");
+      
+      // Refresh user data to reflect the cancellation
+      const userResponse = await fetch(`${API_BASE}/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        setUser(userData);
+      }
+    } catch (err) {
+      console.error("Error canceling subscription:", err);
+      setCancelError(err.message || "Failed to cancel subscription. Please try again.");
+    } finally {
+      setCancelLoading(false);
+    }
   };
 
   const handleUpgrade = async () => {
@@ -495,6 +561,18 @@ export default function PlanStatus() {
               </div>
             )}
 
+            {/* Cancel Subscription Error/Success */}
+            {cancelError && (
+              <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+                {cancelError}
+              </div>
+            )}
+            {cancelSuccess && (
+              <div className="text-sm text-green-600 bg-green-50 p-3 rounded-lg">
+                {cancelSuccess}
+              </div>
+            )}
+
             {/* Upgrade/Downgrade Button */}
             {!isPremium ? (
               <button
@@ -519,6 +597,36 @@ export default function PlanStatus() {
                 )}
               </button>
             ) : null}
+
+            {/* Cancel Subscription Button - Only show for paid premium users */}
+            {isPremium && user?.user?.subscription_id && (
+              <button
+                onClick={handleCancelSubscription}
+                disabled={cancelLoading || user?.user?.subscription_status === 'cancel_at_period_end'}
+                className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors font-semibold flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+              >
+                {cancelLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Canceling subscription...
+                  </>
+                ) : user?.user?.subscription_status === 'cancel_at_period_end' ? (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Subscription Canceled (Active Until Expiry)
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel Subscription
+                  </>
+                )}
+              </button>
+            )}
 
             {/* Referral Link - Only show for non-premium users */}
             {!isPremium && (
