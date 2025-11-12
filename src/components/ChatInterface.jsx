@@ -1997,7 +1997,7 @@ const ChatInterface = () => {
                   Hi, I am BookYolo AI
                 </h2>
                   <p className="text-primary opacity-70 mb-6 text-sm sm:text-base">
-                    Paste any Airbnb property URL to scan it
+                    Scan your next stay before booking and avoid surprises. Paste any property URL from Airbnb, Booking, Expedia or Agoda.
                   </p>
                   <div className="text-xs sm:text-sm text-primary opacity-60 space-y-2">
                     <p><strong>Ask any question:</strong></p>
