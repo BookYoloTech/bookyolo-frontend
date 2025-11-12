@@ -1999,14 +1999,6 @@ const ChatInterface = () => {
                   <p className="text-primary opacity-70 mb-6 text-sm sm:text-base">
                     Scan your next stay before booking and avoid surprises. Paste any property URL from Airbnb, Booking, Expedia or Agoda.
                   </p>
-                  <div className="text-xs sm:text-sm text-primary opacity-60 space-y-2">
-                    <p><strong>Ask any question:</strong></p>
-                    <p>• Is this property clean overall?</p>
-                    <p>• Is this a good place for families?</p>
-                    <p>• How is the WiFi?</p>
-                    <p>• Have you noted any issues regarding street noise?</p>
-                    <p>• How is the kitchen?</p>
-                  </div>
                 </div>
               </div>
             ) : messages.length === 0 && isLoading ? (
