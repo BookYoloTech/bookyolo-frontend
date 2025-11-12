@@ -26,9 +26,13 @@ const isAirbnbUrl = (text) => {
   
   // Comprehensive pattern for all Airbnb URL variations
   // Supports: www.airbnb.com, airbnb.com, fr.airbnb.com, airbnb.fr, etc.
-  const airbnbPattern = /https?:\/\/(www\.)?([a-z]{2}\.)?airbnb\.(com|ca|co\.uk|com\.au|fr|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)\/rooms\//i;
+  // Also supports shortened URLs: /l/[slug] pattern
+  const airbnbRoomsPattern = /https?:\/\/(www\.)?([a-z]{2}\.)?airbnb\.(com|ca|co\.uk|com\.au|fr|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)\/rooms\//i;
   
-  return airbnbPattern.test(text);
+  // Pattern for shortened URLs (e.g., /l/uUOOx2oE)
+  const airbnbShortPattern = /https?:\/\/(www\.)?([a-z]{2}\.)?airbnb\.(com|ca|co\.uk|com\.au|fr|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)\/l\//i;
+  
+  return airbnbRoomsPattern.test(text) || airbnbShortPattern.test(text);
 };
 
 // Helper function to detect compare request
