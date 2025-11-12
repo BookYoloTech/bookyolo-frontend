@@ -539,7 +539,7 @@ export default function PlanStatus() {
                   </div>
                   {isPremium && user?.user?.subscription_expires && (
                     <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Expires on:</span>
+                  <span className="text-gray-600">Expires on</span>
                       <span className="font-semibold text-gray-900">
                         {new Date(user.user.subscription_expires).toLocaleDateString("en-US", {
                           year: "numeric",
