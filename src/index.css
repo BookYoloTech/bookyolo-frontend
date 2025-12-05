@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/* Custom color variables for the new theme */
+:root {
+  --color-primary-bg: #ffffff;
+  --color-button-bg: #1e162a;
+  --color-text: #070707;
+  --color-accent: #e9e8ea;
+  --color-button-text: #ffffff;
+}
+
+/* Override default Tailwind colors with our custom theme */
+.bg-primary { background-color: var(--color-primary-bg); }
+.bg-button { background-color: var(--color-button-bg); }
+.text-primary { color: var(--color-text); }
+.text-button { color: var(--color-button-text); }
+.bg-accent { background-color: var(--color-accent); }
+.border-accent { border-color: var(--color-accent); }
+
+/* Mobile Safari fixes */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific styles */
+  .mobile-input-area {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    z-index: 9999 !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    transform: translateZ(0) !important;
+    -webkit-appearance: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Fix for Safari's address bar interference */
+  .input-container {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    z-index: 9999 !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+  
+  /* Ensure input stays above browser UI */
+  textarea:focus {
+    position: relative;
+    z-index: 1001;
+  }
+}
+
