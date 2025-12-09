@@ -1135,11 +1135,53 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp }) => {
 
   const handleAsk = async (question) => {
     if (!currentChatId) {
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: "Please scan a listing first before asking questions.",
-        isError: true
-      }]);
+      // Use smart pre-scan assistant to understand context and guide user
+      setError("");
+      setIsLoading(true);
+      
+      // Add user message
+      const userMessage = { role: "user", content: question, messageType: "question" };
+      setMessages(prev => [...prev, userMessage]);
+      
+      try {
+        const token = localStorage.getItem("by_token");
+        const res = await fetch(`${API_BASE}/chat/pre-scan/ask`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ question }),
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`HTTP ${res.status}: ${errorText}`);
+        }
+        
+        const data = await res.json();
+        
+        // Add assistant response
+        const assistantMessage = {
+          role: "assistant",
+          content: data.answer || "Hey, I am here to help you book smarter. Please paste the listing link you would like me to analyze."
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        
+        // Force scroll to bottom after message is added
+        setTimeout(() => {
+          scrollToBottom();
+        }, 200);
+      } catch (e) {
+        setError(e.message || String(e));
+        // Fallback to friendly message if API fails
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "Hey, I am here to help you book smarter. Please paste the listing link you would like me to analyze."
+        }]);
+      } finally {
+        setIsLoading(false);
+      }
       return;
     }
 
