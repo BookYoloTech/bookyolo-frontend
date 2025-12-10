@@ -14,3 +14,6 @@ If you are developing a production application, we recommend using TypeScript wi
 ## BookYolo Frontend
 
 This is the frontend application for BookYolo, a smart property analysis platform.
+
+### Latest Update
+All files updated to ensure complete rebuild and deployment.

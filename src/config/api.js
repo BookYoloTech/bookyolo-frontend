@@ -1,5 +1,6 @@
 // Centralized API configuration
 // Automatically uses localhost for local development, Vercel for production
+// Updated: Complete frontend refresh
 const getApiBase = () => {
   // Check if VITE_API_BASE is explicitly set
   if (import.meta.env.VITE_API_BASE) {

@@ -1,6 +1,7 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
+  "_comment": "Updated: Complete frontend refresh",
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "vite",
