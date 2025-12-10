@@ -1704,7 +1704,6 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       const data = await res.json();
       
       // Show comparison result IMMEDIATELY - don't wait for save
-      // Note: data variable is declared once above
       // Add user message for the comparison
       const userMessage = { 
         role: "user", 
