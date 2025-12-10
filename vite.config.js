@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
+// Updated to force rebuild
 export default defineConfig({
   plugins: [
     react(),      

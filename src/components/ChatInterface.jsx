@@ -1370,20 +1370,13 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
               // If scan data not loaded, load it now (we need listing_url for comparison)
               if (!scan && chat.type === 'scan') {
                 scan = await loadScanDataForChat(chat.id);
-                // Ensure scan data is in state for future use
-                if (scan) {
-                  setScanData(prev => ({
-                    ...prev,
-                    [chat.id]: scan
-                  }));
-                }
               }
               
               // CRITICAL: Must have listing_url from scan data, not from title
               // Title may contain listing_title or location, not the actual URL
               if (!scan?.listing_url) {
                 console.error("DEBUG: No listing_url in scan data for chat", chat.id, "scan:", scan);
-                // Try to get it directly from scan endpoint as fallback
+                // Try to get it from chat endpoint if scan data doesn't have it
                 const token = localStorage.getItem("by_token");
                 if (token) {
                   const chatRes = await fetch(`${API_BASE}/chat/${chat.id}`, {
@@ -1398,11 +1391,6 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                       if (scanRes.ok) {
                         const fullScanData = await scanRes.json();
                         scan = fullScanData;
-                        // Update state with the loaded scan data
-                        setScanData(prev => ({
-                          ...prev,
-                          [chat.id]: fullScanData
-                        }));
                       }
                     }
                   }
@@ -1413,12 +1401,12 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
               const listingUrl = scan?.listing_url;
               
               if (!listingUrl || !listingUrl.startsWith('http')) {
-                console.error("DEBUG: Invalid listing_url for chat", chat.id, "listingUrl:", listingUrl, "full scan:", scan);
+                console.error("DEBUG: Invalid listing_url for chat", chat.id, "listingUrl:", listingUrl);
                 // Skip this scan if we don't have a valid URL
                 return null;
               }
               
-              console.log("DEBUG: Compare selector chat", chat.id, "listing_url:", listingUrl, "scan has listing_url:", !!scan?.listing_url);
+              console.log("DEBUG: Compare selector chat", chat.id, "scan data:", scan, "listing_url:", listingUrl);
               
               return {
                 id: chat.id,
@@ -1437,18 +1425,6 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
             setMessages(prev => [...prev, {
               role: "assistant",
               content: "Please scan at least 2 listings first before you can compare them.",
-              isError: true
-            }]);
-            return;
-          }
-          
-          // Verify all scans have valid URLs before showing UI
-          const allHaveUrls = validScans.every(s => s.listing_url && s.listing_url.startsWith('http'));
-          if (!allHaveUrls) {
-            console.error("DEBUG: Some scans missing valid URLs:", validScans);
-            setMessages(prev => [...prev, {
-              role: "assistant",
-              content: "Error: Some listings are missing URLs. Please try again.",
               isError: true
             }]);
             return;
@@ -1658,27 +1634,10 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     try {
       const token = localStorage.getItem("by_token");
       
-      // Double-check that we have valid URLs before sending to backend
-      const urlA = scan1.listing_url?.trim();
-      const urlB = scan2.listing_url?.trim();
-      
-      if (!urlA || !urlB || !urlA.startsWith('http') || !urlB.startsWith('http')) {
-        console.error("DEBUG: Invalid URLs before comparison:", { urlA, urlB, scan1, scan2 });
-        setMessages(prev => [...prev, {
-          role: "assistant",
-          content: "Error: Invalid listing URLs detected. Please try selecting the listings again.",
-          isError: true
-        }]);
-        setIsLoading(false);
-        return;
-      }
-      
       console.log("DEBUG: Comparing listings:", {
-        scan_a_url: urlA,
-        scan_b_url: urlB,
-        question: question || null,
-        scan1_full: scan1,
-        scan2_full: scan2
+        scan_a_url: scan1.listing_url,
+        scan_b_url: scan2.listing_url,
+        question: question || null
       });
       
       // Step 1: Get comparison result - show this IMMEDIATELY (don't wait for save)
@@ -1689,22 +1648,21 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          scan_a_url: urlA, 
-          scan_b_url: urlB, 
+          scan_a_url: scan1.listing_url, 
+          scan_b_url: scan2.listing_url, 
           question: question || null 
         }),
       });
       
       if (!res.ok) {
         const errorText = await res.text();
-        console.error("DEBUG: Compare API error:", res.status, errorText);
         throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
       
-      const comparisonData = await res.json();
+      const comparisonResult = await res.json();
       
       // Show comparison result IMMEDIATELY - don't wait for save
-      // Fixed: Renamed data to comparisonData to avoid duplicate declaration
+      // Fixed: Renamed data to comparisonResult to avoid duplicate declaration
       // Add user message for the comparison
       const userMessage = { 
         role: "user", 
@@ -1716,7 +1674,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // Add assistant response immediately
       const assistantMessage = {
         role: "assistant",
-        content: comparisonData.answer || "I couldn't compare these listings.",
+        content: comparisonResult.answer || "I couldn't compare these listings.",
         isComparison: true,
         comparedScans: { scan1, scan2 }
       };
@@ -1744,7 +1702,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         body: JSON.stringify({
           scan_a_url: scan1.listing_url,
           scan_b_url: scan2.listing_url,
-          answer: comparisonData.answer,
+          answer: comparisonResult.answer,
           question: question || null
         }),
       })
