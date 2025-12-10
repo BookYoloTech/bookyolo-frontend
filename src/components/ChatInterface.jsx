@@ -1539,7 +1539,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         // Add assistant response
         const assistantMessage = {
           role: "assistant",
-          content: comparisonData.answer || "I couldn't compare these listings.",
+          content: data.answer || "I couldn't compare these listings.",
           isComparison: true,
           comparedScans: {
             scan1: { listing_url: urls[0], listing_title: null },
