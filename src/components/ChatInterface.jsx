@@ -1539,7 +1539,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         // Add assistant response
         const assistantMessage = {
           role: "assistant",
-          content: data.answer || "I couldn't compare these listings.",
+          content: comparisonData.answer || "I couldn't compare these listings.",
           isComparison: true,
           comparedScans: {
             scan1: { listing_url: urls[0], listing_title: null },
@@ -1701,7 +1701,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
       
-      const data = await res.json();
+      const comparisonData = await res.json();
       
       // Show comparison result IMMEDIATELY - don't wait for save
       // Add user message for the comparison
@@ -1715,7 +1715,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // Add assistant response immediately
       const assistantMessage = {
         role: "assistant",
-        content: data.answer || "I couldn't compare these listings.",
+        content: comparisonData.answer || "I couldn't compare these listings.",
         isComparison: true,
         comparedScans: { scan1, scan2 }
       };
@@ -1743,7 +1743,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         body: JSON.stringify({
           scan_a_url: scan1.listing_url,
           scan_b_url: scan2.listing_url,
-          answer: data.answer,
+          answer: comparisonData.answer,
           question: question || null
         }),
       })
