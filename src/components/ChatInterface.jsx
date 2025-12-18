@@ -275,40 +275,52 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
   }, [currentChatId, messages]);
 
   // Helper function to load scan data for a specific chat
-  const loadScanDataForChat = useCallback(async (chatId) => {
+  const loadScanDataForChat = useCallback(async (chatId, chatObject = null) => {
     try {
       const token = localStorage.getItem("by_token");
       if (!token) return null;
       
-      // First get the chat details to find scan_id
-      const chatRes = await fetch(`${API_BASE}/chat/${chatId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      let scanId = null;
       
-      if (chatRes.ok) {
-        const chatData = await chatRes.json();
-        console.log("DEBUG: loadScanDataForChat - chat data:", chatData);
+      // Performance optimization: Use scan_id from chat object if available (from optimized /chats endpoint)
+      // This avoids the extra /chat/{chatId} API call, reducing latency significantly
+      if (chatObject && chatObject.scan_id) {
+        scanId = chatObject.scan_id;
+      } else {
+        // Fallback: Get chat details to find scan_id (for backward compatibility)
+        const chatRes = await fetch(`${API_BASE}/chat/${chatId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         
-        if (chatData.chat.type === 'scan' && chatData.chat.scan_id) {
-          // Now fetch the scan data
-          const scanRes = await fetch(`${API_BASE}/scan/${chatData.chat.scan_id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+        if (chatRes.ok) {
+          const chatData = await chatRes.json();
+          console.log("DEBUG: loadScanDataForChat - chat data:", chatData);
           
-          if (scanRes.ok) {
-            const scanData = await scanRes.json();
-            console.log("DEBUG: loadScanDataForChat - scan data loaded:", scanData);
-            console.log("DEBUG: loadScanDataForChat - listing_title:", scanData.listing_title);
-            console.log("DEBUG: loadScanDataForChat - location:", scanData.location);
-            
-            // Update the scanData state
-            setScanData(prev => ({
-              ...prev,
-              [chatId]: scanData
-            }));
-            
-            return scanData;
+          if (chatData.chat.type === 'scan' && chatData.chat.scan_id) {
+            scanId = chatData.chat.scan_id;
           }
+        }
+      }
+      
+      if (scanId) {
+        // Fetch the scan data
+        const scanRes = await fetch(`${API_BASE}/scan/${scanId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (scanRes.ok) {
+          const scanData = await scanRes.json();
+          console.log("DEBUG: loadScanDataForChat - scan data loaded:", scanData);
+          console.log("DEBUG: loadScanDataForChat - listing_title:", scanData.listing_title);
+          console.log("DEBUG: loadScanDataForChat - location:", scanData.location);
+          
+          // Update the scanData state
+          setScanData(prev => ({
+            ...prev,
+            [chatId]: scanData
+          }));
+          
+          return scanData;
         }
       }
     } catch (e) {
@@ -1088,6 +1100,14 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       setCurrentScan(data.scan);
       setScanProgress(100);
       
+      // Store scan data in state so compare screen can find it immediately
+      if (data.chat_id && data.scan) {
+        setScanData(prev => ({
+          ...prev,
+          [data.chat_id]: data.scan
+        }));
+      }
+      
       // Add assistant response with scan result
       const assistantMessage = {
         role: "assistant",
@@ -1111,13 +1131,16 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           if (exists) return prev;
           
           // Add new chat at the beginning (matches backend format)
+          // Include scan_id and listing_url to prevent loading message when going to compare screen
           const newChat = {
             id: data.chat_id,
             type: 'scan',
             title: data.scan?.listing_title 
               ? `Scan • ${data.scan.listing_title}` 
               : `Scan • ${data.scan?.location || url}`,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            scan_id: data.scan?.id || null,  // Include scan_id from scan response
+            listing_url: data.scan?.listing_url || null  // Include listing_url to avoid loading message
           };
           return [newChat, ...prev];
         });
@@ -1371,14 +1394,26 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         return;
       }
       
-      // Show loading message while we load scan data
-      setMessages(prev => [...prev, {
-        role: "assistant",
-        content: "Loading your scanned listings...",
-        isError: false
-      }]);
-      
       console.log("DEBUG: Total scan chats available:", scanChats.length);
+      
+      // Check if we already have listing_url for all scans (from optimized endpoint)
+      // This prevents showing loading message when data is already available
+      const allScansHaveListingUrl = scanChats.every(chat => 
+        (chat.listing_url && chat.listing_url.startsWith('http')) ||
+        (scanData[chat.id] && scanData[chat.id].listing_url) ||
+        getScanDataFromCurrentMessages(chat.id)?.listing_url
+      );
+      
+      // Only show loading message if we actually need to fetch data
+      let loadingMessageAdded = false;
+      if (!allScansHaveListingUrl) {
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "Loading your scanned listings...",
+          isError: false
+        }]);
+        loadingMessageAdded = true;
+      }
       
       // Build available scans list - load scan data first to get actual listing_url
       // We need listing_url from scan data, not from title (title may contain listing_title or location)
@@ -1386,19 +1421,57 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         try {
           const scansWithData = await Promise.all(
             scanChats.map(async (chat) => {
-              // Try to get scan data from current messages first, then from scanData state
-              let scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+              // Performance optimization: Use listing_url directly from chat object if available (from optimized /chats endpoint)
+              // This avoids individual scan fetches, dramatically improving compare screen load time
+              let listingUrl = chat.listing_url;
+              let scan = null;
               
-              // If scan data not loaded, load it now (we need listing_url for comparison)
-              if (!scan && chat.type === 'scan') {
-                scan = await loadScanDataForChat(chat.id);
+              // First check for cached scan data (might have listing_title and location)
+              scan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+              
+              // If we have listing_url from optimized endpoint AND cached scan data, use both
+              // This gives us listing_url (for comparison) and title/location (for display)
+              if (listingUrl && listingUrl.startsWith('http') && scan) {
+                return {
+                  id: chat.id,
+                  listing_url: listingUrl,
+                  listing_title: scan.listing_title || null,
+                  location: scan.location || null,
+                  created_at: chat.created_at
+                };
               }
               
-              // CRITICAL: Must have listing_url from scan data, not from title
-              // Title may contain listing_title or location, not the actual URL
-              if (!scan?.listing_url) {
+              // If listing_url from endpoint but no cached scan data, still need to fetch for title/location
+              // We need title/location for dropdown display, so fetch scan data even if we have listing_url
+              if (listingUrl && listingUrl.startsWith('http')) {
+                // We have listing_url but need title/location - fetch scan data
+                if (!scan && chat.type === 'scan') {
+                  scan = await loadScanDataForChat(chat.id, chat);
+                }
+                return {
+                  id: chat.id,
+                  listing_url: listingUrl,
+                  listing_title: scan?.listing_title || null,
+                  location: scan?.location || null,
+                  created_at: chat.created_at
+                };
+              }
+              
+              // If listing_url not in chat object, try to get from cached scan data
+              if (!listingUrl || !listingUrl.startsWith('http')) {
+                listingUrl = scan?.listing_url;
+              }
+              
+              // Only fetch scan data if we still don't have listing_url
+              // This minimizes API calls - we only fetch what we absolutely need
+              if ((!listingUrl || !listingUrl.startsWith('http')) && chat.type === 'scan') {
+                scan = await loadScanDataForChat(chat.id, chat);
+                listingUrl = scan?.listing_url;
+              }
+              
+              // Final fallback: try to get it from chat endpoint (should rarely be needed now)
+              if (!listingUrl || !listingUrl.startsWith('http')) {
                 console.error("DEBUG: No listing_url in scan data for chat", chat.id, "scan:", scan);
-                // Try to get it from chat endpoint if scan data doesn't have it
                 const token = localStorage.getItem("by_token");
                 if (token) {
                   const chatRes = await fetch(`${API_BASE}/chat/${chat.id}`, {
@@ -1413,14 +1486,12 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                       if (scanRes.ok) {
                         const fullScanData = await scanRes.json();
                         scan = fullScanData;
+                        listingUrl = fullScanData.listing_url;
                       }
                     }
                   }
                 }
               }
-              
-              // Get listing_url from scan data - this is the actual URL used when scanning
-              const listingUrl = scan?.listing_url;
               
               if (!listingUrl || !listingUrl.startsWith('http')) {
                 console.error("DEBUG: Invalid listing_url for chat", chat.id, "listingUrl:", listingUrl);
@@ -1443,6 +1514,11 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           // Filter out any null entries (scans without valid URLs)
           const validScans = scansWithData.filter(scan => scan !== null);
           
+          // Remove loading message if it was added
+          if (loadingMessageAdded) {
+            setMessages(prev => prev.filter(msg => msg.content !== "Loading your scanned listings..."));
+          }
+          
           if (validScans.length < 2) {
             setMessages(prev => [...prev, {
               role: "assistant",
@@ -1452,12 +1528,18 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
             return;
           }
           
-          // Clear loading message and show comparison UI
-          setMessages([]);
+          // Show comparison UI (messages already cleared if loading message was shown)
+          if (!loadingMessageAdded) {
+            setMessages([]);
+          }
           setAvailableScansForComparison(validScans);
           setShowComparisonUI(true);
         } catch (error) {
           console.error("Error loading scans for comparison:", error);
+          // Remove loading message on error if it was added
+          if (loadingMessageAdded) {
+            setMessages(prev => prev.filter(msg => msg.content !== "Loading your scanned listings..."));
+          }
           setMessages(prev => [...prev, {
             role: "assistant",
             content: "Error loading your scanned listings. Please try again.",
