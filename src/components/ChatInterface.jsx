@@ -1054,9 +1054,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         }
         
         // If this is an assistant message in a compare chat, attach compare scan data
+        // BUT only if it's the initial comparison (contains "Listing A:" and "Listing B:")
+        // Follow-up question answers should NOT have isComparison flag - they should just show text
         if (msg.role === 'assistant' && currentCompareScanData && data.chat.type === 'compare') {
-          message.isComparison = true;
-          message.comparedScans = currentCompareScanData;
+          // Only mark as comparison if content contains listing details (initial comparison)
+          // Follow-up question answers should NOT have isComparison flag
+          if (msg.content && (msg.content.includes('Listing A:') || msg.content.includes('Listing B:') || msg.content.includes('Comparative Analysis:'))) {
+            message.isComparison = true;
+            message.comparedScans = currentCompareScanData;
+          }
         }
         
         // If this is an assistant message in a compare chat but we don't have scan data,
@@ -2180,8 +2186,11 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                 onCompare={handleComparisonSelect}
               />
             </div>
-          ) : message.isComparison && message.comparedScans ? (
-            // Comparison result with listing details - matching scan UI styling
+          ) : message.isComparison && message.comparedScans && 
+              message.content && 
+              (message.content.includes('Listing A:') || message.content.includes('Listing B:')) ? (
+            // Only show full listing details for initial comparison results
+            // Follow-up question answers (without Listing A/B) should just show text
             <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
               {/* Listing A Information */}
               <div className="mb-4 sm:mb-6">
@@ -2224,6 +2233,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
               </div>
             </div>
           ) : (
+            // All other messages (follow-up questions, regular answers) - just show text
             <div className="text-base whitespace-pre-wrap leading-relaxed px-2 sm:px-4">{makeUrlsClickable(message.content)}</div>
           )}
         </div>
