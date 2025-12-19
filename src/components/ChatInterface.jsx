@@ -934,27 +934,70 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       
       // If it's a compare chat, fetch both scans in parallel (if not cached)
       let compareScanDataResult = null;
-      if (data.chat.type === 'compare' && data.chat.scan_ids && data.chat.scan_ids.length >= 2) {
-        // Fetch both scans in parallel with error handling
-        try {
-          scanFetchPromises.push(
-            Promise.all([
-              fetch(`${API_BASE}/scan/${data.chat.scan_ids[0]}`, {
-                headers: { Authorization: `Bearer ${token}` }
-              }).then(res => {
-                if (res.ok) return res.json();
-                  return null;
-              }).catch(() => null),
-              fetch(`${API_BASE}/scan/${data.chat.scan_ids[1]}`, {
-                headers: { Authorization: `Bearer ${token}` }
-              }).then(res => {
-                if (res.ok) return res.json();
-                return null;
-              }).catch(() => null)
-            ])
-          );
-        } catch (e) {
-          // Continue without scan data - chat can still load
+      if (data.chat.type === 'compare' && data.chat.scan_ids) {
+        // CRITICAL FIX: Handle scan_ids which might be a string or array
+        // PostgreSQL UUID arrays can be returned as strings like {"uuid1","uuid2"}
+        let scanIdsArray = [];
+        
+        if (Array.isArray(data.chat.scan_ids)) {
+          // Already an array - use directly
+          scanIdsArray = data.chat.scan_ids;
+        } else if (typeof data.chat.scan_ids === 'string') {
+          // Parse PostgreSQL array format: {"uuid1","uuid2"} or {uuid1,uuid2}
+          try {
+            // Remove curly braces and quotes, then split by comma
+            const cleaned = data.chat.scan_ids.replace(/[{}"]/g, '');
+            scanIdsArray = cleaned.split(',').map(id => id.trim()).filter(id => id.length > 0);
+          } catch (e) {
+            console.error("Failed to parse scan_ids string:", e, data.chat.scan_ids);
+            scanIdsArray = [];
+          }
+        }
+        
+        // Validate and fetch only if we have at least 2 valid scan IDs
+        if (scanIdsArray.length >= 2) {
+          // Additional validation: ensure IDs are valid (not empty, not just "{")
+          const validScanIds = scanIdsArray.filter(id => {
+            const trimmed = String(id).trim();
+            return trimmed.length > 0 && trimmed !== '{' && trimmed !== '}' && trimmed.length > 5; // UUIDs are longer than 5 chars
+          });
+          
+          if (validScanIds.length >= 2) {
+            // Fetch both scans in parallel with error handling
+            try {
+              scanFetchPromises.push(
+                Promise.all([
+                  fetch(`${API_BASE}/scan/${validScanIds[0]}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  }).then(res => {
+                    if (res.ok) return res.json();
+                    console.error(`Failed to fetch scan ${validScanIds[0]}:`, res.status);
+                    return null;
+                  }).catch((err) => {
+                    console.error(`Error fetching scan ${validScanIds[0]}:`, err);
+                    return null;
+                  }),
+                  fetch(`${API_BASE}/scan/${validScanIds[1]}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  }).then(res => {
+                    if (res.ok) return res.json();
+                    console.error(`Failed to fetch scan ${validScanIds[1]}:`, res.status);
+                    return null;
+                  }).catch((err) => {
+                    console.error(`Error fetching scan ${validScanIds[1]}:`, err);
+                    return null;
+                  })
+                ])
+              );
+            } catch (e) {
+              console.error("Error setting up scan fetch promises:", e);
+              // Continue without scan data - chat can still load
+            }
+          } else {
+            console.warn("Invalid scan_ids format - insufficient valid IDs:", data.chat.scan_ids, "parsed:", scanIdsArray);
+          }
+        } else {
+          console.warn("Insufficient scan_ids for comparison:", data.chat.scan_ids, "parsed:", scanIdsArray);
         }
       }
       
