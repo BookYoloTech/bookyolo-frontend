@@ -774,6 +774,10 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         setCurrentChatId(chatId);
         setCurrentScan(null);
         
+        // CRITICAL FIX: Ensure comparison UI is hidden for local compare chats
+        setShowComparisonUI(false);
+        setAvailableScansForComparison([]);
+        
         // Create messages for the compare chat
         const compareMessages = [
           {
@@ -829,6 +833,13 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       
       const data = await chatRes.json();
       setCurrentChatId(chatId);
+      
+      // CRITICAL FIX: If this is a compare chat, ensure comparison UI stays hidden
+      // and messages are shown directly (not the selector)
+      if (data.chat.type === 'compare') {
+        setShowComparisonUI(false); // Explicitly ensure it's false
+        setAvailableScansForComparison([]); // Clear any comparison selector data
+      }
       
       // Set messages immediately (don't wait for scan data) - this makes UI feel instant
       setMessages(data.messages.map((msg, index) => ({
@@ -1021,6 +1032,28 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         
       // Update messages with processed data (scan data, comparison flags, etc.)
       setMessages(processedMessages);
+      
+      // CRITICAL FIX: For compare chats, ensure comparison UI stays hidden
+      // and we show the comparison result directly (not the selector)
+      if (data.chat.type === 'compare') {
+        setShowComparisonUI(false);
+        setAvailableScansForComparison([]);
+        
+        // Ensure at least one message has isComparison flag set
+        const hasComparisonMessage = processedMessages.some(msg => msg.isComparison);
+        if (!hasComparisonMessage && processedMessages.length > 0) {
+          // Find the assistant message with comparison content and mark it
+          const comparisonMessage = processedMessages.find(msg => 
+            msg.role === 'assistant' && 
+            (msg.content.includes('Listing A:') || msg.content.includes('Comparative Analysis:') || msg.content.includes('In summary'))
+          );
+          if (comparisonMessage) {
+            comparisonMessage.isComparison = true;
+            // Update messages state with the corrected message
+            setMessages([...processedMessages]);
+          }
+        }
+      }
       
       // Scroll to top when loading a chat
       setTimeout(() => {
