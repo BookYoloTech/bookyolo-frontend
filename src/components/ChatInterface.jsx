@@ -1062,6 +1062,17 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         if (msg.role === 'assistant' && currentCompareScanData && data.chat.type === 'compare') {
           message.isComparison = true;
           message.comparedScans = currentCompareScanData;
+          
+          // CRITICAL FIX: Extract just the Comparative Analysis part from content
+          // This prevents showing Listing A and Listing B URLs again in the analysis section
+          // when loading compare chats from database (recent compare)
+          // The UI already displays listing details separately, so content should only contain the analysis
+          if (msg.content.includes('Listing A:') && msg.content.includes('Listing B:') && msg.content.includes('Comparative Analysis:')) {
+            const analysisStart = msg.content.indexOf('Comparative Analysis:');
+            if (analysisStart !== -1) {
+              message.content = msg.content.substring(analysisStart + 'Comparative Analysis:'.length).trim();
+            }
+          }
         }
         
         // If this is an assistant message in a compare chat but we don't have scan data,
