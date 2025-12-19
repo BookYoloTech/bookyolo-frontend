@@ -839,15 +839,54 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       if (data.chat.type === 'compare') {
         setShowComparisonUI(false); // Explicitly ensure it's false
         setAvailableScansForComparison([]); // Clear any comparison selector data
+        
+        // For compare chats, set messages with isComparison flag immediately
+        // to prevent selector UI from showing during the brief moment before processedMessages
+        setMessages(data.messages.map((msg, index) => {
+          const message = {
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.created_at,
+            messageType: msg.role === 'user' ? "compare" : undefined
+          };
+          
+          // Mark assistant messages as comparison if they contain comparison content
+          if (msg.role === 'assistant' && (msg.content.includes('Listing A:') || msg.content.includes('Comparative Analysis:') || msg.content.includes('In summary'))) {
+            message.isComparison = true;
+            // Try to extract comparedScans from content immediately
+            const urlRegex = /https?:\/\/[^\s]+/g;
+            const urls = msg.content.match(urlRegex) || [];
+            if (urls.length >= 2) {
+              let title1 = msg.content.split('Listing A:')[1]?.split('\n')[1]?.trim() || urls[0];
+              let title2 = msg.content.split('Listing B:')[1]?.split('\n')[1]?.trim() || urls[1];
+              if (!title1 || title1 === 'Title not available' || title1.startsWith('Listing ') || title1 === 'None') {
+                title1 = urls[0];
+              }
+              if (!title2 || title2 === 'Title not available' || title2.startsWith('Listing ') || title2 === 'None') {
+                title2 = urls[1];
+              }
+              message.comparedScans = {
+                scan1: { listing_url: urls[0], listing_title: title1 },
+                scan2: { listing_url: urls[1], listing_title: title2 }
+              };
+              // Extract just the Comparative Analysis part for cleaner display
+              const analysisStart = msg.content.indexOf('Comparative Analysis:');
+              if (analysisStart !== -1) {
+                message.content = msg.content.substring(analysisStart + 'Comparative Analysis:'.length).trim();
+              }
+            }
+          }
+          return message;
+        }));
+      } else {
+        // For non-compare chats, set messages normally
+        setMessages(data.messages.map((msg, index) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: msg.created_at,
+          messageType: msg.role === 'user' ? (data.chat.type === 'scan' && index > 0 ? "question" : index === 0 ? "scan" : undefined) : undefined
+        })));
       }
-      
-      // Set messages immediately (don't wait for scan data) - this makes UI feel instant
-      setMessages(data.messages.map((msg, index) => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: msg.created_at,
-        messageType: msg.role === 'user' ? (data.chat.type === 'scan' && index > 0 ? "question" : data.chat.type === 'compare' ? "compare" : index === 0 ? "scan" : undefined) : undefined
-      })));
       
       // Prepare parallel fetches for scan data (if not cached)
       const scanFetchPromises = [];
