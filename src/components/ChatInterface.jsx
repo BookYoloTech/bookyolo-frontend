@@ -1483,10 +1483,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         
         const data = await res.json();
         
-        // Add assistant response
+        // Add assistant response with comparedScans for compare chats
         const assistantMessage = {
           role: "assistant",
-          content: data.answer || "I don't have enough information to answer that question."
+          content: data.answer || "I don't have enough information to answer that question.",
+          isComparison: true,
+          comparedScans: {
+            scan1: currentChat.scan1,
+            scan2: currentChat.scan2
+          }
         };
         setMessages(prev => [...prev, assistantMessage]);
         
@@ -1521,11 +1526,33 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         
         const data = await res.json();
         
-        // Add assistant response
+        // Check if this is a compare chat and get comparedScans from existing messages
+        const currentChatForQuestion = chats.find(chat => chat.id === currentChatId);
+        let comparedScansForAnswer = null;
+        
+        if (currentChatForQuestion && currentChatForQuestion.type === 'compare') {
+          // Find existing message with comparedScans to reuse for follow-up answers
+          const existingComparisonMessage = messages.find(msg => 
+            msg.isComparison && msg.comparedScans
+          );
+          
+          if (existingComparisonMessage && existingComparisonMessage.comparedScans) {
+            comparedScansForAnswer = existingComparisonMessage.comparedScans;
+          }
+        }
+        
+        // Add assistant response with comparedScans for compare chats
         const assistantMessage = {
           role: "assistant",
           content: data.answer || "I don't have enough information to answer that question."
         };
+        
+        // If this is a compare chat, add isComparison and comparedScans
+        if (comparedScansForAnswer) {
+          assistantMessage.isComparison = true;
+          assistantMessage.comparedScans = comparedScansForAnswer;
+        }
+        
         setMessages(prev => [...prev, assistantMessage]);
         
         // Force scroll to bottom after message is added
