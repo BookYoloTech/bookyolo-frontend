@@ -1757,6 +1757,107 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // We need listing_url from scan data, not from title (title may contain listing_title or location)
       const loadScansForComparison = async () => {
         try {
+          // PERFORMANCE OPTIMIZATION: First pass - build list with available data immediately
+          // This allows UI to render right away without waiting for all scan data fetches
+          const scansWithAvailableData = scanChats.map((chat) => {
+            // Use listing_url from optimized endpoint if available
+            let listingUrl = chat.listing_url;
+            
+            // Check for cached scan data
+            const cachedScan = getScanDataFromCurrentMessages(chat.id) || scanData[chat.id];
+            
+            // If we have listing_url from endpoint, use it immediately (even without title/location)
+            if (listingUrl && listingUrl.startsWith('http')) {
+              return {
+                id: chat.id,
+                listing_url: listingUrl,
+                listing_title: cachedScan?.listing_title || null,
+                location: cachedScan?.location || null,
+                created_at: chat.created_at,
+                needsFetch: !cachedScan // Mark if we need to fetch for title/location
+              };
+            }
+            
+            // If we have cached scan data with listing_url, use it
+            if (cachedScan && cachedScan.listing_url) {
+              return {
+                id: chat.id,
+                listing_url: cachedScan.listing_url,
+                listing_title: cachedScan.listing_title || null,
+                location: cachedScan.location || null,
+                created_at: chat.created_at,
+                needsFetch: false
+              };
+            }
+            
+            // Mark as needing fetch
+            return {
+              id: chat.id,
+              listing_url: null,
+              listing_title: null,
+              location: null,
+              created_at: chat.created_at,
+              needsFetch: true
+            };
+          });
+          
+          // Filter out scans without listing_url
+          const validScans = scansWithAvailableData.filter(scan => scan.listing_url);
+          
+          // Show comparison UI immediately with available data (if we have at least 2 scans)
+          if (validScans.length >= 2) {
+            // Remove loading message if it was added
+            if (loadingMessageAdded) {
+              setMessages(prev => prev.filter(msg => msg.content !== "Loading your scanned listings..."));
+            }
+            
+            // Show comparison UI immediately
+            if (!loadingMessageAdded) {
+              setMessages([]);
+            }
+            
+            // Remove needsFetch property before setting state
+            const scansForUI = validScans.map(({ needsFetch, ...scan }) => scan);
+            setAvailableScansForComparison(scansForUI);
+            setShowComparisonUI(true);
+            
+            // PERFORMANCE OPTIMIZATION: Fetch title/location in background for scans that need it
+            // This doesn't block the UI - dropdown will update when data arrives
+            const scansNeedingFetch = scansWithAvailableData.filter(scan => scan.needsFetch && scan.listing_url);
+            if (scansNeedingFetch.length > 0) {
+              // Fetch scan data in parallel for title/location (non-blocking)
+              Promise.all(
+                scansNeedingFetch.map(async (scanItem) => {
+                  const chat = scanChats.find(c => c.id === scanItem.id);
+                  if (chat) {
+                    try {
+                      const scan = await loadScanDataForChat(chat.id, chat);
+                      if (scan) {
+                        // Update the scan in availableScansForComparison
+                        setAvailableScansForComparison(prev => 
+                          prev.map(s => 
+                            s.id === scanItem.id 
+                              ? { ...s, listing_title: scan.listing_title, location: scan.location }
+                              : s
+                          )
+                        );
+                      }
+                    } catch (err) {
+                      console.error(`Error fetching scan data for ${scanItem.id}:`, err);
+                      // Continue - we already have listing_url, so dropdown still works
+                    }
+                  }
+                })
+              ).catch(err => {
+                console.error("Error in background scan data fetch:", err);
+                // Non-critical - UI is already shown with listing_urls
+              });
+            }
+            
+            return; // Exit early - UI is already shown
+          }
+          
+          // If we don't have enough scans with listing_url, fetch missing data
           const scansWithData = await Promise.all(
             scanChats.map(async (chat) => {
               // Performance optimization: Use listing_url directly from chat object if available (from optimized /chats endpoint)
@@ -1850,14 +1951,14 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           );
           
           // Filter out any null entries (scans without valid URLs)
-          const validScans = scansWithData.filter(scan => scan !== null);
+          const finalValidScans = scansWithData.filter(scan => scan !== null);
           
           // Remove loading message if it was added
           if (loadingMessageAdded) {
             setMessages(prev => prev.filter(msg => msg.content !== "Loading your scanned listings..."));
           }
           
-          if (validScans.length < 2) {
+          if (finalValidScans.length < 2) {
             setMessages(prev => [...prev, {
               role: "assistant",
               content: "Please scan at least 2 listings first before you can compare them.",
@@ -1870,7 +1971,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           if (!loadingMessageAdded) {
             setMessages([]);
           }
-          setAvailableScansForComparison(validScans);
+          setAvailableScansForComparison(finalValidScans);
           setShowComparisonUI(true);
         } catch (error) {
           console.error("Error loading scans for comparison:", error);
