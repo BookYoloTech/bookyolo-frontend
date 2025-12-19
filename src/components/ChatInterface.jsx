@@ -2103,6 +2103,11 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     const isUserMessage = isUser;
     const isScanRequest = isUser && message.content && message.content.includes("http");
     
+    // Check if this is the first comparison message (initial comparison, not follow-up)
+    // Initial comparisons have listing details, follow-up questions don't
+    const isInitialComparison = message.isComparison && message.comparedScans && 
+      (index === 0 || !messages.slice(0, index).some(m => m.isComparison && m.comparedScans));
+    
     return (
       <div key={index} className={`flex ${isUser ? 'justify-end user-message-force' : 'justify-start'} mb-6`}>
         <div className={`max-w-4xl w-full ${
@@ -2207,8 +2212,9 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                 onCompare={handleComparisonSelect}
               />
             </div>
-          ) : message.isComparison && message.comparedScans ? (
-            // Comparison result with listing details - matching scan UI styling
+          ) : isInitialComparison ? (
+            // Initial comparison result with listing details - matching scan UI styling
+            // Only show listing details for the first comparison message, not for follow-up questions
             <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
               {/* Listing A Information */}
               <div className="mb-4 sm:mb-6">
