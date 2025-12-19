@@ -250,6 +250,10 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
   const [chatAreaKey, setChatAreaKey] = useState(0); // Force re-render key
   const [processedCompareChats, setProcessedCompareChats] = useState({}); // Cache for processed compare chats
   const chatsLoadedRef = useRef(false); // Track if chats have been loaded
+  // Pagination state for progressive loading
+  const [chatsPage, setChatsPage] = useState(1);
+  const [hasMoreChats, setHasMoreChats] = useState(true);
+  const [isLoadingMoreChats, setIsLoadingMoreChats] = useState(false);
   const inputRef = useRef(null);
 
 
@@ -581,30 +585,65 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     return chat;
   }, []);
 
-  // Load chats only (without /me)
-  const loadChatsOnly = useCallback(async () => {
+  // Load chats only (without /me) - supports pagination for progressive loading
+  const loadChatsOnly = useCallback(async (page = 1, append = false) => {
     try {
       const token = localStorage.getItem("by_token");
       if (!token) return;
       
-      const response = await fetch(`${API_BASE}/chats`, {
+      if (append) {
+        setIsLoadingMoreChats(true);
+      } else {
+        setIsLoadingData(true);
+      }
+      
+      // Request paginated chats (default limit 20 for faster initial load)
+      const response = await fetch(`${API_BASE}/chats?page=${page}&limit=20`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       if (response.ok) {
-        const chatsData = await response.json();
-        console.log("DEBUG: All chats loaded:", chatsData);
+        const data = await response.json();
         
-        // Set chats immediately without processing compare chats (lazy loading)
-        setChats(chatsData);
+        // Handle both old format (array) and new format (object with chats array) for backward compatibility
+        const chatsData = Array.isArray(data) ? data : (data.chats || []);
+        const pagination = data.pagination || null;
+        
+        console.log("DEBUG: Chats loaded (page", page, "):", chatsData.length, "chats");
+        
+        if (append) {
+          // Append to existing chats for progressive loading
+          setChats(prev => [...prev, ...chatsData]);
+        } else {
+          // Replace chats (initial load)
+          setChats(chatsData);
+        }
+        
+        // Update pagination state if available
+        if (pagination) {
+          setHasMoreChats(pagination.has_more);
+          setChatsPage(pagination.page);
+        } else {
+          // Old format - assume no more if we got less than limit
+          setHasMoreChats(chatsData.length >= 20);
+          setChatsPage(page);
+        }
+        
         chatsLoadedRef.current = true;
       }
     } catch (e) {
       console.error("Failed to load chats:", e);
     } finally {
       setIsLoadingData(false);
+      setIsLoadingMoreChats(false);
     }
   }, []);
+  
+  // Load more chats for progressive loading
+  const loadMoreChats = useCallback(async () => {
+    if (!hasMoreChats || isLoadingMoreChats) return;
+    await loadChatsOnly(chatsPage + 1, true);
+  }, [chatsPage, hasMoreChats, isLoadingMoreChats, loadChatsOnly]);
 
   // Lightweight function to refresh only user scan balance (fast)
   const refreshUserBalance = useCallback(async () => {
@@ -680,17 +719,31 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       }
       
       if (r2.ok) {
-        const chatsData = await r2.json();
-        console.log("DEBUG: All chats loaded:", chatsData);
+        const data = await r2.json();
+        
+        // Handle both old format (array) and new format (object with chats array) for backward compatibility
+        const chatsData = Array.isArray(data) ? data : (data.chats || []);
+        const pagination = data.pagination || null;
+        
+        console.log("DEBUG: All chats loaded:", chatsData.length, "chats");
         
         // Set chats immediately without processing compare chats (lazy loading)
         // Compare chats will be processed when sidebar is opened or when needed
         setChats(chatsData);
         chatsLoadedRef.current = true;
         
-        // The /chats endpoint doesn't return scan_id, so we can't load scan data here
-        // We'll load it when needed in the sidebar or when a chat is opened
-        console.log("DEBUG: Skipping scan data loading in loadUserData - scan_id not available in /chats endpoint");
+        // Update pagination state if available
+        if (pagination) {
+          setHasMoreChats(pagination.has_more);
+          setChatsPage(pagination.page);
+        } else {
+          // Old format - assume no more if we got less than limit
+          setHasMoreChats(chatsData.length >= 20);
+          setChatsPage(1);
+        }
+        
+        // The /chats endpoint now returns scan_id and listing_url, so scan data is available
+        console.log("DEBUG: Chats loaded with scan_id and listing_url from optimized endpoint");
       }
     } catch (e) {
       console.error("Failed to load user data:", e);

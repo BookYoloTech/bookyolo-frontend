@@ -64,10 +64,15 @@ export default function HowItWorks() {
       if (!token) { setMe(null); setMyScans([]); return; }
       const [r1, r2] = await Promise.all([
         fetch(`${API_BASE}/me`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_BASE}/my-scans`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE}/my-scans?page=1&limit=30`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       if (r1.ok) setMe(await r1.json());
-      if (r2.ok) setMyScans(await r2.json());
+      if (r2.ok) {
+        const data = await r2.json();
+        // Handle both old format (array) and new format (object with scans array) for backward compatibility
+        const scansData = Array.isArray(data) ? data : (data.scans || []);
+        setMyScans(scansData);
+      }
     } catch (e) {
       // non-fatal
     }

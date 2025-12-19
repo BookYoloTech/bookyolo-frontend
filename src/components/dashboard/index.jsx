@@ -16,14 +16,17 @@ const Dashboard = ({ apiBase, token, me, onLogout }) => {
       if (!token) return;
       
       try {
-        const response = await fetch(`${apiBase}/my-scans`, {
+        // Request paginated scans (default limit 30 for faster initial load)
+        const response = await fetch(`${apiBase}/my-scans?page=1&limit=30`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         
         if (response.ok) {
-          const scanData = await response.json();
+          const data = await response.json();
+          // Handle both old format (array) and new format (object with scans array) for backward compatibility
+          const scanData = Array.isArray(data) ? data : (data.scans || []);
           setScans(scanData || []);
         }
       } catch (error) {
