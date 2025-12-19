@@ -901,8 +901,13 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           
           // Also set currentScan immediately
           setCurrentScan(existingScanData);
+        } else if (data.chat.type === 'scan' && !existingScanData) {
+          // CRITICAL FIX: Don't set messages yet if scanData is not cached for scan chats
+          // Wait for scan data to load first to prevent showing simplified view
+          // Messages will be set after scan data is fetched (around line 1140)
+          // This prevents the brief simplified interface from appearing
         } else {
-          // For non-scan chats or when scanData not cached, set messages normally
+          // For non-scan chats, set messages normally
           setMessages(data.messages.map((msg, index) => ({
             role: msg.role,
             content: msg.content,
