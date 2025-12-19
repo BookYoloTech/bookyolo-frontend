@@ -843,6 +843,52 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         });
       }
       
+      // PERFORMANCE OPTIMIZATION: For compare chats, start fetching both scans in parallel
+      // if we have scan_ids from chatObject (similar to scan chat optimization)
+      let parallelCompareFetchPromise = null;
+      if (chatObject && chatObject.scan_ids && chatObject.type === 'compare') {
+        let scanIdsArray = [];
+        
+        // Parse scan_ids (might be string or array)
+        if (Array.isArray(chatObject.scan_ids)) {
+          scanIdsArray = chatObject.scan_ids;
+        } else if (typeof chatObject.scan_ids === 'string') {
+          try {
+            const cleaned = chatObject.scan_ids.replace(/[{}"]/g, '');
+            scanIdsArray = cleaned.split(',').map(id => id.trim()).filter(id => id.length > 0);
+          } catch (e) {
+            console.error("Failed to parse scan_ids in parallel fetch:", e);
+            scanIdsArray = [];
+          }
+        }
+        
+        // Validate and start parallel fetch if we have at least 2 valid scan IDs
+        const validScanIds = scanIdsArray.filter(id => {
+          const trimmed = String(id).trim();
+          return trimmed.length > 0 && trimmed !== '{' && trimmed !== '}' && trimmed.length > 5;
+        });
+        
+        if (validScanIds.length >= 2) {
+          parallelCompareFetchPromise = Promise.all([
+            fetch(`${API_BASE}/scan/${validScanIds[0]}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }).then(res => res.ok ? res.json() : null).catch(err => {
+              console.error(`Error fetching scan ${validScanIds[0]} in parallel:`, err);
+              return null;
+            }),
+            fetch(`${API_BASE}/scan/${validScanIds[1]}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }).then(res => res.ok ? res.json() : null).catch(err => {
+              console.error(`Error fetching scan ${validScanIds[1]} in parallel:`, err);
+              return null;
+            })
+          ]).catch(err => {
+            console.error("Error in parallel compare fetch:", err);
+            return [null, null];
+          });
+        }
+      }
+      
       // Wait for chat data (we always need this)
       const chatRes = await chatFetchPromise;
       
@@ -857,6 +903,12 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // This ensures we have scan_id even if the chat response doesn't include it immediately
       if (chatObject && chatObject.scan_id && !data.chat.scan_id) {
         data.chat.scan_id = chatObject.scan_id;
+      }
+      
+      // PERFORMANCE OPTIMIZATION: Use scan_ids from chatObject if available for compare chats
+      // This ensures we have scan_ids even if the chat response doesn't include it immediately
+      if (chatObject && chatObject.scan_ids && !data.chat.scan_ids) {
+        data.chat.scan_ids = chatObject.scan_ids;
       }
       
       // Note: If we started a parallel scan fetch, it will be added to scanFetchPromises below
@@ -991,6 +1043,20 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           }
         }
         
+        // PERFORMANCE OPTIMIZATION: Use scan_ids from chatObject if available and data.chat.scan_ids is empty
+        if (chatObject && chatObject.scan_ids && scanIdsArray.length === 0) {
+          if (Array.isArray(chatObject.scan_ids)) {
+            scanIdsArray = chatObject.scan_ids;
+          } else if (typeof chatObject.scan_ids === 'string') {
+            try {
+              const cleaned = chatObject.scan_ids.replace(/[{}"]/g, '');
+              scanIdsArray = cleaned.split(',').map(id => id.trim()).filter(id => id.length > 0);
+            } catch (e) {
+              console.error("Failed to parse scan_ids from chatObject:", e);
+            }
+          }
+        }
+        
         // Validate and fetch only if we have at least 2 valid scan IDs
         if (scanIdsArray.length >= 2) {
           // Additional validation: ensure IDs are valid (not empty, not just "{")
@@ -1000,35 +1066,40 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           });
           
           if (validScanIds.length >= 2) {
-            // Fetch both scans in parallel with error handling
-            try {
-              scanFetchPromises.push(
-                Promise.all([
-                  fetch(`${API_BASE}/scan/${validScanIds[0]}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                  }).then(res => {
-                    if (res.ok) return res.json();
-                    console.error(`Failed to fetch scan ${validScanIds[0]}:`, res.status);
-                    return null;
-                  }).catch((err) => {
-                    console.error(`Error fetching scan ${validScanIds[0]}:`, err);
-                    return null;
-                  }),
-                  fetch(`${API_BASE}/scan/${validScanIds[1]}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                  }).then(res => {
-                    if (res.ok) return res.json();
-                    console.error(`Failed to fetch scan ${validScanIds[1]}:`, res.status);
-                    return null;
-                  }).catch((err) => {
-                    console.error(`Error fetching scan ${validScanIds[1]}:`, err);
-                    return null;
-                  })
-                ])
-              );
-            } catch (e) {
-              console.error("Error setting up scan fetch promises:", e);
-              // Continue without scan data - chat can still load
+            // PERFORMANCE OPTIMIZATION: Reuse parallel fetch if we started one above
+            if (parallelCompareFetchPromise) {
+              scanFetchPromises.push(parallelCompareFetchPromise);
+            } else {
+              // Fetch both scans in parallel with error handling
+              try {
+                scanFetchPromises.push(
+                  Promise.all([
+                    fetch(`${API_BASE}/scan/${validScanIds[0]}`, {
+                      headers: { Authorization: `Bearer ${token}` }
+                    }).then(res => {
+                      if (res.ok) return res.json();
+                      console.error(`Failed to fetch scan ${validScanIds[0]}:`, res.status);
+                      return null;
+                    }).catch((err) => {
+                      console.error(`Error fetching scan ${validScanIds[0]}:`, err);
+                      return null;
+                    }),
+                    fetch(`${API_BASE}/scan/${validScanIds[1]}`, {
+                      headers: { Authorization: `Bearer ${token}` }
+                    }).then(res => {
+                      if (res.ok) return res.json();
+                      console.error(`Failed to fetch scan ${validScanIds[1]}:`, res.status);
+                      return null;
+                    }).catch((err) => {
+                      console.error(`Error fetching scan ${validScanIds[1]}:`, err);
+                      return null;
+                    })
+                  ])
+                );
+              } catch (e) {
+                console.error("Error setting up scan fetch promises:", e);
+                // Continue without scan data - chat can still load
+              }
             }
           } else {
             console.warn("Invalid scan_ids format - insufficient valid IDs:", data.chat.scan_ids, "parsed:", scanIdsArray);
