@@ -819,13 +819,32 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // Handle database chats - OPTIMIZED: Check cache and fetch in parallel
       const token = localStorage.getItem("by_token");
       
+      // PERFORMANCE OPTIMIZATION: Get chat object from chats array to use scan_id immediately
+      // This avoids waiting for /chat/{chatId} response to get scan_id, making navigation faster
+      const chatObject = chats.find(chat => chat.id === chatId);
+      
       // Check if we already have scan data cached
       const existingScanData = scanData[chatId];
       
-      // Fetch chat data first to get scan_id/scan_ids
-      const chatRes = await fetch(`${API_BASE}/chat/${chatId}`, {
+      // Start fetching chat data (we always need this for messages)
+      const chatFetchPromise = fetch(`${API_BASE}/chat/${chatId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      
+      // PERFORMANCE OPTIMIZATION: If we have chatObject with scan_id and need to fetch scan data,
+      // start fetching it in parallel with chat data (don't wait for chat response)
+      let parallelScanFetchPromise = null;
+      if (chatObject && chatObject.scan_id && !existingScanData && chatObject.type === 'scan') {
+        parallelScanFetchPromise = fetch(`${API_BASE}/scan/${chatObject.scan_id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).then(res => res.ok ? res.json() : null).catch(err => {
+          console.error("Error in parallel scan fetch:", err);
+          return null;
+        });
+      }
+      
+      // Wait for chat data (we always need this)
+      const chatRes = await chatFetchPromise;
       
       if (!chatRes.ok) {
         throw new Error("Failed to load chat");
@@ -833,6 +852,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       
       const data = await chatRes.json();
       setCurrentChatId(chatId);
+      
+      // PERFORMANCE OPTIMIZATION: Use scan_id from chatObject if available (faster than waiting for data.chat.scan_id)
+      // This ensures we have scan_id even if the chat response doesn't include it immediately
+      if (chatObject && chatObject.scan_id && !data.chat.scan_id) {
+        data.chat.scan_id = chatObject.scan_id;
+      }
+      
+      // Note: If we started a parallel scan fetch, it will be added to scanFetchPromises below
+      // and handled in the existing Promise.all logic, so no separate handling needed here
       
       // CRITICAL FIX: If this is a compare chat, ensure comparison UI stays hidden
       // and messages are shown directly (not the selector)
@@ -927,6 +955,10 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           // Use cached data - no fetch needed
           scanDataResult = existingScanData;
           setCurrentScan(scanDataResult);
+        } else if (parallelScanFetchPromise) {
+          // PERFORMANCE OPTIMIZATION: We already started a parallel fetch above, use that instead of starting a new one
+          // This avoids duplicate API calls and makes navigation faster
+          scanFetchPromises.push(parallelScanFetchPromise);
         } else {
           // Fetch scan data in parallel (will be resolved after chat data)
           scanFetchPromises.push(
@@ -2812,4 +2844,5 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
 };
 
 export default ChatInterface;
+
 
