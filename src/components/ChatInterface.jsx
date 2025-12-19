@@ -879,13 +879,37 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           return message;
         }));
       } else {
-        // For non-compare chats, set messages normally
-        setMessages(data.messages.map((msg, index) => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: msg.created_at,
-          messageType: msg.role === 'user' ? (data.chat.type === 'scan' && index > 0 ? "question" : index === 0 ? "scan" : undefined) : undefined
-        })));
+        // For scan chats, set messages with scanData immediately if cached
+        // This prevents delay and ensures scan result UI renders right away
+        if (data.chat.type === 'scan' && existingScanData) {
+          // If we have cached scanData, attach it immediately to prevent delay
+          setMessages(data.messages.map((msg, index) => {
+            const message = {
+              role: msg.role,
+              content: msg.content,
+              timestamp: msg.created_at,
+              messageType: msg.role === 'user' ? (index > 0 ? "question" : "scan") : undefined
+            };
+            
+            // Attach cached scanData to first assistant message immediately
+            if (msg.role === 'assistant' && index === 0) {
+              message.scanData = existingScanData;
+            }
+            
+            return message;
+          }));
+          
+          // Also set currentScan immediately
+          setCurrentScan(existingScanData);
+        } else {
+          // For non-scan chats or when scanData not cached, set messages normally
+          setMessages(data.messages.map((msg, index) => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: msg.created_at,
+            messageType: msg.role === 'user' ? (data.chat.type === 'scan' && index > 0 ? "question" : index === 0 ? "scan" : undefined) : undefined
+          })));
+        }
       }
       
       // Prepare parallel fetches for scan data (if not cached)
