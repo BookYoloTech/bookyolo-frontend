@@ -1477,7 +1477,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // Format specific error messages to be more user-friendly
       if (e.message === "LISTING_NOT_IN_SCOPE" || e.message.includes("Listing not found") || e.message.includes("404")) {
         isNotInScope = true;
-        errorContent = "We couldn't find this listing in our database. The property may not yet be covered in our system. Please try another listing from Airbnb, Booking.com, or Agoda.";
+        errorContent = "This property does not exist in our database yet. Please try another listing from Airbnb, Booking.com, or Agoda.";
       } else if (e.message.includes("platform that we do not cover yet")) {
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("does not have information about this property")) {
