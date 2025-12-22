@@ -2874,17 +2874,9 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
             ) : messages.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
-                  {/* BookYolo AI Image */}
-                  <div className="mb-6 flex justify-center">
-                    <img 
-                      src="/photo.png" 
-                      alt="BookYolo AI" 
-                      className="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-lg"
-                    />
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
-                    Hi, I am BookYolo AI
-                  </h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
+                  Hi, I am BookYolo AI
+                </h2>
                   <p className="text-primary opacity-70 mb-6 text-sm sm:text-base">
                     Scan your next stay before booking and avoid surprises. Paste any property URL from Airbnb, Vrbo, Booking, Expedia, Hotels or Agoda.
                   </p>
