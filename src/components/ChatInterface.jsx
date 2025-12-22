@@ -2094,7 +2094,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     } else {
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "Please provide two listing URLs (Airbnb or Booking.com) to compare, or just say 'compare' to see your available scans.",
+        content: "Please provide two listing URLs (Airbnb, Booking.com, or Agoda) to compare, or just say 'compare' to see your available scans.",
         isError: true
       }]);
     }
