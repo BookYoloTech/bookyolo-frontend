@@ -111,15 +111,20 @@ const makeUrlsClickable = (text) => {
 const addAgodaToMessage = (message) => {
   if (!message || typeof message !== 'string') return message;
   
-  // Check if message mentions Airbnb and Booking.com but not Agoda
-  if (message.includes("Airbnb") && message.includes("Booking.com") && !message.includes("Agoda")) {
+  // If Agoda is already in the message, return as is to prevent duplicates
+  if (message.includes("Agoda")) {
+    return message;
+  }
+  
+  // Only process if message mentions Airbnb and Booking.com but NOT Agoda
+  if (message.includes("Airbnb") && message.includes("Booking.com")) {
     return message
-      .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
-      .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
-      .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
-      .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
-      .replace(/Airbnb or Booking\.com listing URL/gi, "Airbnb, Booking.com, or Agoda listing URL")
-      .replace(/Airbnb, Booking\.com listing URL/gi, "Airbnb, Booking.com, or Agoda listing URL");
+      .replace(/Airbnb\s+or\s+Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
+      .replace(/Airbnb,\s*Booking\.com(?!\s*,\s*or\s*Agoda)/gi, "Airbnb, Booking.com, or Agoda")
+      .replace(/from\s+Airbnb\s+or\s+Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
+      .replace(/from\s+Airbnb,\s*Booking\.com(?!\s*,\s*or\s*Agoda)/gi, "from Airbnb, Booking.com, or Agoda")
+      .replace(/Airbnb\s+or\s+Booking\.com\s+listing\s+URL/gi, "Airbnb, Booking.com, or Agoda listing URL")
+      .replace(/Airbnb,\s*Booking\.com\s+listing\s+URL(?!\s*,\s*or\s*Agoda)/gi, "Airbnb, Booking.com, or Agoda listing URL");
   }
   
   return message;
