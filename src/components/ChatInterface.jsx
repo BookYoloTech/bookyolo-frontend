@@ -1490,8 +1490,24 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("already scanned this listing")) {
         errorContent = e.message; // Keep the exact message from backend
+      } else if (e.message.includes("Airbnb") && e.message.includes("Booking.com") && !e.message.includes("Agoda")) {
+        // Replace messages that mention Airbnb and Booking.com but not Agoda
+        errorContent = e.message
+          .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
+          .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
+          .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
+          .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, or Agoda");
       } else {
-        errorContent = `Sorry, I couldn't scan that listing. ${e.message}`;
+        // Check if error message mentions platforms and add Agoda if missing
+        let finalMessage = e.message;
+        if (finalMessage.includes("Airbnb") && finalMessage.includes("Booking.com") && !finalMessage.includes("Agoda")) {
+          finalMessage = finalMessage
+            .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
+            .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
+            .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
+            .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, or Agoda");
+        }
+        errorContent = `Sorry, I couldn't scan that listing. ${finalMessage}`;
       }
       
       setMessages(prev => [...prev, {
