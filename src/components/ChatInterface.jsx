@@ -1398,8 +1398,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           // Scan limit reached
           throw new Error(errorData.detail || "Scan limit reached");
         } else if (res.status === 404) {
-          // Listing not found
-          throw new Error(errorData.detail || "Listing not found");
+          // Listing not found - create friendly message
+          throw new Error("LISTING_NOT_IN_SCOPE");
         } else if (res.status === 409) {
           // Already scanned
           throw new Error(errorData.detail || "Already scanned");
@@ -1472,9 +1472,13 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       
       // Add error message with specific formatting for different error types
       let errorContent = e.message;
+      let isNotInScope = false;
       
       // Format specific error messages to be more user-friendly
-      if (e.message.includes("platform that we do not cover yet")) {
+      if (e.message === "LISTING_NOT_IN_SCOPE" || e.message.includes("Listing not found") || e.message.includes("404")) {
+        isNotInScope = true;
+        errorContent = "We couldn't find this listing in our database. This property might not be in our coverage area yet, or it may have been removed from the platform. Please try a different listing from Airbnb, Booking.com, or Agoda.";
+      } else if (e.message.includes("platform that we do not cover yet")) {
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("does not have information about this property")) {
         errorContent = e.message; // Keep the exact message from backend
@@ -1493,7 +1497,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       setMessages(prev => [...prev, {
         role: "assistant",
         content: errorContent,
-        isError: true
+        isError: !isNotInScope, // Use regular error styling for other errors
+        isNotInScope: isNotInScope // Special flag for not-in-scope errors
       }]);
       
       // Clear the error state after adding to messages
@@ -2321,6 +2326,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     const isUser = message.role === "user";
     const isError = message.isError;
     const isWarning = message.isWarning;
+    const isNotInScope = message.isNotInScope; // Special flag for not-in-scope errors
     const isQuestion = isUser && (message.messageType === "question" || (message.content && !message.content.includes("http")));
     const isUserMessage = isUser;
     const isScanRequest = isUser && message.content && message.content.includes("http");
@@ -2335,13 +2341,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         <div className={`max-w-4xl w-full ${
           isUser
             ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto break-words'
+            : isNotInScope
+            ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl px-6 py-5 max-w-3xl shadow-sm'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isWarning
             ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-2xl px-4 py-3 max-w-3xl'
             : 'bg-white'
         }`} style={isUser ? { wordBreak: 'break-word', overflowWrap: 'anywhere' } : {}}>
-          {!isUser && !isError && !isWarning && !isQuestion && message.scanData ? (
+          {!isUser && !isError && !isWarning && !isNotInScope && !isQuestion && message.scanData ? (
             // Detailed scan result display
             <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
               {/* Information */}
@@ -2476,6 +2484,28 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
               <div className="pt-4 border-t border-accent">
                 <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Comparative Analysis</h3>
                 <div className="text-primary leading-relaxed whitespace-pre-wrap break-words" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{makeUrlsClickable(message.content)}</div>
+              </div>
+            </div>
+          ) : isNotInScope ? (
+            <div className="flex flex-col items-start gap-3">
+              <div className="flex items-start gap-3 w-full">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mt-1">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-blue-900 mb-2">Listing Not Available</h3>
+                  <p className="text-blue-800 leading-relaxed mb-3">{message.content}</p>
+                  <div className="mt-3 pt-3 border-t border-blue-200">
+                    <p className="text-sm text-blue-700 font-medium mb-2">💡 Try scanning a listing from:</p>
+                    <ul className="space-y-1 text-sm text-blue-600">
+                      <li>• Airbnb</li>
+                      <li>• Booking.com</li>
+                      <li>• Agoda</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
