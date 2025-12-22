@@ -2367,7 +2367,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                   href={message.scanData.listing_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-primary underline break-all text-xs sm:text-sm hover:text-button transition-colors"
+                  className="text-primary underline break-words text-xs sm:text-sm hover:text-button transition-colors"
+                  style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
                 >
                   {message.scanData.listing_url}
                 </a>
@@ -2457,7 +2458,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                   href={message.comparedScans.scan1.listing_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-primary underline break-all text-xs sm:text-sm hover:text-button transition-colors"
+                  className="text-primary underline break-words text-xs sm:text-sm hover:text-button transition-colors"
+                  style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
                 >
                   {message.comparedScans.scan1.listing_url}
                 </a>
@@ -2474,7 +2476,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                   href={message.comparedScans.scan2.listing_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-primary underline break-all text-xs sm:text-sm hover:text-button transition-colors"
+                  className="text-primary underline break-words text-xs sm:text-sm hover:text-button transition-colors"
+                  style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
                 >
                   {message.comparedScans.scan2.listing_url}
                 </a>
