@@ -2342,7 +2342,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           isUser
             ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto break-words'
             : isNotInScope
-            ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl px-6 py-5 max-w-3xl shadow-sm'
+            ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl px-4 py-4 sm:px-6 sm:py-5 max-w-3xl shadow-sm w-full'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isWarning
@@ -2487,22 +2487,22 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
               </div>
             </div>
           ) : isNotInScope ? (
-            <div className="flex flex-col items-start gap-4">
-              <div className="flex items-start gap-4 w-full">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex flex-col items-start gap-3 sm:gap-4 w-full">
+              <div className="flex items-start gap-3 sm:gap-4 w-full">
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-blue-900 mb-3">Listing Not Found</h3>
-                  <p className="text-blue-800 leading-relaxed mb-4 text-base">{message.content}</p>
-                  <div className="mt-4 pt-4 border-t border-blue-200">
-                    <p className="text-sm text-blue-700 font-semibold mb-3 uppercase tracking-wide">Supported Platforms</p>
-                    <div className="flex flex-wrap gap-3">
-                      <span className="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-100 text-blue-700 text-sm font-medium">Airbnb</span>
-                      <span className="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-100 text-blue-700 text-sm font-medium">Booking.com</span>
-                      <span className="inline-flex items-center px-3 py-1.5 rounded-md bg-blue-100 text-blue-700 text-sm font-medium">Agoda</span>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-xl font-semibold text-blue-900 mb-2 sm:mb-3">Listing Not Found</h3>
+                  <p className="text-blue-800 leading-relaxed mb-3 sm:mb-4 text-sm sm:text-base break-words" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.content}</p>
+                  <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-blue-200">
+                    <p className="text-xs sm:text-sm text-blue-700 font-semibold mb-2 sm:mb-3 uppercase tracking-wide">Supported Platforms</p>
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Airbnb</span>
+                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Booking.com</span>
+                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Agoda</span>
                     </div>
                   </div>
                 </div>
