@@ -292,15 +292,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         scanId = chatObject.scan_id;
       } else {
         // Fallback: Get chat details to find scan_id (for backward compatibility)
-        const chatRes = await fetch(`${API_BASE}/chat/${chatId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+      const chatRes = await fetch(`${API_BASE}/chat/${chatId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (chatRes.ok) {
+        const chatData = await chatRes.json();
+        console.log("DEBUG: loadScanDataForChat - chat data:", chatData);
         
-        if (chatRes.ok) {
-          const chatData = await chatRes.json();
-          console.log("DEBUG: loadScanDataForChat - chat data:", chatData);
-          
-          if (chatData.chat.type === 'scan' && chatData.chat.scan_id) {
+        if (chatData.chat.type === 'scan' && chatData.chat.scan_id) {
             scanId = chatData.chat.scan_id;
           }
         }
@@ -309,22 +309,22 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       if (scanId) {
         // Fetch the scan data
         const scanRes = await fetch(`${API_BASE}/scan/${scanId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        if (scanRes.ok) {
-          const scanData = await scanRes.json();
-          console.log("DEBUG: loadScanDataForChat - scan data loaded:", scanData);
-          console.log("DEBUG: loadScanDataForChat - listing_title:", scanData.listing_title);
-          console.log("DEBUG: loadScanDataForChat - location:", scanData.location);
+            headers: { Authorization: `Bearer ${token}` }
+          });
           
-          // Update the scanData state
-          setScanData(prev => ({
-            ...prev,
-            [chatId]: scanData
-          }));
-          
-          return scanData;
+          if (scanRes.ok) {
+            const scanData = await scanRes.json();
+            console.log("DEBUG: loadScanDataForChat - scan data loaded:", scanData);
+            console.log("DEBUG: loadScanDataForChat - listing_title:", scanData.listing_title);
+            console.log("DEBUG: loadScanDataForChat - location:", scanData.location);
+            
+            // Update the scanData state
+            setScanData(prev => ({
+              ...prev,
+              [chatId]: scanData
+            }));
+            
+            return scanData;
         }
       }
     } catch (e) {
@@ -616,7 +616,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           setChats(prev => [...prev, ...chatsData]);
         } else {
           // Replace chats (initial load)
-          setChats(chatsData);
+        setChats(chatsData);
         }
         
         // Update pagination state if available
@@ -988,12 +988,12 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           // This prevents the brief simplified interface from appearing
         } else {
           // For non-scan chats, set messages normally
-          setMessages(data.messages.map((msg, index) => ({
-            role: msg.role,
-            content: msg.content,
-            timestamp: msg.created_at,
+      setMessages(data.messages.map((msg, index) => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.created_at,
             messageType: msg.role === 'user' ? (data.chat.type === 'scan' && index > 0 ? "question" : index === 0 ? "scan" : undefined) : undefined
-          })));
+      })));
         }
       }
       
@@ -1070,35 +1070,35 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
             if (parallelCompareFetchPromise) {
               scanFetchPromises.push(parallelCompareFetchPromise);
             } else {
-              // Fetch both scans in parallel with error handling
-              try {
-                scanFetchPromises.push(
-                  Promise.all([
+        // Fetch both scans in parallel with error handling
+        try {
+          scanFetchPromises.push(
+            Promise.all([
                     fetch(`${API_BASE}/scan/${validScanIds[0]}`, {
-                      headers: { Authorization: `Bearer ${token}` }
-                    }).then(res => {
-                      if (res.ok) return res.json();
+                headers: { Authorization: `Bearer ${token}` }
+              }).then(res => {
+                if (res.ok) return res.json();
                       console.error(`Failed to fetch scan ${validScanIds[0]}:`, res.status);
-                      return null;
+                  return null;
                     }).catch((err) => {
                       console.error(`Error fetching scan ${validScanIds[0]}:`, err);
                       return null;
                     }),
                     fetch(`${API_BASE}/scan/${validScanIds[1]}`, {
-                      headers: { Authorization: `Bearer ${token}` }
-                    }).then(res => {
-                      if (res.ok) return res.json();
+                headers: { Authorization: `Bearer ${token}` }
+              }).then(res => {
+                if (res.ok) return res.json();
                       console.error(`Failed to fetch scan ${validScanIds[1]}:`, res.status);
-                      return null;
+                return null;
                     }).catch((err) => {
                       console.error(`Error fetching scan ${validScanIds[1]}:`, err);
                       return null;
                     })
-                  ])
-                );
-              } catch (e) {
+            ])
+          );
+        } catch (e) {
                 console.error("Error setting up scan fetch promises:", e);
-                // Continue without scan data - chat can still load
+          // Continue without scan data - chat can still load
               }
             }
           } else {
@@ -1745,11 +1745,11 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // Only show loading message if we actually need to fetch data
       let loadingMessageAdded = false;
       if (!allScansHaveListingUrl) {
-        setMessages(prev => [...prev, {
-          role: "assistant",
-          content: "Loading your scanned listings...",
-          isError: false
-        }]);
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: "Loading your scanned listings...",
+        isError: false
+      }]);
         loadingMessageAdded = true;
       }
       
@@ -1884,9 +1884,9 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
               // We need title/location for dropdown display, so fetch scan data even if we have listing_url
               if (listingUrl && listingUrl.startsWith('http')) {
                 // We have listing_url but need title/location - fetch scan data
-                if (!scan && chat.type === 'scan') {
+              if (!scan && chat.type === 'scan') {
                   scan = await loadScanDataForChat(chat.id, chat);
-                }
+              }
                 return {
                   id: chat.id,
                   listing_url: listingUrl,
@@ -1969,7 +1969,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           
           // Show comparison UI (messages already cleared if loading message was shown)
           if (!loadingMessageAdded) {
-            setMessages([]);
+          setMessages([]);
           }
           setAvailableScansForComparison(finalValidScans);
           setShowComparisonUI(true);
@@ -2874,9 +2874,17 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
             ) : messages.length === 0 && !isLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-center px-4">
                 <div className="max-w-md">
-                <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
-                  Hi, I am BookYolo AI
-                </h2>
+                  {/* BookYolo AI Image */}
+                  <div className="mb-6 flex justify-center">
+                    <img 
+                      src="/photo.png" 
+                      alt="BookYolo AI" 
+                      className="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-lg"
+                    />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-primary mb-4">
+                    Hi, I am BookYolo AI
+                  </h2>
                   <p className="text-primary opacity-70 mb-6 text-sm sm:text-base">
                     Scan your next stay before booking and avoid surprises. Paste any property URL from Airbnb, Vrbo, Booking, Expedia, Hotels or Agoda.
                   </p>
