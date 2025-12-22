@@ -2495,7 +2495,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-blue-900 mb-3">Listing Not Available</h3>
+                  <h3 className="text-xl font-semibold text-blue-900 mb-3">Listing Not Found</h3>
                   <p className="text-blue-800 leading-relaxed mb-4 text-base">{message.content}</p>
                   <div className="mt-4 pt-4 border-t border-blue-200">
                     <p className="text-sm text-blue-700 font-semibold mb-3 uppercase tracking-wide">Supported Platforms</p>
