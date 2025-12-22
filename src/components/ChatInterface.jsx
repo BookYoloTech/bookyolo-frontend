@@ -107,6 +107,24 @@ const makeUrlsClickable = (text) => {
   });
 };
 
+// Helper function to add Agoda to backend messages that only mention Airbnb and Booking.com
+const addAgodaToMessage = (message) => {
+  if (!message || typeof message !== 'string') return message;
+  
+  // Check if message mentions Airbnb and Booking.com but not Agoda
+  if (message.includes("Airbnb") && message.includes("Booking.com") && !message.includes("Agoda")) {
+    return message
+      .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
+      .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
+      .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
+      .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
+      .replace(/Airbnb or Booking\.com listing URL/gi, "Airbnb, Booking.com, or Agoda listing URL")
+      .replace(/Airbnb, Booking\.com listing URL/gi, "Airbnb, Booking.com, or Agoda listing URL");
+  }
+  
+  return message;
+};
+
 // Comparison Selector Component
 const ComparisonSelector = ({ availableScans, onCompare }) => {
   const [selectedScan1, setSelectedScan1] = useState("");
@@ -1558,7 +1576,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         // Add assistant response
         const assistantMessage = {
           role: "assistant",
-          content: data.answer || "Hey, I am here to help you book smarter. Please paste the listing link you would like me to analyze."
+          content: addAgodaToMessage(data.answer) || "Hey, I am here to help you book smarter. Please paste the listing link you would like me to analyze."
         };
         setMessages(prev => [...prev, assistantMessage]);
         
@@ -1628,7 +1646,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         // Add assistant response with comparedScans for compare chats
         const assistantMessage = {
           role: "assistant",
-          content: data.answer || "I don't have enough information to answer that question.",
+          content: addAgodaToMessage(data.answer) || "I don't have enough information to answer that question.",
           isComparison: true,
           comparedScans: {
             scan1: currentChat.scan1,
@@ -1686,7 +1704,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         // Add assistant response with comparedScans for compare chats
         const assistantMessage = {
           role: "assistant",
-          content: data.answer || "I don't have enough information to answer that question."
+          content: addAgodaToMessage(data.answer) || "I don't have enough information to answer that question."
         };
         
         // If this is a compare chat, add isComparison and comparedScans
@@ -2081,7 +2099,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         // Add assistant response
         const assistantMessage = {
           role: "assistant",
-          content: data.answer || "I couldn't compare these listings.",
+          content: addAgodaToMessage(data.answer) || "I couldn't compare these listings.",
           isComparison: true,
           comparedScans: {
             scan1: { listing_url: urls[0], listing_title: null },
