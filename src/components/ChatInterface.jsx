@@ -84,7 +84,8 @@ const isUrl = (text) => {
 
 // Helper function to make URLs clickable in text
 const makeUrlsClickable = (text) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  // Improved regex to capture longer URLs including query parameters
+  const urlRegex = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/g;
   const parts = text.split(urlRegex);
   
   return parts.map((part, index) => {
@@ -96,12 +97,13 @@ const makeUrlsClickable = (text) => {
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline break-all"
+          style={{ wordBreak: 'break-all', overflowWrap: 'anywhere' }}
         >
           {part}
         </a>
       );
     }
-    return part;
+    return <span key={index} style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>{part}</span>;
   });
 };
 
@@ -2332,13 +2334,13 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       <div key={index} className={`flex ${isUser ? 'justify-end user-message-force' : 'justify-start'} mb-6`}>
         <div className={`max-w-4xl w-full ${
           isUser
-            ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto'
+            ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto break-words'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isWarning
             ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-2xl px-4 py-3 max-w-3xl'
             : 'bg-white'
-        }`}>
+        }`} style={isUser ? { wordBreak: 'break-word', overflowWrap: 'anywhere' } : {}}>
           {!isUser && !isError && !isWarning && !isQuestion && message.scanData ? (
             // Detailed scan result display
             <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
@@ -2473,11 +2475,11 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
               {/* Comparative Analysis */}
               <div className="pt-4 border-t border-accent">
                 <h3 className="text-sm sm:text-base font-semibold text-primary mb-2 sm:mb-3">Comparative Analysis</h3>
-                <div className="text-primary leading-relaxed whitespace-pre-wrap">{makeUrlsClickable(message.content)}</div>
+                <div className="text-primary leading-relaxed whitespace-pre-wrap break-words" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{makeUrlsClickable(message.content)}</div>
               </div>
             </div>
           ) : (
-            <div className="text-base whitespace-pre-wrap leading-relaxed px-2 sm:px-4">{makeUrlsClickable(message.content)}</div>
+            <div className="text-base whitespace-pre-wrap leading-relaxed px-2 sm:px-4 break-words" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{makeUrlsClickable(message.content)}</div>
           )}
         </div>
       </div>
