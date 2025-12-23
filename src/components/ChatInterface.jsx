@@ -67,6 +67,21 @@ const isSupportedUrl = (text) => {
   return isAirbnbUrl(text) || isBookingUrl(text) || isAgodaUrl(text);
 };
 
+// Normalize user-pasted URLs that are missing a scheme (e.g., "www.booking.com/...")
+// This prevents valid listing URLs from being misrouted to the pre-scan assistant.
+const normalizeUrlIfMissingScheme = (text) => {
+  if (!text || typeof text !== "string") return text;
+  const t = text.trim();
+  if (!t) return t;
+  if (/^https?:\/\//i.test(t)) return t;
+  // Handle common pastes like "www.booking.com/..." or "booking.com/..."
+  if (/^(www\.)/i.test(t)) return `https://${t}`;
+  if (/^([a-z]{2}\.)?airbnb\./i.test(t)) return `https://${t}`;
+  if (/^([a-z]{2}\.)?booking\./i.test(t)) return `https://${t}`;
+  if (/^([a-z]{2}\.)?agoda\./i.test(t)) return `https://${t}`;
+  return t;
+};
+
 // Helper function to detect compare request
 const isCompareRequest = (text) => {
   return text.toLowerCase().includes('compare') && isSupportedUrl(text);
@@ -2153,14 +2168,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     if (!input.trim() || isLoading) return;
 
     const trimmedInput = input.trim();
+    const normalizedUrl = normalizeUrlIfMissingScheme(trimmedInput);
     setInput("");
 
     // Determine what type of request this is
     if (isCompareRequest(trimmedInput)) {
       await handleCompare(trimmedInput);
-    } else if (isSupportedUrl(trimmedInput)) {
-      await handleScan(trimmedInput);
-    } else if (isUrl(trimmedInput)) {
+    } else if (isSupportedUrl(normalizedUrl)) {
+      await handleScan(normalizedUrl);
+    } else if (isUrl(normalizedUrl)) {
       // Check if it's a URL but not supported (Airbnb or Booking.com)
       setMessages(prev => [...prev, {
         role: "assistant",
