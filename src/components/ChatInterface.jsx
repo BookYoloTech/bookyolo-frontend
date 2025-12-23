@@ -2864,7 +2864,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                       }`}
                     >
                       <div className="font-medium text-sm truncate">
-                        {scan?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
+                        {scan?.listing_title || chat?.listing_title || scan?.location || chat.title.replace("Scan • ", "")}
                       </div>
                       <div className={`text-xs mt-1 ${currentChatId === chat.id ? 'text-white opacity-70' : 'text-primary opacity-60'}`}>
                         {scan?.location || new Date(chat.created_at).toLocaleDateString()}
