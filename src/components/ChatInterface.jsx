@@ -1520,6 +1520,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // Add error message with specific formatting for different error types
       let errorContent = e.message;
       let isNotInScope = false;
+      let isAlreadyScanned = false;
       
       // Format specific error messages to be more user-friendly
       if (e.message === "LISTING_NOT_IN_SCOPE" || e.message.includes("Listing not found") || e.message.includes("404")) {
@@ -1536,7 +1537,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       } else if (e.message.includes("no more scans left") || e.message.includes("few scans left")) {
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("already scanned this listing")) {
-        errorContent = e.message; // Keep the exact message from backend
+        isAlreadyScanned = true;
+        errorContent = "You’ve already scanned this listing. Please open it from Recent Scans, or paste a different property URL.";
       } else if (e.message.includes("Airbnb") && e.message.includes("Booking.com") && !e.message.includes("Agoda")) {
         // Replace messages that mention Airbnb and Booking.com but not Agoda
         errorContent = e.message
@@ -1560,8 +1562,9 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       setMessages(prev => [...prev, {
         role: "assistant",
         content: errorContent,
-        isError: !isNotInScope, // Use regular error styling for other errors
-        isNotInScope: isNotInScope // Special flag for not-in-scope errors
+        isError: (!isNotInScope && !isAlreadyScanned), // Use regular error styling for other errors
+        isNotInScope: isNotInScope, // Special flag for not-in-scope errors
+        isAlreadyScanned: isAlreadyScanned // Special flag for already scanned errors
       }]);
       
       // Clear the error state after adding to messages
@@ -2391,6 +2394,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     const isError = message.isError;
     const isWarning = message.isWarning;
     const isNotInScope = message.isNotInScope; // Special flag for not-in-scope errors
+    const isAlreadyScanned = message.isAlreadyScanned; // Special flag for already scanned errors
     const isQuestion = isUser && (message.messageType === "question" || (message.content && !message.content.includes("http")));
     const isUserMessage = isUser;
     const isScanRequest = isUser && message.content && message.content.includes("http");
@@ -2405,7 +2409,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         <div className={`max-w-4xl w-full ${
           isUser
             ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto break-words'
-            : isNotInScope
+            : (isNotInScope || isAlreadyScanned)
             ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl px-4 py-4 sm:px-6 sm:py-5 max-w-3xl shadow-sm w-full'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
@@ -2570,6 +2574,27 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                       <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Airbnb</span>
                       <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Booking.com</span>
                       <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Agoda</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : isAlreadyScanned ? (
+            <div className="flex flex-col items-start gap-3 sm:gap-4 w-full">
+              <div className="flex items-start gap-3 sm:gap-4 w-full">
+                <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg sm:text-xl font-semibold text-blue-900 mb-2 sm:mb-3">Already Scanned</h3>
+                  <p className="text-blue-800 leading-relaxed mb-3 sm:mb-4 text-sm sm:text-base break-words" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.content}</p>
+                  <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-blue-200">
+                    <p className="text-xs sm:text-sm text-blue-700 font-semibold mb-2 sm:mb-3 uppercase tracking-wide">Next Steps</p>
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Open from Recent Scans</span>
+                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Scan a different URL</span>
                     </div>
                   </div>
                 </div>
