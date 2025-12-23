@@ -1564,7 +1564,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         content: errorContent,
         isError: (!isNotInScope && !isAlreadyScanned), // Use regular error styling for other errors
         isNotInScope: isNotInScope, // Special flag for not-in-scope errors
-        isAlreadyScanned: isAlreadyScanned // Special flag for already scanned errors
+        isAlreadyScanned: isAlreadyScanned, // Special flag for already scanned errors
+        alreadyScannedUrl: isAlreadyScanned ? url : null
       }]);
       
       // Clear the error state after adding to messages
@@ -2593,8 +2594,44 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                   <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-blue-200">
                     <p className="text-xs sm:text-sm text-blue-700 font-semibold mb-2 sm:mb-3 uppercase tracking-wide">Next Steps</p>
                     <div className="flex flex-wrap gap-2 sm:gap-3">
-                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Open from Recent Scans</span>
-                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Scan a different URL</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const targetUrl = message.alreadyScannedUrl;
+                          const normalizeForMatch = (u) => {
+                            try {
+                              const parsed = new URL(u);
+                              // Ignore query/hash for matching (DB URLs are typically normalized)
+                              return `${parsed.origin}${parsed.pathname}`.replace(/\/$/, "");
+                            } catch {
+                              return (u || "").trim().replace(/\/$/, "");
+                            }
+                          };
+                          const target = normalizeForMatch(targetUrl);
+                          const match = (chats || []).find((c) => c?.type === "scan" && normalizeForMatch(c?.listing_url) === target);
+                          
+                          if (match?.id) {
+                            loadChat(match.id);
+                            setSidebarOpen(false);
+                          } else {
+                            // Fallback: open sidebar so the user can click the item manually
+                            setSidebarOpen(true);
+                          }
+                        }}
+                        className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                      >
+                        Open from Recent Scans
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          startNewChat();
+                          setSidebarOpen(false);
+                        }}
+                        className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                      >
+                        Scan a different URL
+                      </button>
                     </div>
                   </div>
                 </div>
