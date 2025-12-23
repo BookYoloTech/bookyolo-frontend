@@ -643,6 +643,18 @@ export default function PlanStatus({ me, meLoading, onUsageChanged }) {
                       </span>
                     </div>
                   )}
+                  {!isPremium && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Renews On</span>
+                      <span className="font-semibold text-gray-900">
+                        {new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
