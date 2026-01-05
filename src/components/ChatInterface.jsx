@@ -89,6 +89,7 @@ const normalizeUrlIfMissingScheme = (text) => {
   if (/^([a-z]{2}\.)?airbnb\./i.test(t)) return `https://${t}`;
   if (/^([a-z]{2}\.)?booking\./i.test(t)) return `https://${t}`;
   if (/^([a-z]{2}\.)?agoda\./i.test(t)) return `https://${t}`;
+  if (/^([a-z]{2}\.)?expedia\./i.test(t)) return `https://${t}`;
   return t;
 };
 
