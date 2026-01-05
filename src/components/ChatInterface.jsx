@@ -62,9 +62,19 @@ const isAgodaUrl = (text) => {
   return agodaPattern.test(text);
 };
 
-// Helper function to detect if input is a supported platform URL (Airbnb, Booking.com, or Agoda)
+// Helper function to detect if input is an Expedia URL (handles all domain variations)
+const isExpediaUrl = (text) => {
+  if (!text || typeof text !== 'string') return false;
+  
+  // Pattern for Expedia URLs (handles various country domains)
+  const expediaPattern = /https?:\/\/(www\.)?([a-z]{2}\.)?expedia\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)/i;
+  
+  return expediaPattern.test(text);
+};
+
+// Helper function to detect if input is a supported platform URL (Airbnb, Booking.com, Agoda, or Expedia)
 const isSupportedUrl = (text) => {
-  return isAirbnbUrl(text) || isBookingUrl(text) || isAgodaUrl(text);
+  return isAirbnbUrl(text) || isBookingUrl(text) || isAgodaUrl(text) || isExpediaUrl(text);
 };
 
 // Normalize user-pasted URLs that are missing a scheme (e.g., "www.booking.com/...")
@@ -1521,13 +1531,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       let errorContent = e.message;
       let isNotInScope = false;
       let isAlreadyScanned = false;
+      let isUnsupportedPlatform = false;
       
       // Format specific error messages to be more user-friendly
       if (e.message === "LISTING_NOT_IN_SCOPE" || e.message.includes("Listing not found") || e.message.includes("404")) {
         isNotInScope = true;
-        errorContent = "We couldn't find this listing in our database.This property does not exist in our database yet. Please try another listing from Airbnb, Booking.com, or Agoda.";
+        errorContent = "We couldn't find this listing in our database.This property does not exist in our database yet. Please try another listing from Airbnb, Booking.com, Agoda, or Expedia.";
       } else if (e.message.includes("platform that we do not cover yet")) {
-        errorContent = e.message; // Keep the exact message from backend
+        isUnsupportedPlatform = true;
+        errorContent = "The URL you are trying to scan is from a platform that we do not cover yet. We currently support Airbnb, Booking.com, Agoda, and Expedia. Bear with us as we are expanding quickly.";
       } else if (e.message.includes("does not have information about this property")) {
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("not seem to have enough information and reviews")) {
@@ -1539,22 +1551,22 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       } else if (e.message.includes("already scanned this listing")) {
         isAlreadyScanned = true;
         errorContent = "You’ve already scanned this listing. Please open it from Recent Scans, or paste a different property URL.";
-      } else if (e.message.includes("Airbnb") && e.message.includes("Booking.com") && !e.message.includes("Agoda")) {
-        // Replace messages that mention Airbnb and Booking.com but not Agoda
+      } else if (e.message.includes("Airbnb") && e.message.includes("Booking.com") && !e.message.includes("Agoda") && !e.message.includes("Expedia")) {
+        // Replace messages that mention Airbnb and Booking.com but not Agoda or Expedia
         errorContent = e.message
-          .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
-          .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
-          .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
-          .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, or Agoda");
+          .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, Agoda, or Expedia")
+          .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, Agoda, or Expedia")
+          .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, Agoda, or Expedia")
+          .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, Agoda, or Expedia");
       } else {
-        // Check if error message mentions platforms and add Agoda if missing
+        // Check if error message mentions platforms and add Agoda/Expedia if missing
         let finalMessage = e.message;
-        if (finalMessage.includes("Airbnb") && finalMessage.includes("Booking.com") && !finalMessage.includes("Agoda")) {
+        if (finalMessage.includes("Airbnb") && finalMessage.includes("Booking.com") && !finalMessage.includes("Agoda") && !finalMessage.includes("Expedia")) {
           finalMessage = finalMessage
-            .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
-            .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, or Agoda")
-            .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, or Agoda")
-            .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, or Agoda");
+            .replace(/Airbnb or Booking\.com/gi, "Airbnb, Booking.com, Agoda, or Expedia")
+            .replace(/Airbnb, Booking\.com/gi, "Airbnb, Booking.com, Agoda, or Expedia")
+            .replace(/from Airbnb or Booking\.com/gi, "from Airbnb, Booking.com, Agoda, or Expedia")
+            .replace(/from Airbnb, Booking\.com/gi, "from Airbnb, Booking.com, Agoda, or Expedia");
         }
         errorContent = `Sorry, I couldn't scan that listing. ${finalMessage}`;
       }
@@ -1562,9 +1574,10 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       setMessages(prev => [...prev, {
         role: "assistant",
         content: errorContent,
-        isError: (!isNotInScope && !isAlreadyScanned), // Use regular error styling for other errors
+        isError: (!isNotInScope && !isAlreadyScanned && !isUnsupportedPlatform), // Use regular error styling for other errors
         isNotInScope: isNotInScope, // Special flag for not-in-scope errors
         isAlreadyScanned: isAlreadyScanned, // Special flag for already scanned errors
+        isUnsupportedPlatform: isUnsupportedPlatform, // Special flag for unsupported platform errors
         alreadyScannedUrl: isAlreadyScanned ? url : null
       }]);
       
@@ -2161,7 +2174,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     } else {
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "Please provide two listing URLs (Airbnb, Booking.com, or Agoda) to compare, or just say 'compare' to see your available scans.",
+        content: "Please provide two listing URLs (Airbnb, Booking.com, Agoda, or Expedia) to compare, or just say 'compare' to see your available scans.",
         isError: true
       }]);
     }
@@ -2181,11 +2194,12 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     } else if (isSupportedUrl(normalizedUrl)) {
       await handleScan(normalizedUrl);
     } else if (isUrl(normalizedUrl)) {
-      // Check if it's a URL but not supported (Airbnb or Booking.com)
+      // Check if it's a URL but not supported
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: "The URL you are trying to scan is from a platform that we do not cover yet. We currently support Airbnb, Booking.com, and Agoda. Bear with us as we are expanding quickly.",
-        isError: true
+        content: "The URL you are trying to scan is from a platform that we do not cover yet. We currently support Airbnb, Booking.com, Agoda, and Expedia. Bear with us as we are expanding quickly.",
+        isError: false,
+        isUnsupportedPlatform: true
       }]);
     } else {
       await handleAsk(trimmedInput);
@@ -2396,6 +2410,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     const isWarning = message.isWarning;
     const isNotInScope = message.isNotInScope; // Special flag for not-in-scope errors
     const isAlreadyScanned = message.isAlreadyScanned; // Special flag for already scanned errors
+    const isUnsupportedPlatform = message.isUnsupportedPlatform; // Special flag for unsupported platform errors
     const isQuestion = isUser && (message.messageType === "question" || (message.content && !message.content.includes("http")));
     const isUserMessage = isUser;
     const isScanRequest = isUser && message.content && message.content.includes("http");
@@ -2412,13 +2427,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
             ? 'bg-gray-100 text-gray-800 rounded-2xl px-4 py-3 ml-auto break-words'
             : (isNotInScope || isAlreadyScanned)
             ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl px-4 py-4 sm:px-6 sm:py-5 max-w-3xl shadow-sm w-full'
+            : isUnsupportedPlatform
+            ? 'bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-700 border border-blue-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isError
             ? 'bg-red-50 text-red-700 border border-red-200 rounded-2xl px-4 py-3 max-w-3xl'
             : isWarning
             ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-2xl px-4 py-3 max-w-3xl'
             : 'bg-white'
         }`} style={isUser ? { wordBreak: 'break-word', overflowWrap: 'anywhere' } : {}}>
-          {!isUser && !isError && !isWarning && !isNotInScope && !isQuestion && message.scanData ? (
+          {!isUser && !isError && !isWarning && !isNotInScope && !isUnsupportedPlatform && !isQuestion && message.scanData ? (
             // Detailed scan result display
             <div className="bg-white rounded-2xl border border-accent p-4 sm:p-6">
               {/* Information */}
@@ -2575,6 +2592,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
                       <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Airbnb</span>
                       <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Booking.com</span>
                       <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Agoda</span>
+                      <span className="inline-flex items-center px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-blue-100 text-blue-700 text-xs sm:text-sm font-medium">Expedia</span>
                     </div>
                   </div>
                 </div>
