@@ -49,7 +49,10 @@ const isBookingUrl = (text) => {
   // Pattern for Booking.com URLs (handles various country domains)
   const bookingPattern = /https?:\/\/(www\.)?([a-z]{2}\.)?booking\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)/i;
   
-  return bookingPattern.test(text);
+  // Pattern for Booking.com Share URLs (e.g., https://www.booking.com/Share-uMi4aF)
+  const bookingSharePattern = /https?:\/\/(www\.)?([a-z]{2}\.)?booking\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)\/Share-/i;
+  
+  return bookingPattern.test(text) || bookingSharePattern.test(text);
 };
 
 // Helper function to detect if input is an Agoda URL (handles all domain variations)
@@ -69,7 +72,10 @@ const isExpediaUrl = (text) => {
   // Pattern for Expedia URLs (handles various country domains)
   const expediaPattern = /https?:\/\/(www\.)?([a-z]{2}\.)?expedia\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)/i;
   
-  return expediaPattern.test(text);
+  // Pattern for Expedia short URLs (expe.app.link)
+  const expediaShortPattern = /https?:\/\/expe\.app\.link/i;
+  
+  return expediaPattern.test(text) || expediaShortPattern.test(text);
 };
 
 // Helper function to detect if input is a supported platform URL (Airbnb, Booking.com, Agoda, or Expedia)
