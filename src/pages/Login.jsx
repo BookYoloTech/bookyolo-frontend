@@ -38,10 +38,10 @@ export default function Login() {
       // Login successful
       showSuccess("Login successful! Welcome back!");
       
-      // Redirect to scan chat
+      // Redirect to scan chat - give a moment for token to be stored and validated
       setTimeout(() => {
         window.location.href = "/scan";
-      }, 1500);
+      }, 800); // Reduced from 1500ms - faster redirect but still enough time for token storage
     } catch (e) {
       setErr(e.message || String(e));
     } finally {
