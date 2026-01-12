@@ -1473,6 +1473,21 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       }
       
       const data = await res.json();
+      
+      // DEBUG: Log the debug info from backend
+      if (data.scan && data.scan._debug) {
+        console.log("🔍 DEBUG INFO FROM BACKEND:", data.scan._debug);
+        console.log("🔍 Rating:", data.scan._debug.rating);
+        console.log("🔍 Platform:", data.scan._debug.platform);
+        console.log("🔍 Platform contains 'agoda':", data.scan._debug.platform_contains_agoda);
+        console.log("🔍 Base Score:", data.scan._debug.base_score);
+        console.log("🔍 Base Label:", data.scan._debug.base_label);
+        console.log("🔍 Categories Triggered:", data.scan._debug.categories_triggered);
+        console.log("🔍 Final Label:", data.scan._debug.final_label);
+      } else {
+        console.warn("⚠️ No debug info found in scan response. Full response:", data);
+      }
+      
       setCurrentChatId(data.chat_id);
       setCurrentScan(data.scan);
       setScanProgress(100);
