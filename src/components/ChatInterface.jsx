@@ -1474,19 +1474,34 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       
       const data = await res.json();
       
-      // DEBUG: Log the debug info from backend
-      if (data.scan && data.scan._debug) {
-        console.log("🔍 DEBUG INFO FROM BACKEND:", data.scan._debug);
-        console.log("🔍 Rating:", data.scan._debug.rating);
-        console.log("🔍 Platform:", data.scan._debug.platform);
-        console.log("🔍 Platform contains 'agoda':", data.scan._debug.platform_contains_agoda);
-        console.log("🔍 Base Score:", data.scan._debug.base_score);
-        console.log("🔍 Base Label:", data.scan._debug.base_label);
-        console.log("🔍 Categories Triggered:", data.scan._debug.categories_triggered);
-        console.log("🔍 Final Label:", data.scan._debug.final_label);
+      // DEBUG: Log the debug info from backend - ENHANCED LOGGING
+      console.log("🔍 ========== SCAN RESPONSE DEBUG START ==========");
+      console.log("🔍 Full response data:", data);
+      console.log("🔍 data.scan exists:", !!data.scan);
+      if (data.scan) {
+        console.log("🔍 data.scan keys:", Object.keys(data.scan));
+        console.log("🔍 data.scan.label:", data.scan.label);
+        console.log("🔍 data.scan._debug exists:", !!data.scan._debug);
+        if (data.scan._debug) {
+          console.log("🔍 ========== DEBUG INFO FROM BACKEND ==========");
+          console.log("🔍 Full _debug object:", JSON.stringify(data.scan._debug, null, 2));
+          console.log("🔍 Rating:", data.scan._debug.rating, "(type:", typeof data.scan._debug.rating + ")");
+          console.log("🔍 Platform:", data.scan._debug.platform, "(type:", typeof data.scan._debug.platform + ")");
+          console.log("🔍 Platform contains 'agoda':", data.scan._debug.platform_contains_agoda);
+          console.log("🔍 Base Score:", data.scan._debug.base_score);
+          console.log("🔍 Base Label:", data.scan._debug.base_label);
+          console.log("🔍 Categories Triggered:", data.scan._debug.categories_triggered);
+          console.log("🔍 Final Label:", data.scan._debug.final_label);
+          console.log("🔍 Input fields platform:", data.scan._debug.input_fields_platform_value);
+          console.log("🔍 ========== END DEBUG INFO ==========");
+        } else {
+          console.warn("⚠️ WARNING: No _debug object found in data.scan");
+          console.log("🔍 data.scan contents:", JSON.stringify(data.scan, null, 2));
+        }
       } else {
-        console.warn("⚠️ No debug info found in scan response. Full response:", data);
+        console.warn("⚠️ WARNING: No data.scan found in response");
       }
+      console.log("🔍 ========== SCAN RESPONSE DEBUG END ==========");
       
       setCurrentChatId(data.chat_id);
       setCurrentScan(data.scan);
