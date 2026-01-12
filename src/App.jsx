@@ -98,21 +98,8 @@ export default function App() {
       return <Navigate to="/login" replace />;
     }
     
-    // Don't redirect while still loading user data - wait for auth to complete
-    if (meLoading) {
-      // Show loading state while checking authentication
-      return (
-        <div className="min-h-screen bg-white flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-button mx-auto"></div>
-            <p className="mt-4 text-primary">Verifying authentication...</p>
-          </div>
-        </div>
-      );
-    }
-    
-    // Only redirect to login if authentication has actually failed AND we're done loading
-    if (authFailed && !meLoading) {
+    // Only redirect to login if authentication has actually failed
+    if (authFailed) {
       return <Navigate to="/login" replace />;
     }
     
