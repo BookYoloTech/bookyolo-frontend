@@ -1072,6 +1072,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         if (existingScanData) {
           // Use cached data - no fetch needed
           scanDataResult = existingScanData;
+          // DEBUG: Log cached scan data
+          console.log("🔍 ========== CACHED SCAN DEBUG START ==========");
+          console.log("🔍 Using cached scan data:", scanDataResult);
+          if (scanDataResult && scanDataResult._debug) {
+            console.log("🔍 _debug object found:", JSON.stringify(scanDataResult._debug, null, 2));
+          } else {
+            console.warn("⚠️ No _debug object in cached scan");
+          }
+          console.log("🔍 ========== CACHED SCAN DEBUG END ==========");
           setCurrentScan(scanDataResult);
         } else if (parallelScanFetchPromise) {
           // PERFORMANCE OPTIMIZATION: We already started a parallel fetch above, use that instead of starting a new one
