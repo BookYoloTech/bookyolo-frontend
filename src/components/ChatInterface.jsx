@@ -1182,6 +1182,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           
           if (data.chat.type === 'scan' && scanResults[0]) {
             scanDataResult = scanResults[0];
+            // DEBUG: Log scan data when loading existing scan
+            console.log("🔍 ========== EXISTING SCAN DEBUG START ==========");
+            console.log("🔍 Loaded scan from /scan/{scan_id}:", scanDataResult);
+            if (scanDataResult._debug) {
+              console.log("🔍 _debug object found:", JSON.stringify(scanDataResult._debug, null, 2));
+            } else {
+              console.warn("⚠️ No _debug object in loaded scan");
+            }
+            console.log("🔍 ========== EXISTING SCAN DEBUG END ==========");
             // Cache it for future use
             setScanData(prev => ({ ...prev, [chatId]: scanDataResult }));
             setCurrentScan(scanDataResult);
