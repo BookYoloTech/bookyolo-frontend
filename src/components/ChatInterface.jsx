@@ -96,12 +96,16 @@ const isBookingShareUrl = (url) => {
 const expandBookingShareUrlViaBackend = async (shareUrl) => {
   try {
     console.log('🔍 BACKEND: Trying to expand Share URL via backend API:', shareUrl);
+    console.log('🔍 BACKEND: API_BASE:', API_BASE);
+    console.log('🔍 BACKEND: Full endpoint:', `${API_BASE}/expand-share-url`);
     
     const token = localStorage.getItem("by_token");
     if (!token) {
+      console.error('❌ BACKEND: No authentication token found');
       throw new Error("No authentication token found");
     }
     
+    console.log('🔍 BACKEND: Making POST request to backend...');
     const response = await fetch(`${API_BASE}/expand-share-url`, {
       method: 'POST',
       headers: {
@@ -111,22 +115,39 @@ const expandBookingShareUrlViaBackend = async (shareUrl) => {
       body: JSON.stringify({ url: shareUrl }),
     });
     
+    console.log('🔍 BACKEND: Response status:', response.status);
+    console.log('🔍 BACKEND: Response ok:', response.ok);
+    
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-      throw new Error(errorData.detail || `HTTP ${response.status}`);
+      const errorData = await response.json().catch(() => {
+        console.error('❌ BACKEND: Failed to parse error response as JSON');
+        return { detail: `HTTP ${response.status}: ${response.statusText}` };
+      });
+      console.error('❌ BACKEND: Backend returned error:', errorData);
+      throw new Error(errorData.detail || errorData.error || `HTTP ${response.status}`);
     }
     
     const data = await response.json();
+    console.log('🔍 BACKEND: Response data:', data);
     
     if (data.success && data.expanded_url && !isBookingShareUrl(data.expanded_url)) {
       console.log('✅ BACKEND: Successfully expanded URL:', shareUrl, '->', data.expanded_url);
       return data.expanded_url;
     } else {
-      console.warn('⚠️ BACKEND: Expansion failed or returned Share URL:', data);
+      console.warn('⚠️ BACKEND: Expansion failed or returned Share URL:', {
+        success: data.success,
+        expanded_url: data.expanded_url,
+        error: data.error,
+        isShareUrl: data.expanded_url ? isBookingShareUrl(data.expanded_url) : 'N/A'
+      });
       throw new Error(data.error || 'Expansion failed');
     }
   } catch (error) {
-    console.error('❌ BACKEND: Error expanding Share URL via backend:', error);
+    console.error('❌ BACKEND: Error expanding Share URL via backend:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
     throw error;
   }
 };
@@ -137,21 +158,26 @@ const expandBookingShareUrlViaBackend = async (shareUrl) => {
 const expandBookingShareUrl = async (shareUrl) => {
   console.log('🔍 CLIENT-SIDE: Expanding Booking.com Share URL:', shareUrl);
   
-  // Try client-side expansion first
-  let clientSideWorked = false;
+  // Try client-side expansion first (with timeout to avoid hanging)
+  let clientSideExpanded = null;
+  let clientSideError = null;
+  
   try {
-    // Use fetch with redirect: 'follow' to automatically follow redirects
-    // The browser will handle the redirect and WAF challenges automatically
-    // Use 'cors' mode - if CORS blocks it, we'll catch the error and fall back to backend
-    const response = await fetch(shareUrl, {
+    // Use Promise.race to add a timeout to the fetch
+    const fetchPromise = fetch(shareUrl, {
       method: 'GET',
-      redirect: 'follow', // Automatically follow all redirects
-      mode: 'cors', // Try CORS mode first (allows reading response.url if same-origin or CORS headers allow)
-      credentials: 'omit', // Don't send cookies (not needed for redirect following)
+      redirect: 'follow',
+      mode: 'cors',
+      credentials: 'omit',
     });
     
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Client-side fetch timeout')), 5000)
+    );
+    
+    const response = await Promise.race([fetchPromise, timeoutPromise]);
+    
     // Get the final URL after all redirects
-    // response.url contains the final URL after redirects are followed
     const expandedUrl = response.url || shareUrl;
     
     console.log('🔍 CLIENT-SIDE: Response URL after redirects:', expandedUrl);
@@ -164,40 +190,67 @@ const expandBookingShareUrl = async (shareUrl) => {
     
     // If still a Share URL or same URL, the expansion didn't work
     console.warn('⚠️ CLIENT-SIDE: URL expansion returned same URL or still a Share URL');
+    clientSideExpanded = expandedUrl; // Store for reference
   } catch (clientError) {
+    clientSideError = clientError;
+    // Log the error details
+    console.warn('⚠️ CLIENT-SIDE: Client-side expansion failed:', {
+      name: clientError.name,
+      message: clientError.message,
+      stack: clientError.stack
+    });
+    
     // Check if it's a CORS error or network error
     const isCorsError = clientError.name === 'TypeError' && 
                        (clientError.message.includes('Failed to fetch') || 
                         clientError.message.includes('CORS') ||
-                        clientError.message.includes('network'));
+                        clientError.message.includes('network') ||
+                        clientError.message.includes('blocked'));
     
     if (isCorsError) {
-      console.warn('⚠️ CLIENT-SIDE: CORS or network error detected:', clientError.message);
-      console.warn('⚠️ CLIENT-SIDE: Falling back to backend expansion...');
-    } else {
-      console.warn('⚠️ CLIENT-SIDE: Client-side expansion failed:', clientError.message);
-      console.warn('⚠️ CLIENT-SIDE: Falling back to backend expansion...');
+      console.warn('⚠️ CLIENT-SIDE: CORS or network error detected - will try backend');
     }
   }
   
-  // If client-side didn't work (either threw error or returned same URL), try backend
-  console.log('🔄 CLIENT-SIDE: Attempting backend expansion as fallback...');
+  // ALWAYS try backend expansion if client-side didn't work
+  // This ensures we attempt backend even if error detection fails
+  console.log('🔄 CLIENT-SIDE: Client-side expansion failed or incomplete, attempting backend expansion as fallback...');
+  console.log('🔄 CLIENT-SIDE: Client-side result:', clientSideExpanded || 'null');
+  console.log('🔄 CLIENT-SIDE: Client-side error:', clientSideError ? clientSideError.message : 'none');
+  
   try {
+    console.log('🔍 BACKEND: Calling backend expansion API...');
     const backendExpanded = await expandBookingShareUrlViaBackend(shareUrl);
+    
+    console.log('🔍 BACKEND: Backend returned:', backendExpanded);
+    
     if (backendExpanded && backendExpanded !== shareUrl && !isBookingShareUrl(backendExpanded)) {
       console.log('✅ BACKEND: Successfully expanded URL via backend:', shareUrl, '->', backendExpanded);
       return backendExpanded;
     } else {
-      console.warn('⚠️ BACKEND: Backend expansion returned invalid result:', backendExpanded);
-      throw new Error('Backend expansion failed');
+      console.warn('⚠️ BACKEND: Backend expansion returned invalid result:', {
+        backendExpanded,
+        isSame: backendExpanded === shareUrl,
+        isShareUrl: isBookingShareUrl(backendExpanded)
+      });
+      throw new Error('Backend expansion failed - returned invalid URL');
     }
   } catch (backendError) {
-    console.error('❌ BACKEND: Backend expansion failed:', backendError);
-    // Check if it's a CORS error from client-side
-    const isCorsError = backendError.message && backendError.message.includes('CORS');
-    if (isCorsError) {
+    console.error('❌ BACKEND: Backend expansion failed:', {
+      message: backendError.message,
+      name: backendError.name,
+      stack: backendError.stack
+    });
+    
+    // If client-side was blocked by CORS, throw CORS_BLOCKED
+    if (clientSideError && clientSideError.name === 'TypeError' && 
+        (clientSideError.message.includes('Failed to fetch') || 
+         clientSideError.message.includes('CORS') ||
+         clientSideError.message.includes('blocked'))) {
       throw new Error('CORS_BLOCKED');
     }
+    
+    // Otherwise throw the backend error
     throw new Error(backendError.message || 'Failed to expand URL');
   }
 };
