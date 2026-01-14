@@ -22,6 +22,7 @@ const labelStyle = (label) => {
     "Looks Sketchy": { bg: "bg-red-500", text: "text-white" },
     "Travel Trap": { bg: "bg-red-600", text: "text-white" },
     "Booking Nightmare": { bg: "bg-red-700", text: "text-white" },
+    "Neutral": { bg: "bg-gray-500", text: "text-white" },
     "Insufficient Data": { bg: "bg-gray-500", text: "text-white" },
   };
   return map[label] || { bg: "bg-gray-500", text: "text-white" };
