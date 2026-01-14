@@ -84,6 +84,56 @@ const isSupportedUrl = (text) => {
   return isAirbnbUrl(text) || isBookingUrl(text) || isAgodaUrl(text) || isExpediaUrl(text);
 };
 
+// Helper function to detect if URL is a Booking.com Share URL
+const isBookingShareUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  // Check for Share- pattern in Booking.com URLs (case-insensitive)
+  const sharePattern = /\/Share-/i;
+  return isBookingUrl(url) && sharePattern.test(url);
+};
+
+// Expand Booking.com Share URL in the browser (client-side)
+// This bypasses WAF blocking because it uses the user's real browser
+const expandBookingShareUrl = async (shareUrl) => {
+  try {
+    console.log('🔍 CLIENT-SIDE: Expanding Booking.com Share URL:', shareUrl);
+    
+    // Use fetch with redirect: 'follow' to automatically follow redirects
+    // The browser will handle the redirect and WAF challenges automatically
+    // Use 'cors' mode - if CORS blocks it, we'll catch the error and show a helpful message
+    const response = await fetch(shareUrl, {
+      method: 'GET',
+      redirect: 'follow', // Automatically follow all redirects
+      mode: 'cors', // Try CORS mode first (allows reading response.url if same-origin or CORS headers allow)
+      credentials: 'omit', // Don't send cookies (not needed for redirect following)
+    });
+    
+    // Get the final URL after all redirects
+    // response.url contains the final URL after redirects are followed
+    const expandedUrl = response.url || shareUrl;
+    
+    console.log('🔍 CLIENT-SIDE: Response URL after redirects:', expandedUrl);
+    
+    // Verify it's actually expanded (no longer a Share URL)
+    if (expandedUrl !== shareUrl && !isBookingShareUrl(expandedUrl)) {
+      console.log('✅ CLIENT-SIDE: Successfully expanded URL:', shareUrl, '->', expandedUrl);
+      return expandedUrl;
+    }
+    
+    // If still a Share URL or same URL, the expansion didn't work
+    console.warn('⚠️ CLIENT-SIDE: URL expansion returned same URL or still a Share URL');
+    return shareUrl;
+  } catch (error) {
+    // Check if it's a CORS error
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      console.error('❌ CLIENT-SIDE: CORS blocked the request. This is a browser security restriction.');
+      throw new Error('CORS_BLOCKED');
+    }
+    console.error('❌ CLIENT-SIDE: Error expanding Share URL:', error);
+    throw error;
+  }
+};
+
 // Normalize user-pasted URLs that are missing a scheme (e.g., "www.booking.com/...")
 // This prevents valid listing URLs from being misrouted to the pre-scan assistant.
 const normalizeUrlIfMissingScheme = (text) => {
@@ -1411,8 +1461,67 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       return;
     }
 
-    // Add user message
-    const userMessage = { role: "user", content: `Scan ${url}`, messageType: "scan" };
+    // CLIENT-SIDE URL EXPANSION: Expand Booking.com Share URLs in the browser
+    // This bypasses WAF blocking because the user's browser is treated as a real user
+    let finalUrl = url;
+    if (isBookingShareUrl(url)) {
+      try {
+        console.log("🔍 CLIENT-SIDE: Detected Booking.com Share URL, expanding in browser...");
+        setMessages(prev => [...prev, {
+          role: "assistant",
+          content: "Expanding shortened URL...",
+          isLoading: true,
+          isExpanding: true
+        }]);
+        
+        const expandedUrl = await expandBookingShareUrl(url);
+        
+        if (expandedUrl !== url && !isBookingShareUrl(expandedUrl)) {
+          finalUrl = expandedUrl;
+          console.log("✅ CLIENT-SIDE: Successfully expanded Share URL:", url, "->", finalUrl);
+          // Remove the expanding message
+          setMessages(prev => prev.filter(msg => !msg.isExpanding));
+        } else {
+          console.warn("⚠️ CLIENT-SIDE: Share URL expansion may have failed, using original URL");
+          // Remove the expanding message and show warning
+          setMessages(prev => {
+            const filtered = prev.filter(msg => !msg.isExpanding);
+            return [...filtered, {
+              role: "assistant",
+              content: "Could not expand the shortened URL. Please try copying the full listing URL from the property page, or try again.",
+              isError: true
+            }];
+          });
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.error("❌ CLIENT-SIDE: Error expanding Share URL:", error);
+        // Remove the expanding message and show error
+        setMessages(prev => {
+          const filtered = prev.filter(msg => !msg.isExpanding);
+          let errorMessage = "Failed to expand the shortened URL. ";
+          
+          if (error.message === 'CORS_BLOCKED') {
+            errorMessage += "Browser security restrictions prevent automatic expansion. ";
+          }
+          
+          errorMessage += "Please copy the full listing URL directly from the property page in your browser (it should look like: https://www.booking.com/hotel/.../...) instead of using the Share button link.";
+          
+          return [...filtered, {
+            role: "assistant",
+            content: errorMessage,
+            isError: true
+          }];
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // Add user message (show original Share URL to user, but send expanded URL to backend)
+    const displayUrl = isBookingShareUrl(url) ? url : finalUrl;
+    const userMessage = { role: "user", content: `Scan ${displayUrl}`, messageType: "scan" };
     setMessages(prev => [...prev, userMessage]);
 
     try {
@@ -1421,10 +1530,14 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         throw new Error("No authentication token found. Please log in again.");
       }
 
-      console.log("🔍 FRONTEND: Starting scan for URL:", url);
+      console.log("🔍 FRONTEND: Starting scan for URL:", finalUrl);
+      if (isBookingShareUrl(url)) {
+        console.log("🔍 FRONTEND: Original Share URL was:", url);
+        console.log("🔍 FRONTEND: Using expanded URL:", finalUrl);
+      }
       console.log("🔍 FRONTEND: API_BASE:", API_BASE);
       console.log("🔍 FRONTEND: Full API endpoint:", `${API_BASE}/chat/new-scan`);
-      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: url }));
+      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: finalUrl }));
       console.log("🔍 FRONTEND: Using backend:", API_BASE.includes('localhost') ? 'LOCAL (http://localhost:8000)' : 'VERCEL (https://bookyolo-backend.vercel.app)');
       
       const res = await fetch(`${API_BASE}/chat/new-scan`, {
@@ -1433,7 +1546,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ listing_url: url }),
+        body: JSON.stringify({ listing_url: finalUrl }),
       });
       
       console.log("🔍 FRONTEND: Response status:", res.status);
