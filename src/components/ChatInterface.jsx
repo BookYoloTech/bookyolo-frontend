@@ -92,45 +92,115 @@ const isBookingShareUrl = (url) => {
   return isBookingUrl(url) && sharePattern.test(url);
 };
 
+// Expand Booking.com Share URL via backend API (fallback when client-side fails)
+const expandBookingShareUrlViaBackend = async (shareUrl) => {
+  try {
+    console.log('🔍 BACKEND: Trying to expand Share URL via backend API:', shareUrl);
+    
+    const token = localStorage.getItem("by_token");
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+    
+    const response = await fetch(`${API_BASE}/expand-share-url`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ url: shareUrl }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(errorData.detail || `HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.success && data.expanded_url && !isBookingShareUrl(data.expanded_url)) {
+      console.log('✅ BACKEND: Successfully expanded URL:', shareUrl, '->', data.expanded_url);
+      return data.expanded_url;
+    } else {
+      console.warn('⚠️ BACKEND: Expansion failed or returned Share URL:', data);
+      throw new Error(data.error || 'Expansion failed');
+    }
+  } catch (error) {
+    console.error('❌ BACKEND: Error expanding Share URL via backend:', error);
+    throw error;
+  }
+};
+
 // Expand Booking.com Share URL in the browser (client-side)
 // This bypasses WAF blocking because it uses the user's real browser
+// Falls back to backend API if CORS blocks the request
 const expandBookingShareUrl = async (shareUrl) => {
   try {
     console.log('🔍 CLIENT-SIDE: Expanding Booking.com Share URL:', shareUrl);
     
-    // Use fetch with redirect: 'follow' to automatically follow redirects
-    // The browser will handle the redirect and WAF challenges automatically
-    // Use 'cors' mode - if CORS blocks it, we'll catch the error and show a helpful message
-    const response = await fetch(shareUrl, {
-      method: 'GET',
-      redirect: 'follow', // Automatically follow all redirects
-      mode: 'cors', // Try CORS mode first (allows reading response.url if same-origin or CORS headers allow)
-      credentials: 'omit', // Don't send cookies (not needed for redirect following)
-    });
-    
-    // Get the final URL after all redirects
-    // response.url contains the final URL after redirects are followed
-    const expandedUrl = response.url || shareUrl;
-    
-    console.log('🔍 CLIENT-SIDE: Response URL after redirects:', expandedUrl);
-    
-    // Verify it's actually expanded (no longer a Share URL)
-    if (expandedUrl !== shareUrl && !isBookingShareUrl(expandedUrl)) {
-      console.log('✅ CLIENT-SIDE: Successfully expanded URL:', shareUrl, '->', expandedUrl);
-      return expandedUrl;
+    // Try client-side expansion first
+    try {
+      // Use fetch with redirect: 'follow' to automatically follow redirects
+      // The browser will handle the redirect and WAF challenges automatically
+      // Use 'cors' mode - if CORS blocks it, we'll catch the error and fall back to backend
+      const response = await fetch(shareUrl, {
+        method: 'GET',
+        redirect: 'follow', // Automatically follow all redirects
+        mode: 'cors', // Try CORS mode first (allows reading response.url if same-origin or CORS headers allow)
+        credentials: 'omit', // Don't send cookies (not needed for redirect following)
+      });
+      
+      // Get the final URL after all redirects
+      // response.url contains the final URL after redirects are followed
+      const expandedUrl = response.url || shareUrl;
+      
+      console.log('🔍 CLIENT-SIDE: Response URL after redirects:', expandedUrl);
+      
+      // Verify it's actually expanded (no longer a Share URL)
+      if (expandedUrl !== shareUrl && !isBookingShareUrl(expandedUrl)) {
+        console.log('✅ CLIENT-SIDE: Successfully expanded URL:', shareUrl, '->', expandedUrl);
+        return expandedUrl;
+      }
+      
+      // If still a Share URL or same URL, the expansion didn't work
+      console.warn('⚠️ CLIENT-SIDE: URL expansion returned same URL or still a Share URL');
+    } catch (clientError) {
+      // Check if it's a CORS error - if so, try backend expansion
+      if (clientError.name === 'TypeError' && clientError.message.includes('Failed to fetch')) {
+        console.warn('⚠️ CLIENT-SIDE: CORS blocked the request. Falling back to backend expansion...');
+        // Try backend expansion as fallback
+        try {
+          return await expandBookingShareUrlViaBackend(shareUrl);
+        } catch (backendError) {
+          console.error('❌ BACKEND: Backend expansion also failed:', backendError);
+          throw new Error('CORS_BLOCKED'); // Still throw to show user-friendly message
+        }
+      }
+      throw clientError;
     }
     
-    // If still a Share URL or same URL, the expansion didn't work
-    console.warn('⚠️ CLIENT-SIDE: URL expansion returned same URL or still a Share URL');
-    return shareUrl;
+    // If client-side expansion didn't throw but also didn't work, try backend
+    console.warn('⚠️ CLIENT-SIDE: Expansion returned same URL, trying backend fallback...');
+    try {
+      return await expandBookingShareUrlViaBackend(shareUrl);
+    } catch (backendError) {
+      console.error('❌ BACKEND: Backend expansion failed:', backendError);
+      return shareUrl; // Return original URL if all methods fail
+    }
   } catch (error) {
-    // Check if it's a CORS error
-    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-      console.error('❌ CLIENT-SIDE: CORS blocked the request. This is a browser security restriction.');
-      throw new Error('CORS_BLOCKED');
-    }
     console.error('❌ CLIENT-SIDE: Error expanding Share URL:', error);
-    throw error;
+    // If it's CORS_BLOCKED, throw it so we can show a specific message
+    if (error.message === 'CORS_BLOCKED') {
+      throw error;
+    }
+    // For other errors, try backend as last resort
+    try {
+      console.log('🔄 CLIENT-SIDE: Trying backend as last resort...');
+      return await expandBookingShareUrlViaBackend(shareUrl);
+    } catch (backendError) {
+      console.error('❌ BACKEND: Final fallback also failed:', backendError);
+      throw error; // Throw original error
+    }
   }
 };
 
