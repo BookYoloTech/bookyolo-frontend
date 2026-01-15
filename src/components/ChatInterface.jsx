@@ -23,6 +23,7 @@ const labelStyle = (label) => {
     "Travel Trap": { bg: "bg-red-600", text: "text-white" },
     "Booking Nightmare": { bg: "bg-red-700", text: "text-white" },
     "Insufficient Data": { bg: "bg-gray-500", text: "text-white" },
+    "Neutral": { bg: "bg-gray-500", text: "text-white" },
   };
   return map[label] || { bg: "bg-gray-500", text: "text-white" };
 };
@@ -1410,121 +1411,8 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       return;
     }
 
-    // Helper function to detect if URL is a Booking.com Share URL
-    const isBookingShareUrl = (url) => {
-      if (!url || typeof url !== 'string') return false;
-      // Check for Share- pattern in Booking.com URLs (case-insensitive)
-      const sharePattern = /\/Share-/i;
-      return isBookingUrl(url) && sharePattern.test(url);
-    };
-
-    // Helper function to expand Share URL via backend
-    const expandBookingShareUrlViaBackend = async (shareUrl) => {
-      try {
-        console.log('🔍 BACKEND: Trying to expand Share URL via backend API:', shareUrl);
-        
-        const token = localStorage.getItem("by_token");
-        if (!token) {
-          throw new Error("No authentication token found");
-        }
-        
-        const response = await fetch(`${API_BASE}/expand-share-url`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ url: shareUrl }),
-        });
-        
-        console.log('🔍 BACKEND: Response status:', response.status);
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-          throw new Error(errorData.detail || errorData.error || `HTTP ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('🔍 BACKEND: Response data:', data);
-        
-        // Check if expansion was successful (got a non-Share URL)
-        if (data.success && data.expanded_url && !isBookingShareUrl(data.expanded_url)) {
-          console.log('✅ BACKEND: Successfully expanded URL:', shareUrl, '->', data.expanded_url);
-          return data.expanded_url;
-        } 
-        // Check if backend allows direct scanning (expansion failed but can scan Share URL directly)
-        else if (data.success && data.allow_direct_scan) {
-          console.log('⚠️ BACKEND: Expansion failed, but direct scanning is allowed. Will scan Share URL directly.');
-          console.log('⚠️ BACKEND: Warning:', data.warning);
-          // Return the Share URL to allow direct scanning (crawler approach)
-          return data.expanded_url || shareUrl;
-        } 
-        // Expansion truly failed
-        else {
-          console.warn('⚠️ BACKEND: Expansion failed:', data);
-          throw new Error(data.error || 'Expansion failed');
-        }
-      } catch (error) {
-        console.error('❌ BACKEND: Error expanding Share URL:', error);
-        throw error;
-      }
-    };
-
-    // Expand Share URL before scanning if needed
-    let finalUrl = url;
-    if (isBookingShareUrl(url)) {
-      try {
-        console.log("🔍 FRONTEND: Detected Booking.com Share URL, expanding...");
-        setMessages(prev => [...prev, {
-          role: "assistant",
-          content: "Expanding shortened URL...",
-          isLoading: true,
-          isExpanding: true
-        }]);
-        
-        // Try backend expansion directly (since client-side is blocked by CORS)
-        const expandedUrl = await expandBookingShareUrlViaBackend(url);
-        
-        // If expansion succeeded (got a non-Share URL), use it
-        if (expandedUrl && expandedUrl !== url && !isBookingShareUrl(expandedUrl)) {
-          finalUrl = expandedUrl;
-          console.log("✅ FRONTEND: Successfully expanded Share URL:", url, "->", finalUrl);
-          setMessages(prev => prev.filter(msg => !msg.isExpanding));
-        } 
-        // If still a Share URL, allow direct scanning (crawler approach)
-        else if (isBookingShareUrl(expandedUrl) || expandedUrl === url) {
-          console.log("⚠️ FRONTEND: Expansion failed, but proceeding with direct scanning of Share URL (crawler approach)");
-          finalUrl = expandedUrl || url; // Use expanded URL if available, otherwise original
-          setMessages(prev => {
-            const filtered = prev.filter(msg => !msg.isExpanding);
-            // Don't show error - allow scanning to proceed
-            return filtered;
-          });
-        } 
-        // Fallback error case (shouldn't happen)
-        else {
-          console.warn("⚠️ FRONTEND: Share URL expansion returned unexpected result, using original URL");
-          finalUrl = url;
-          setMessages(prev => prev.filter(msg => !msg.isExpanding));
-        }
-      } catch (error) {
-        console.error("❌ FRONTEND: Error expanding Share URL:", error);
-        setMessages(prev => {
-          const filtered = prev.filter(msg => !msg.isExpanding);
-          return [...filtered, {
-            role: "assistant",
-            content: error.message || "Failed to expand the shortened URL. Please copy the full listing URL directly from the property page (it should look like: https://www.booking.com/hotel/.../...) instead of using the Share button link.",
-            isError: true
-          }];
-        });
-        setIsLoading(false);
-        return;
-      }
-    }
-
-    // Add user message (show original Share URL to user, but send expanded URL to backend)
-    const displayUrl = isBookingShareUrl(url) ? url : finalUrl;
-    const userMessage = { role: "user", content: `Scan ${displayUrl}`, messageType: "scan" };
+    // Add user message
+    const userMessage = { role: "user", content: `Scan ${url}`, messageType: "scan" };
     setMessages(prev => [...prev, userMessage]);
 
     try {
@@ -1533,12 +1421,10 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         throw new Error("No authentication token found. Please log in again.");
       }
 
-      console.log("🔍 FRONTEND: Starting scan for URL:", finalUrl);
-      console.log("🔍 FRONTEND: Original Share URL was:", url);
-      console.log("🔍 FRONTEND: Using expanded URL:", finalUrl);
+      console.log("🔍 FRONTEND: Starting scan for URL:", url);
       console.log("🔍 FRONTEND: API_BASE:", API_BASE);
       console.log("🔍 FRONTEND: Full API endpoint:", `${API_BASE}/chat/new-scan`);
-      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: finalUrl }));
+      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: url }));
       console.log("🔍 FRONTEND: Using backend:", API_BASE.includes('localhost') ? 'LOCAL (http://localhost:8000)' : 'VERCEL (https://bookyolo-backend.vercel.app)');
       
       const res = await fetch(`${API_BASE}/chat/new-scan`, {
@@ -1685,9 +1571,11 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         errorContent = e.message; // Keep the exact message from backend
       } else if (e.message.includes("no more scans left") || e.message.includes("few scans left")) {
         errorContent = e.message; // Keep the exact message from backend
+      } else if (e.message.includes("Unable to expand the shortened URL") || e.message.includes("unable to expand") || e.message.includes("shortened URL")) {
+        errorContent = "Unable to expand the shortened URL. Please use the full listing URL from the property page instead. Copy the URL from your browser's address bar when viewing the property page.";
       } else if (e.message.includes("already scanned this listing")) {
         isAlreadyScanned = true;
-        errorContent = "You’ve already scanned this listing. Please open it from Recent Scans, or paste a different property URL.";
+        errorContent = "You've already scanned this listing. Please open it from Recent Scans, or paste a different property URL.";
       } else if (e.message.includes("Airbnb") && e.message.includes("Booking.com") && !e.message.includes("Agoda") && !e.message.includes("Expedia")) {
         // Replace messages that mention Airbnb and Booking.com but not Agoda or Expedia
         errorContent = e.message
