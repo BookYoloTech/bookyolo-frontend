@@ -140,7 +140,9 @@ const expandBookingShareUrlViaBackend = async (shareUrl) => {
         error: data.error,
         isShareUrl: data.expanded_url ? isBookingShareUrl(data.expanded_url) : 'N/A'
       });
-      throw new Error(data.error || 'Expansion failed');
+      // If backend provided an error message, use it; otherwise use a generic one
+      const errorMsg = data.error || 'Unable to expand the shortened URL. Booking.com\'s security system is blocking automated requests.';
+      throw new Error(errorMsg);
     }
   } catch (error) {
     console.error('❌ BACKEND: Error expanding Share URL via backend:', {
