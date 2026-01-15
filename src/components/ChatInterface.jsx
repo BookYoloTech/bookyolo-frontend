@@ -1369,53 +1369,6 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     }
   };
 
-  // Helper function to detect if URL is a Booking.com Share URL
-  const isBookingShareUrl = (url) => {
-    if (!url || typeof url !== 'string') return false;
-    return isBookingUrl(url) && url.toUpperCase().includes('/SHARE-');
-  };
-
-  // Helper function to expand Booking.com Share URL via backend
-  const expandBookingShareUrlViaBackend = async (shareUrl) => {
-    try {
-      console.log('🔍 BACKEND: Trying to expand Share URL via backend API:', shareUrl);
-      const token = localStorage.getItem("by_token");
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-      
-      const response = await fetch(`${API_BASE}/expand-share-url`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ url: shareUrl }),
-      });
-      
-      console.log('🔍 BACKEND: Response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(errorData.detail || errorData.error || `HTTP ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('🔍 BACKEND: Response data:', data);
-      
-      if (data.success && data.expanded_url && !isBookingShareUrl(data.expanded_url)) {
-        console.log('✅ BACKEND: Successfully expanded URL:', shareUrl, '->', data.expanded_url);
-        return data.expanded_url;
-      } else {
-        console.warn('⚠️ BACKEND: Expansion failed:', data);
-        throw new Error(data.error || 'Expansion failed');
-      }
-    } catch (error) {
-      console.error('❌ BACKEND: Error expanding Share URL:', error);
-      throw error;
-    }
-  };
-
   const handleScan = async (url) => {
     setError("");
     setIsLoading(true);
@@ -1457,11 +1410,61 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       return;
     }
 
-    // Expand Booking.com Share URLs before scanning
+    // Helper function to detect if URL is a Booking.com Share URL
+    const isBookingShareUrl = (url) => {
+      if (!url || typeof url !== 'string') return false;
+      // Check for Share- pattern in Booking.com URLs (case-insensitive)
+      const sharePattern = /\/Share-/i;
+      return isBookingUrl(url) && sharePattern.test(url);
+    };
+
+    // Helper function to expand Share URL via backend
+    const expandBookingShareUrlViaBackend = async (shareUrl) => {
+      try {
+        console.log('🔍 BACKEND: Trying to expand Share URL via backend API:', shareUrl);
+        
+        const token = localStorage.getItem("by_token");
+        if (!token) {
+          throw new Error("No authentication token found");
+        }
+        
+        const response = await fetch(`${API_BASE}/expand-share-url`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ url: shareUrl }),
+        });
+        
+        console.log('🔍 BACKEND: Response status:', response.status);
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+          throw new Error(errorData.detail || errorData.error || `HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('🔍 BACKEND: Response data:', data);
+        
+        if (data.success && data.expanded_url && !isBookingShareUrl(data.expanded_url)) {
+          console.log('✅ BACKEND: Successfully expanded URL:', shareUrl, '->', data.expanded_url);
+          return data.expanded_url;
+        } else {
+          console.warn('⚠️ BACKEND: Expansion failed:', data);
+          throw new Error(data.error || 'Expansion failed');
+        }
+      } catch (error) {
+        console.error('❌ BACKEND: Error expanding Share URL:', error);
+        throw error;
+      }
+    };
+
+    // Expand Share URL before scanning if needed
     let finalUrl = url;
     if (isBookingShareUrl(url)) {
       try {
-        console.log("🔍 FRONTEND: Detected Booking.com Share URL, expanding via backend...");
+        console.log("🔍 FRONTEND: Detected Booking.com Share URL, expanding...");
         setMessages(prev => [...prev, {
           role: "assistant",
           content: "Expanding shortened URL...",
@@ -1469,6 +1472,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           isExpanding: true
         }]);
         
+        // Try backend expansion directly (since client-side is blocked by CORS)
         const expandedUrl = await expandBookingShareUrlViaBackend(url);
         
         if (expandedUrl && expandedUrl !== url && !isBookingShareUrl(expandedUrl)) {
@@ -1476,7 +1480,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
           console.log("✅ FRONTEND: Successfully expanded Share URL:", url, "->", finalUrl);
           setMessages(prev => prev.filter(msg => !msg.isExpanding));
         } else {
-          console.warn("⚠️ FRONTEND: Share URL expansion failed or returned invalid URL");
+          console.warn("⚠️ FRONTEND: Share URL expansion may have failed, using original URL");
           setMessages(prev => {
             const filtered = prev.filter(msg => !msg.isExpanding);
             return [...filtered, {
@@ -1514,10 +1518,12 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         throw new Error("No authentication token found. Please log in again.");
       }
 
-      console.log("🔍 FRONTEND: Starting scan for URL:", url);
+      console.log("🔍 FRONTEND: Starting scan for URL:", finalUrl);
+      console.log("🔍 FRONTEND: Original Share URL was:", url);
+      console.log("🔍 FRONTEND: Using expanded URL:", finalUrl);
       console.log("🔍 FRONTEND: API_BASE:", API_BASE);
       console.log("🔍 FRONTEND: Full API endpoint:", `${API_BASE}/chat/new-scan`);
-      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: url }));
+      console.log("🔍 FRONTEND: Request body:", JSON.stringify({ listing_url: finalUrl }));
       console.log("🔍 FRONTEND: Using backend:", API_BASE.includes('localhost') ? 'LOCAL (http://localhost:8000)' : 'VERCEL (https://bookyolo-backend.vercel.app)');
       
       const res = await fetch(`${API_BASE}/chat/new-scan`, {
