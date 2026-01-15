@@ -1591,7 +1591,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       // Format specific error messages to be more user-friendly
       if (e.message === "LISTING_NOT_IN_SCOPE" || e.message.includes("Listing not found") || e.message.includes("404")) {
         isNotInScope = true;
-        errorContent = "We couldn't find this listing in our database.This property does not exist in our database yet. Please try another listing from Airbnb, Booking.com, Agoda, or Expedia.";
+        errorContent = "We couldn't find this listing in our database. This property does not exist in our database yet. Please try another listing from Airbnb, Booking.com, Agoda, or Expedia.";
       } else if (e.message.includes("platform that we do not cover yet")) {
         isUnsupportedPlatform = true;
         errorContent = "The URL you are trying to scan is from a platform that we do not cover yet. We currently support Airbnb, Booking.com, Agoda, and Expedia. Bear with us as we are expanding quickly.";
