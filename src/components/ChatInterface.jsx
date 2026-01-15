@@ -564,6 +564,38 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate, meProp, meLoadingProp]);
 
+  // Handle URL parameter from share extension (Web Share Target API)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedUrl = urlParams.get('url');
+    
+    if (sharedUrl) {
+      // Decode the URL
+      const decodedUrl = decodeURIComponent(sharedUrl);
+      
+      // Check if it's a supported URL
+      const normalizedUrl = normalizeUrlIfMissingScheme(decodedUrl);
+      
+      if (isSupportedUrl(normalizedUrl)) {
+        // Set the URL in input and trigger scan
+        setInput(decodedUrl);
+        
+        // Automatically trigger scan after a short delay to ensure component is ready
+        const scanTimer = setTimeout(() => {
+          handleScan(normalizedUrl);
+        }, 500);
+        
+        // Clean up URL parameter from address bar
+        window.history.replaceState({}, document.title, '/scan');
+        
+        return () => {
+          clearTimeout(scanTimer);
+        };
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // No longer needed - compares are now stored in database
 
   // Smooth progress for scan
