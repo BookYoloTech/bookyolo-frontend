@@ -1447,10 +1447,20 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         const data = await response.json();
         console.log('🔍 BACKEND: Response data:', data);
         
+        // Check if expansion was successful (got a non-Share URL)
         if (data.success && data.expanded_url && !isBookingShareUrl(data.expanded_url)) {
           console.log('✅ BACKEND: Successfully expanded URL:', shareUrl, '->', data.expanded_url);
           return data.expanded_url;
-        } else {
+        } 
+        // Check if backend allows direct scanning (expansion failed but can scan Share URL directly)
+        else if (data.success && data.allow_direct_scan) {
+          console.log('⚠️ BACKEND: Expansion failed, but direct scanning is allowed. Will scan Share URL directly.');
+          console.log('⚠️ BACKEND: Warning:', data.warning);
+          // Return the Share URL to allow direct scanning (crawler approach)
+          return data.expanded_url || shareUrl;
+        } 
+        // Expansion truly failed
+        else {
           console.warn('⚠️ BACKEND: Expansion failed:', data);
           throw new Error(data.error || 'Expansion failed');
         }
@@ -1475,22 +1485,27 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         // Try backend expansion directly (since client-side is blocked by CORS)
         const expandedUrl = await expandBookingShareUrlViaBackend(url);
         
+        // If expansion succeeded (got a non-Share URL), use it
         if (expandedUrl && expandedUrl !== url && !isBookingShareUrl(expandedUrl)) {
           finalUrl = expandedUrl;
           console.log("✅ FRONTEND: Successfully expanded Share URL:", url, "->", finalUrl);
           setMessages(prev => prev.filter(msg => !msg.isExpanding));
-        } else {
-          console.warn("⚠️ FRONTEND: Share URL expansion may have failed, using original URL");
+        } 
+        // If still a Share URL, allow direct scanning (crawler approach)
+        else if (isBookingShareUrl(expandedUrl) || expandedUrl === url) {
+          console.log("⚠️ FRONTEND: Expansion failed, but proceeding with direct scanning of Share URL (crawler approach)");
+          finalUrl = expandedUrl || url; // Use expanded URL if available, otherwise original
           setMessages(prev => {
             const filtered = prev.filter(msg => !msg.isExpanding);
-            return [...filtered, {
-              role: "assistant",
-              content: "Could not expand the shortened URL. Please try copying the full listing URL from the property page, or try again.",
-              isError: true
-            }];
+            // Don't show error - allow scanning to proceed
+            return filtered;
           });
-          setIsLoading(false);
-          return;
+        } 
+        // Fallback error case (shouldn't happen)
+        else {
+          console.warn("⚠️ FRONTEND: Share URL expansion returned unexpected result, using original URL");
+          finalUrl = url;
+          setMessages(prev => prev.filter(msg => !msg.isExpanding));
         }
       } catch (error) {
         console.error("❌ FRONTEND: Error expanding Share URL:", error);
