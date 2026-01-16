@@ -2,6 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE } from "../config/api";
 
+// Helper functions to detect platform from URL
+const isAirbnbUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  return /https?:\/\/(www\.)?(airbnb|abnb)\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)\//i.test(url);
+};
+
+const isBookingUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  return /https?:\/\/(www\.)?([a-z]{2}\.)?booking\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)/i.test(url);
+};
+
+const isAgodaUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  return /https?:\/\/(www\.)?([a-z]{2}\.)?agoda\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)/i.test(url);
+};
+
+const isExpediaUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  return /https?:\/\/(www\.)?([a-z]{2}\.)?expedia\.(com|fr|co\.uk|ca|com\.au|de|es|it|nl|pl|pt|ru|se|jp|kr|cn|in|br|mx|ar|cl|co|pe|za|ae|sa|tr|au|nz|ie|be|ch|at|dk|fi|no|gr|cz|hu|ro|bg|hr|sk|si|lt|lv|ee|is|lu|mt|cy)/i.test(url) || /https?:\/\/expe\.app\.link/i.test(url);
+};
+
+const detectPlatformFromUrl = (url) => {
+  if (!url) return 'airbnb'; // default
+  
+  if (isAirbnbUrl(url)) return 'airbnb';
+  if (isBookingUrl(url)) return 'booking.com';
+  if (isAgodaUrl(url)) return 'agoda';
+  if (isExpediaUrl(url)) return 'expedia';
+  
+  return 'airbnb'; // default fallback
+};
+
 export default function AdminMissingListings() {
   const navigate = useNavigate();
   const [missingListings, setMissingListings] = useState([]);
@@ -103,11 +135,39 @@ export default function AdminMissingListings() {
 
   const openAddForm = (listing) => {
     setSelectedListing(listing);
+    
+    // Auto-detect platform from URL
+    const detectedPlatform = detectPlatformFromUrl(listing.listing_url);
+    
+    // Extract property ID from URL based on platform
+    let propertyId = '';
+    if (detectedPlatform === 'airbnb') {
+      // Airbnb: https://www.airbnb.com/rooms/123456789
+      propertyId = listing.listing_url.split('/rooms/').pop()?.split('?')[0] || '';
+    } else if (detectedPlatform === 'booking.com') {
+      // Booking.com: Extract from URL path or use last segment
+      const urlParts = listing.listing_url.split('/').filter(p => p);
+      propertyId = urlParts[urlParts.length - 1]?.replace(/\.html$/, '') || '';
+    } else if (detectedPlatform === 'agoda') {
+      // Agoda: Extract first path segment
+      const urlParts = listing.listing_url.split('/').filter(p => p && !p.includes('.'));
+      propertyId = urlParts[urlParts.length - 1] || '';
+    } else if (detectedPlatform === 'expedia') {
+      // Expedia: Extract property ID from URL
+      const urlParts = listing.listing_url.split('/').filter(p => p);
+      propertyId = urlParts[urlParts.length - 1] || '';
+    }
+    
+    // If property ID extraction failed, use fallback method
+    if (!propertyId) {
+      propertyId = listing.listing_url.split('/').pop()?.split('?')[0] || '';
+    }
+    
     // Reset form data completely to ensure clean state
     setFormData({
       listing_url: listing.listing_url,
-      property_id: listing.listing_url.split('/').pop() || '',
-      platform: 'airbnb',
+      property_id: propertyId,
+      platform: detectedPlatform, // Auto-detect platform
       listing_title: '',
       listing_description: '',
       listing_highlights: [],
@@ -432,6 +492,25 @@ export default function AdminMissingListings() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
+                      Platform <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.platform}
+                      onChange={(e) => handleFormChange('platform', e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    >
+                      <option value="airbnb">Airbnb</option>
+                      <option value="booking.com">Booking.com</option>
+                      <option value="agoda">Agoda</option>
+                      <option value="expedia">Expedia</option>
+                    </select>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Platform auto-detected from URL. You can change it if needed.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
                       Listing Title <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -562,8 +641,199 @@ export default function AdminMissingListings() {
                     </div>
                   </div>
 
+                  {/* Most Recent Reviews Section */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Reviews</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Most Recent Reviews (Last 5 reviews - most recent first)
+                    </label>
+                    <div className="space-y-2">
+                      {formData.most_recent_reviews && formData.most_recent_reviews.length > 0 ? (
+                        formData.most_recent_reviews.map((review, index) => (
+                          <div key={index} className="flex items-start gap-2 p-2 bg-blue-50 rounded border border-blue-200">
+                            <div className="flex-1">
+                              <textarea
+                                rows="2"
+                                value={typeof review === 'string' ? review : JSON.stringify(review)}
+                                onChange={(e) => {
+                                  const newReviews = [...formData.most_recent_reviews];
+                                  try {
+                                    newReviews[index] = JSON.parse(e.target.value);
+                                  } catch {
+                                    newReviews[index] = e.target.value;
+                                  }
+                                  handleFormChange('most_recent_reviews', newReviews);
+                                }}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                placeholder="Enter review text or JSON object"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeArrayItem('most_recent_reviews', index)}
+                              className="text-red-600 hover:text-red-800 px-2"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">No most recent reviews added. Click "Add Review" below to add one.</p>
+                      )}
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter most recent review text or JSON"
+                          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const value = e.target.value.trim();
+                              if (value) {
+                                try {
+                                  const parsed = JSON.parse(value);
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    most_recent_reviews: [...(prev.most_recent_reviews || []), parsed]
+                                  }));
+                                } catch {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    most_recent_reviews: [...(prev.most_recent_reviews || []), value]
+                                  }));
+                                }
+                                e.target.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            const input = e.target.previousElementSibling;
+                            const value = input.value.trim();
+                            if (value) {
+                              try {
+                                const parsed = JSON.parse(value);
+                                setFormData(prev => ({
+                                  ...prev,
+                                  most_recent_reviews: [...(prev.most_recent_reviews || []), parsed]
+                                }));
+                              } catch {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  most_recent_reviews: [...(prev.most_recent_reviews || []), value]
+                                }));
+                              }
+                              input.value = '';
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                        >
+                          Add Review
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Older Reviews Section */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Older Reviews (Up to 15 older reviews - less recent)
+                    </label>
+                    <div className="space-y-2">
+                      {formData.older_reviews && formData.older_reviews.length > 0 ? (
+                        formData.older_reviews.map((review, index) => (
+                          <div key={index} className="flex items-start gap-2 p-2 bg-gray-50 rounded border">
+                            <div className="flex-1">
+                              <textarea
+                                rows="2"
+                                value={typeof review === 'string' ? review : JSON.stringify(review)}
+                                onChange={(e) => {
+                                  const newReviews = [...formData.older_reviews];
+                                  try {
+                                    newReviews[index] = JSON.parse(e.target.value);
+                                  } catch {
+                                    newReviews[index] = e.target.value;
+                                  }
+                                  handleFormChange('older_reviews', newReviews);
+                                }}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                placeholder="Enter review text or JSON object"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeArrayItem('older_reviews', index)}
+                              className="text-red-600 hover:text-red-800 px-2"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">No older reviews added. Click "Add Review" below to add one.</p>
+                      )}
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter older review text or JSON"
+                          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const value = e.target.value.trim();
+                              if (value) {
+                                try {
+                                  const parsed = JSON.parse(value);
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    older_reviews: [...(prev.older_reviews || []), parsed]
+                                  }));
+                                } catch {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    older_reviews: [...(prev.older_reviews || []), value]
+                                  }));
+                                }
+                                e.target.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            const input = e.target.previousElementSibling;
+                            const value = input.value.trim();
+                            if (value) {
+                              try {
+                                const parsed = JSON.parse(value);
+                                setFormData(prev => ({
+                                  ...prev,
+                                  older_reviews: [...(prev.older_reviews || []), parsed]
+                                }));
+                              } catch {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  older_reviews: [...(prev.older_reviews || []), value]
+                                }));
+                              }
+                              input.value = '';
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                        >
+                          Add Review
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Legacy Reviews Section (for backward compatibility) */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Legacy Reviews (Optional - use most recent/older reviews above for better organization)
+                    </label>
                     <div className="space-y-2">
                       {formData.reviews && formData.reviews.length > 0 ? (
                         formData.reviews.map((review, index) => (
@@ -595,7 +865,7 @@ export default function AdminMissingListings() {
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-gray-500">No reviews added. Click "Add Review" to add one.</p>
+                        <p className="text-sm text-gray-500">No legacy reviews added. Click "Add Review" to add one.</p>
                       )}
                       <div className="flex gap-2">
                         <input
