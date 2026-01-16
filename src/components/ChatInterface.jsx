@@ -510,6 +510,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
 
   // Track if we're loading a new chat vs. updating messages in existing chat
   const isLoadingNewChat = useRef(false);
+  const scanInProgressRef = useRef(false); // Track if a scan request is in progress
   
   useEffect(() => {
     // Only scroll to bottom if we're actively in a chat (not loading a new chat)
@@ -1403,10 +1404,17 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
   };
 
   const handleScan = async (url) => {
+    // Prevent duplicate requests - if a scan is already in progress, ignore this call
+    if (scanInProgressRef.current) {
+      console.log("⚠️ FRONTEND: Scan already in progress, ignoring duplicate request");
+      return;
+    }
+    
     setError("");
     setIsLoading(true);
     setScanProgress(0);
     setActiveButton('scan'); // Set scan button as active during scanning
+    scanInProgressRef.current = true; // Mark scan as in progress
     
     // Check if user has sufficient balance for scanning (requires 1 full scan)
     if (me?.remaining < 1.0) {
@@ -1416,6 +1424,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         isError: true
       }]);
       setIsLoading(false);
+      scanInProgressRef.current = false; // Reset flag
       return;
     }
     
@@ -1440,6 +1449,7 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
         isError: true
       }]);
       setIsLoading(false);
+      scanInProgressRef.current = false; // Reset flag
       return;
     }
 
@@ -1578,9 +1588,15 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       if (onUsageChanged) {
         onUsageChanged();
       }
+      
+      // Reset scan in progress flag
+      scanInProgressRef.current = false;
     } catch (e) {
       console.error("Scan error:", e);
       setError(e.message || String(e));
+      
+      // Reset scan in progress flag on error
+      scanInProgressRef.current = false;
       
       // Add error message with specific formatting for different error types
       let errorContent = e.message;
@@ -1642,8 +1658,10 @@ const ChatInterface = ({ me: meProp, meLoading: meLoadingProp, onUsageChanged })
       setError(null);
     } finally {
       setIsLoading(false);
+      scanInProgressRef.current = false; // Always reset flag in finally block
       setTimeout(() => setScanProgress(0), 800);
       // Reset button state to normal after scan completion
+      scanInProgressRef.current = false; // Reset flag
       setActiveButton(null);
     }
   };
