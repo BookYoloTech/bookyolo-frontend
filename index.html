@@ -6,7 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>BookYolo - Smart Property Analysis</title>
     <!-- Updated: Complete frontend refresh -->
-    <script type="text/javascript" defer src="https://referralrocket.io/widget/widgetIndex.js"></script>
+    <!-- ReferralRocket widget - loaded with error handling to prevent console errors -->
+    <script type="text/javascript">
+      (function() {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.defer = true;
+        script.src = 'https://referralrocket.io/widget/widgetIndex.js';
+        script.onerror = function() {
+          // Silently fail - widget is optional
+          console.debug('ReferralRocket widget failed to load (optional feature)');
+        };
+        script.onload = function() {
+          console.debug('ReferralRocket widget loaded successfully');
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
