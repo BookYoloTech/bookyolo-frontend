@@ -4,7 +4,6 @@ import AdminHeader from "../components/admin/AdminHeader";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminStats from "../components/admin/AdminStats";
 import RecentActivity from "../components/admin/RecentActivity";
-import RevenueChart from "../components/admin/RevenueChart";
 import { API_BASE } from "../config/api";
 
 export default function AdminDashboard() {
@@ -121,10 +120,34 @@ export default function AdminDashboard() {
           {/* Stats Cards */}
           {stats && <AdminStats stats={stats} />}
 
-          {/* Charts and Activity */}
+          {/* Scan Breakdown and Activity */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-            {/* Revenue Overview */}
-            <RevenueChart stats={stats} />
+            {/* Scan Breakdown Section */}
+            {stats && (
+              <div className="bg-white rounded-xl border border-accent p-6">
+                <h3 className="text-lg font-semibold text-primary mb-4">Scan Breakdown</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-primary">Free Scans</span>
+                    <span className="font-bold text-primary">{stats.free_scans?.toLocaleString() || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-primary">Premium Paid Scans</span>
+                    <span className="font-bold text-primary">{stats.premium_paid_scans?.toLocaleString() || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-primary">Premium Referral Scans</span>
+                    <span className="font-bold text-primary">{stats.premium_referral_scans?.toLocaleString() || 0}</span>
+                  </div>
+                  <div className="pt-3 border-t border-accent">
+                    <div className="flex justify-between items-center">
+                      <span className="text-primary font-semibold">Conversion Rate</span>
+                      <span className="font-bold text-primary">{stats.conversion_rate?.toFixed(1) || 0}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Recent Activity */}
             <RecentActivity 
@@ -136,7 +159,7 @@ export default function AdminDashboard() {
           {/* Quick Actions */}
           <div className="mt-8">
             <h3 className="text-xl font-semibold text-primary mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 onClick={() => navigate("/admin/users")}
                 className="p-6 bg-white border border-accent rounded-xl hover:border-button transition-colors text-left"
@@ -148,22 +171,6 @@ export default function AdminDashboard() {
                   <div>
                     <h4 className="font-semibold text-primary">Add New User</h4>
                     <p className="text-sm text-primary opacity-70">Create user account</p>
-                  </div>
-                </div>
-              </button>
-
-
-              <button
-                onClick={() => navigate("/admin/analytics")}
-                className="p-6 bg-white border border-accent rounded-xl hover:border-button transition-colors text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-button text-white rounded-lg flex items-center justify-center">
-                    <span className="text-lg">📊</span>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-primary">View Reports</h4>
-                    <p className="text-sm text-primary opacity-70">Analytics & insights</p>
                   </div>
                 </div>
               </button>

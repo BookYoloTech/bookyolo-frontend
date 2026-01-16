@@ -20,7 +20,6 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsers from "./pages/AdminUsers";
 import AdminScans from "./pages/AdminScans";
-import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminSettings from "./pages/AdminSettings";
 import AdminMissingListings from "./pages/AdminMissingListings";
 import AdminManuallyAddedListings from "./pages/AdminManuallyAddedListings";
@@ -137,7 +136,6 @@ export default function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/admin/scans" element={<AdminScans />} />
-        <Route path="/admin/analytics" element={<AdminAnalytics />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/missing-listings" element={<AdminMissingListings />} />
         <Route path="/admin/manually-added-listings" element={<AdminManuallyAddedListings />} />

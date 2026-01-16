@@ -11,7 +11,6 @@ export default function AdminSidebar({ currentPage, onAddUser }) {
     { id: "scans", label: "Scan Management", path: "/admin/scans" },
     { id: "missing-listings", label: "Missing Listings", path: "/admin/missing-listings" },
     { id: "manually-added-listings", label: "Manually Added Listings", path: "/admin/manually-added-listings" },
-    { id: "analytics", label: "Analytics", path: "/admin/analytics" },
     { id: "settings", label: "Settings", path: "/admin/settings" },
   ];
 

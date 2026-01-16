@@ -4,32 +4,19 @@ export default function AdminStats({ stats }) {
   const statCards = [
     {
       title: "Total Users",
-      value: stats.total_users,
+      value: typeof stats.total_users === 'number' ? stats.total_users.toLocaleString() : stats.total_users,
       change: stats.user_growth,
       icon: "#",
       color: "blue"
     },
     {
       title: "Scans Processed", 
-      value: stats.total_scans,
+      value: typeof stats.total_scans === 'number' ? stats.total_scans.toLocaleString() : stats.total_scans,
       change: stats.scan_growth,
       icon: "⌕",
       color: "purple"
-    },
-    {
-      title: "Countries Covered",
-      value: stats.countries_covered,
-      change: stats.countries_growth,
-      icon: "◯",
-      color: "green"
-    },
-    {
-      title: "Avg Processing",
-      value: stats.avg_processing_time,
-      change: stats.processing_improvement,
-      icon: "⟳",
-      color: "orange"
     }
+    // Removed: Countries Covered and Avg Processing cards
   ];
 
   const getIconBg = (color) => {
@@ -50,7 +37,7 @@ export default function AdminStats({ stats }) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {statCards.map((card, index) => (
         <div key={index} className="bg-white rounded-xl p-6 border border-accent hover:border-button transition-colors">
           <div className="flex items-center justify-between mb-4">

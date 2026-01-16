@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminSidebar from "../components/admin/AdminSidebar";
+import { API_BASE } from "../config/api";
 
 export default function AdminSettings() {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ export default function AdminSettings() {
     emailNotifications: true,
     backupSchedule: "daily"
   });
+  const [cacheFlushLoading, setCacheFlushLoading] = useState(false);
+  const [cacheFlushMessage, setCacheFlushMessage] = useState("");
 
   useEffect(() => {
     const adminToken = localStorage.getItem("admin_token");
@@ -30,6 +33,40 @@ export default function AdminSettings() {
 
   const handleSaveSettings = () => {
     // Settings saved successfully
+  };
+
+  const handleFlushCache = async (platform = null) => {
+    if (!confirm(`Are you sure you want to flush cache${platform ? ` for ${platform}` : ' (all platforms)'}?`)) {
+      return;
+    }
+
+    try {
+      setCacheFlushLoading(true);
+      setCacheFlushMessage("");
+      const token = localStorage.getItem("admin_token");
+      
+      const url = platform 
+        ? `${API_BASE}/admin/cache/flush?platform=${encodeURIComponent(platform)}`
+        : `${API_BASE}/admin/cache/flush`;
+      
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to flush cache");
+      }
+
+      const data = await response.json();
+      setCacheFlushMessage(`✅ Cache flushed successfully! Deleted ${data.deleted_entries} entries.`);
+      setTimeout(() => setCacheFlushMessage(""), 5000);
+    } catch (e) {
+      setCacheFlushMessage(`❌ Error: ${e.message}`);
+      setTimeout(() => setCacheFlushMessage(""), 5000);
+    } finally {
+      setCacheFlushLoading(false);
+    }
   };
 
   return (
@@ -136,6 +173,64 @@ export default function AdminSettings() {
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
                   </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Cache Management */}
+            <div className="bg-white rounded-xl border border-accent p-6">
+              <h3 className="text-lg font-semibold text-primary mb-4">Cache Management</h3>
+              <p className="text-sm text-primary opacity-70 mb-4">
+                Flush scan and compare cache by platform. This will clear cached listing data.
+              </p>
+              
+              {cacheFlushMessage && (
+                <div className={`mb-4 p-3 rounded-lg text-sm ${
+                  cacheFlushMessage.includes("✅") 
+                    ? "bg-green-50 text-green-700" 
+                    : "bg-red-50 text-red-700"
+                }`}>
+                  {cacheFlushMessage}
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleFlushCache("airbnb")}
+                    disabled={cacheFlushLoading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Flush Airbnb Cache
+                  </button>
+                  <button
+                    onClick={() => handleFlushCache("booking.com")}
+                    disabled={cacheFlushLoading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Flush Booking.com Cache
+                  </button>
+                  <button
+                    onClick={() => handleFlushCache("agoda")}
+                    disabled={cacheFlushLoading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Flush Agoda Cache
+                  </button>
+                  <button
+                    onClick={() => handleFlushCache("expedia")}
+                    disabled={cacheFlushLoading}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Flush Expedia Cache
+                  </button>
+                  <button
+                    onClick={() => handleFlushCache(null)}
+                    disabled={cacheFlushLoading}
+                    className="px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Flush All Cache
+                  </button>
                 </div>
               </div>
             </div>
