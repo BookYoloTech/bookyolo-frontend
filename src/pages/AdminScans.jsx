@@ -60,6 +60,9 @@ export default function AdminScans() {
       return;
     }
 
+    // Optimistically remove scan from UI immediately
+    setScans(prevScans => prevScans.filter(scan => scan.id !== scanId));
+
     try {
       const token = localStorage.getItem("admin_token");
       const response = await fetch(`${API_BASE}/admin/scans/${scanId}`, {
@@ -71,10 +74,11 @@ export default function AdminScans() {
         throw new Error("Failed to delete scan");
       }
 
-      // Scan deleted successfully
-      fetchScans();
+      // If deletion fails, we could refetch here, but optimistic update should be fine
     } catch (e) {
-      // Error deleting scan
+      // If deletion fails, refetch to restore the correct state
+      fetchScans();
+      setError("Failed to delete scan. Please try again.");
     }
   };
 

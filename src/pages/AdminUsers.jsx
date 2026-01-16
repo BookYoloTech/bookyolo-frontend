@@ -13,7 +13,7 @@ export default function AdminUsers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showAddUser, setShowAddUser] = useState(false);
-  const [newUser, setNewUser] = useState({ fullName: "", email: "", password: "" });
+  const [newUser, setNewUser] = useState({ firstName: "", email: "", password: "" });
   const [showEditUser, setShowEditUser] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [editUserData, setEditUserData] = useState({ fullName: "", email: "", password: "", plan: "free", email_verified: false });
@@ -119,7 +119,7 @@ export default function AdminUsers() {
 
       // User created successfully
       setShowAddUser(false);
-      setNewUser({ fullName: "", email: "", password: "" });
+      setNewUser({ firstName: "", email: "", password: "" });
       fetchUsers(); // Refresh the list
     } catch (e) {
       setError(e.message);
@@ -372,12 +372,12 @@ export default function AdminUsers() {
             
             <form onSubmit={handleAddUser} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-primary mb-1.5">Full Name</label>
+                <label className="block text-sm font-medium text-primary mb-1.5">First Name</label>
                 <input 
                   className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
                   type="text" 
-                  value={newUser.fullName} 
-                  onChange={(e) => setNewUser({...newUser, fullName: e.target.value})}
+                  value={newUser.firstName} 
+                  onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
                   required 
                 />
               </div>
@@ -409,7 +409,7 @@ export default function AdminUsers() {
                   type="button"
                   onClick={() => {
                     setShowAddUser(false);
-                    setNewUser({ fullName: "", email: "", password: "" });
+                    setNewUser({ firstName: "", email: "", password: "" });
                   }}
                   className="flex-1 py-2.5 border border-accent text-primary rounded-lg font-medium hover:bg-accent"
                 >
@@ -435,7 +435,7 @@ export default function AdminUsers() {
             
             <form onSubmit={handleUpdateUser} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-primary mb-1.5">Full Name</label>
+                <label className="block text-sm font-medium text-primary mb-1.5">First Name</label>
                 <input 
                   className="w-full px-3 py-2.5 border border-accent rounded-lg focus:ring-2 focus:ring-button focus:border-button text-sm text-primary"
                   type="text" 
